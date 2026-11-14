@@ -11,7 +11,7 @@ export const WORLD_RADIUS = 46;
 export const PLAYER_SPEED = 8;
 
 export const START = { oxygen: 70, water: 60, food: 60, battery: 60 };
-export const SOLAR_POWER = 14; // нар бүтэн тусахад секундэд
+export const SOLAR_POWER = 13.5; // нар бүтэн тусахад секундэд (аюулгүй горимыг бамбайгаар солиход 14-өөс буулгаж, тэнцвэрийг хэвээр барьсан)
 export const MACHINE_POWER = 4; // машин бүр секундэд зарцуулна
 export const STORM_SUN = 0.35; // шуурганы үед нарны гэрлийн үлдэх хэсэг
 export const DUST_BLOCK = 0.8; // бүрэн шороотой панель эрчим хүчнийхээ 80%-ийг алдана
@@ -32,10 +32,24 @@ export const FLARE_WARN = 10; // дэлбэрэлт эхлэхээс өмнө с
 export const FLARE_SECONDS = 6;
 export const FLARE_DAMAGE = { base: 0.2, perX: 0.08, max: 0.9 }; // машин гэмтэх магадлал = base + X-зэрэглэл × perX
 export const EARTH_SECONDS_PER_MINUTE = 0.75; // Дэлхийн хариу хүлээх: бодит 1 минут = тоглоомын 0.75 секунд
+// Багийн цацрагийн тун (0-100), radiation.ts. Цорын ганц бодит тоо: Curiosity роверын RAD багаж Ангарагийн гадаргуу дээр
+// өдөрт 0.64 mSv хэмжсэн (Hassler et al., Science 343, 2014, doi:10.1126/science.1244797). Тоглоомд 1 mSv = perMsv оноо
+// болгож масштабласан. Хоргодох байр, бамбай, дэлбэрэлтийн тоо нь тоглоомын дүрэм, бодит хэмжилт биш.
+export const RAD_MSV_PER_SOL = 0.64;
+export const DOSE = {
+  perMsv: 12, // 1 mSv = 12 оноо: гадаа бүтэн sol байвал ~7.7 оноо
+  shelter: 0.4, // хоргодох байранд тун 40%-ийн хурдаар нэмэгдэнэ
+  shield: 0.05, // бамбай асаалттай үед дэлбэрэлтийн тун 5% л нэвтэрнэ
+  flareBase: 40, flarePerX: 18, // дэлбэрэлт гадаа өгөх нийт тун = flareBase + X-зэрэглэл × flarePerX
+  limit: 100, // хүрвэл 1 зүрх алдана (ганц удаа)
+  factAt: 40, // энэ хэмжээнд хүрэхэд RAD-ийн баримтыг үзүүлнэ
+  reportFlare: 30, // тайланд: тунгийн ихэнх нь дэлбэрэлтээс ирсэн гэж үзэх хэмжээ
+};
+export const SHIELD_POWER = 30; // хоргодох байрны бамбайг асаахад зарах батарей (%)
 export const STUDY_SCIENCE = 4; // шуургыг судалбал авах оноо
 export const STUDY_POWER = 35; // шуургыг судлахад багажууд зарах батарей
-// Дэлхий зөвлөгөө өгөхдөө харах босгууд: хүчтэй дэлбэрэлт, судлахад хүрэлцэх батарей, "бага" нөөц
-export const ADVISE = { strongFlare: 0.5, studyBattery: 60, lowNeed: 45 };
+// Дэлхий зөвлөгөө өгөхдөө харах босгууд: бамбайгүй бол хүрэх тун, судлахад хүрэлцэх батарей, "бага" нөөц
+export const ADVISE = { doseRisk: 80, studyBattery: 60, lowNeed: 45 };
 
 // Гараар хийдэг ажил бүр хэдэн алхамтай
 export const TASK_STEPS: Record<TaskKind, number> = { wipe: 6, filter: 3, patch: 3, pump: 6 };

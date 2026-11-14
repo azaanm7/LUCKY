@@ -1,4 +1,4 @@
-import { MACHINES } from "./config";
+import { DOSE, MACHINES } from "./config";
 import type { GameState, HeartLoss, Step, TipId } from "./types";
 
 // Төгсгөлийн тайлан: зүрх бүрийг яагаад алдсаныг шалтгаанаас үр дагавар руу нь тайлбарлана.
@@ -15,6 +15,10 @@ const SHORT = 0.5; // машинууд хэрэгцээнийхээ 50%-аас �
 export function explain(l: HeartLoss): Omit<Finding, "count"> {
   const sol = l.sol;
   if (l.cause === "radiation") return { sol, steps: [{ id: "outsideFlare" }, { id: "radiationHit" }], tip: "shelter" };
+  if (l.cause === "dose") { // тун 100-д хүрсэн: ихэнх нь дэлбэрэлтээс ирсэн үү, гадаа удаан байснаас уу
+    const why: Step = l.flareDose >= DOSE.reportFlare ? { id: "flareNoShield" } : { id: "outsideDose" };
+    return { sol, steps: [why, { id: "doseLimit" }], tip: why.id === "flareNoShield" ? "shield" : "shortTrips" };
+  }
   if (l.cause === "suit" && l.drilling) return { sol, steps: [{ id: "drillO2" }, { id: "oneMore" }, { id: "suitEmpty" }], tip: "returnEarly" };
   if (l.cause === "suit") return { sol, steps: [{ id: "tooLong" }, { id: "suitEmpty" }], tip: "refill" };
 

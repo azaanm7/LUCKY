@@ -35,7 +35,7 @@ export function sunlight(t: number): number {
 
 // Нэг эрчим хүчний төсөв: нарнаас орж ирэх ба ажиллаж буй (асаалттай, эвдрээгүй) машинуудын хүсэх хэмжээ (секундэд)
 export const solarInput = (s: GameState) => SOLAR_POWER * sunlight(s.time) * (s.storm > 0 ? STORM_SUN : 1) * (1 - s.dust * DUST_BLOCK);
-export const works = (s: GameState, id: MachineId) => s.on[id] && s.broken !== id && s.safeMode <= 0;
+export const works = (s: GameState, id: MachineId) => s.on[id] && s.broken !== id;
 export const powerDemand = (s: GameState) => MACHINES.filter((m) => works(s, m.id)).length * MACHINE_POWER;
 
 // Барилгууд нь тойрог хэлбэрийн саад. Тоглогчийг түлхэж гаргана.

@@ -1,4 +1,4 @@
-import { STUDY_POWER, STUDY_SCIENCE } from "../game/config";
+import { DOSE, SHIELD_POWER, STUDY_POWER, STUDY_SCIENCE } from "../game/config";
 import type { Dict } from "./mn";
 
 // English text for players aged 7–12: short sentences, everyday words.
@@ -33,6 +33,7 @@ export const en: Dict = {
     night: "At night there is no sun, so the solar panels stop. Save your battery!",
     moxie: "In 2021, a machine called MOXIE on the Perseverance rover made oxygen from the air of Mars. Its best was 12 grams in one hour.",
     suit: "A spacesuit holds only a little oxygen. Astronauts plan their time outside very carefully.",
+    rad: "The RAD instrument on the Curiosity rover measured about 0.64 millisieverts of radiation per day on Mars. The crew dose in this game is scaled from that. It never goes down.",
     soil: "The Perseverance rover keeps rock and soil samples in small tubes. Scientists want to bring them to Earth one day.",
     delta: "Jezero Crater, where Perseverance landed, was a lake billions of years ago. You can still see the river delta that flowed into it.",
     crater: "The Curiosity rover found organic molecules in old rocks in Gale Crater. They are building blocks of life.",
@@ -63,6 +64,8 @@ export const en: Dict = {
     luckyFlare: "😅 Lucky! The radiation did not hurt any machine.",
     flareHit: (m: string) => `⚡ Radiation hurt the ${m}! Now it works at half power.`,
     radiation: "You got hit by radiation! −1 ❤️ Next time, run to the shelter sooner!",
+    doseLimit: "☢️ The crew's radiation dose hit the limit! −1 ❤️",
+    shieldOn: "🛡️ Shield on! Stay in the shelter during the flare.",
     needOut: (need: string) => `We ran out of ${need.toLowerCase()}, so the crew got sick. −1 ❤️`,
     banked: (points: number) => `🔬 Your samples reached the lab! +${points} points`,
     sampled: (icon: string, points: number) => `${icon} Got a sample! Bring it to the shelter for ${points} points.`,
@@ -81,9 +84,9 @@ export const en: Dict = {
     battery: (clean: number) => `Battery · panels ${clean}% clean`,
     suit: "Suit O₂",
     suitCharging: "Suit · refilling",
+    dose: "☢️ Crew radiation dose",
     power: (sun: number, use: number) => `⚡ Sun +${sun} · Machines −${use}`,
     slow: (pct: number) => `🐢 Machines at ${pct}% power`,
-    safeMode: (sec: number) => `🛑 Safe mode ${sec} s`,
     points: "points",
     samples: (n: number) => `🧪 ${n} samples in hand`,
     solved: (n: number) => `🏅 ${n} problems solved`,
@@ -147,6 +150,7 @@ export const en: Dict = {
     donkiLabel: (live: boolean) => `Real data · NASA DONKI${live ? ", downloaded today" : " archive"}:`,
     donki: (date: string, cls: string, live: boolean) => `On ${date}, the Sun had a class ${cls} flare${live ? " (the strongest in the last 30 days)" : ""}. The flare in this game is just as strong.`,
     choose: "Both plans have a cost. Which one do you pick?",
+    doseInfo: (now: number, open: number, shielded: number) => `☢️ Crew dose is ${now}/${DOSE.limit} now. In the shelter it goes up +${open} without the shield, or +${shielded} with it.`,
     ask: "📡 Ask Earth",
     askText: (minutes: number, sec: number) => `Mars is very far away, so the answer comes in ${minutes} minutes (${sec} seconds in the game). The problem keeps going while you wait!`,
     earthSays: (text: string) => `📡 Earth: "${text}"`,
@@ -186,10 +190,10 @@ export const en: Dict = {
       title: "A solar flare is coming!",
       what: "Dangerous radiation is coming from the Sun. Mars has no magnetic shield like Earth does. Whatever plan you pick, run to the shelter yourself!",
       plans: {
-        a: { label: "🛑 Safe mode: turn machines off", cost: "The machines stay safe. But no air, water or food is made until the flare ends." },
-        b: { label: "⚙️ Keep the machines running", cost: "Nothing stops. But the radiation may damage one machine." },
+        a: { label: "🛡️ Turn on the shelter shield", cost: `Uses ${SHIELD_POWER}% of the battery, so less power tonight. But the crew's dose barely goes up.` },
+        b: { label: "🔋 Save the battery", cost: "The crew's radiation dose goes up more. Radiation may also damage one machine." },
       },
-      why: { a: "This flare is very strong. Better turn the machines off.", b: "This flare is quite weak. You can keep the machines running." },
+      why: { a: "Without the shield, the crew's dose gets too high. Turn it on, even if it uses battery.", b: "This flare won't push the dose too high. Save your battery for tonight." },
       realTitle: "Artemis, Orion spacecraft",
       real: "On the Orion spacecraft, a radiation sensor warns the crew about a solar flare. Then the astronauts stack their cargo bags along the walls to build a small, safe shelter.",
       badge: "Radiation Guard",
@@ -239,6 +243,9 @@ export const en: Dict = {
       storm: "🌪️ A dust storm blocked the Sun",
       allOn: "⚙️ All machines were on at once",
       fewIce: "🧊 Not enough ice was collected",
+      flareNoShield: "☀️ The shield was off during a strong flare",
+      outsideDose: "👩‍🚀 You spent a lot of time outside",
+      doseLimit: "💔 The crew's radiation dose reached 100",
       out: (need: string) => `💔 ${need} ran out`,
       broken: (m: string) => `🔧 The ${m} was broken`,
       weakFix: (m: string) => `🩹 The ${m} only had a quick fix`,
@@ -262,6 +269,8 @@ export const en: Dict = {
       spare: "The Sun can't power every machine. Turn off the one whose supply is full.",
       ice: "When water gets low, collect blue ice and keep the water recycler on.",
       early: "Turn machines on before a supply turns red, and give them power from the others.",
+      shield: "When a flare is strong, turn on the shield, even if it uses battery.",
+      shortTrips: "Do your outside work quickly, then go back to the shelter.",
     },
   },
 
@@ -275,6 +284,8 @@ export const en: Dict = {
     nextStar: (points: number) => `Next star: ${points} points. Far samples are worth more, but they are risky!`,
     badges: (n: number, total: number) => `🏅 Your badges (${n}/${total})`,
     noBadges: "Solve problems to earn badges here.",
+    dose: (dose: number) => `☢️ Crew radiation dose: ${dose}/${DOSE.limit}`,
+    doseSource: "The base rate is real. Curiosity's RAD instrument measured 0.64 mSv per day on Mars (Hassler et al., Science, 2014). The game dose is scaled from it. The shelter, shield and flare numbers are game rules.",
     training: (n: number, total: number) => `🎓 Training · ${n}/${total} steps${n === total ? " · Junior Astronaut" : ""}`,
     learnedTitle: "🎓 What did you learn?",
     learned: "Astronauts save air, water, food and power. When something breaks, they fix it themselves instead of waiting for Earth. Choosing what to do first, when every choice has a cost, is what engineers call a trade-off.",
@@ -299,6 +310,7 @@ export const en: Dict = {
       orion: "Building a shelter from cargo bags during a solar flare.",
       delay: "The time it takes messages to travel between Earth and Mars.",
       water: "The space station reuses 98% of its water.",
+      rad: "Radiation on the surface of Mars: 0.64 mSv per day. The crew dose in the game starts from this.",
     },
   },
 };

@@ -1,7 +1,7 @@
-import { ADVISE, DEPOT, EARTH_SECONDS_PER_MINUTE, FLARE_SECONDS, FLARE_WARN, MACHINES, PROBLEM_TIMES, REPAIRS, STORM_SECONDS, STUDY_POWER, STUDY_SCIENCE } from "./config";
-import { damageChance } from "./donki";
+import { ADVISE, DEPOT, EARTH_SECONDS_PER_MINUTE, FLARE_WARN, MACHINES, PROBLEM_TIMES, REPAIRS, SHIELD_POWER, STORM_SECONDS, STUDY_POWER, STUDY_SCIENCE } from "./config";
 import { toast } from "./events";
 import { PROBLEMS } from "./problems";
+import { shelteredFlareDose } from "./radiation";
 import type { GameState, ItemId, Machine, MachineId, PlanId, ProblemId } from "./types";
 import { dist, inZone, solOf } from "./world";
 
@@ -34,7 +34,9 @@ export function choose(s: GameState, plan: PlanId): GameState {
     const battery = Math.max(0, s.res.battery - STUDY_POWER);
     return toast({ ...s, science: s.science + STUDY_SCIENCE, res: { ...s.res, battery } }, { kind: "stormStudy", points: STUDY_SCIENCE });
   }
-  if (id === "flare" && plan === "a") return { ...s, safeMode: s.flareWarn + FLARE_SECONDS };
+  if (id === "flare" && plan === "a") { // бамбай: батарей зарна, багийн тун бараг нэмэгдэхгүй
+    return toast({ ...s, shield: true, res: { ...s.res, battery: Math.max(0, s.res.battery - SHIELD_POWER) } }, { kind: "shieldOn" });
+  }
   return s;
 }
 
@@ -46,7 +48,7 @@ export function askEarth(s: GameState): GameState {
 
 // Дэлхий одоогийн нөхцөлийг хараад аль төлөвлөгөөг зөвлөх вэ
 export function advise(s: GameState): PlanId {
-  if (s.problem === "flare") return damageChance(s.solarFlare) >= ADVISE.strongFlare ? "a" : "b";
+  if (s.problem === "flare") return s.dose + shelteredFlareDose(s.solarFlare, false) >= ADVISE.doseRisk ? "a" : "b"; // бамбайгүй бол тун хэт өсөх үү
   if (s.problem === "storm") return s.res.battery >= ADVISE.studyBattery ? "b" : "a";
   const need = s.problem === "pump" ? "water" : "oxygen"; // шүүлтүүр, нүх хоёул агаарт нөлөөлнө
   return s.res[need] < ADVISE.lowNeed ? "b" : "a";
@@ -93,7 +95,7 @@ export function installed(s: GameState, item: ItemId): GameState {
 }
 
 function solve(s: GameState, id: ProblemId): GameState {
-  return { ...s, problem: null, plan: null, broken: null, carrying: null, solved: [...s.solved, id], modal: { kind: "debrief", id } };
+  return { ...s, problem: null, plan: null, broken: null, carrying: null, shield: false, solved: [...s.solved, id], modal: { kind: "debrief", id } };
 }
 
 // Цонхыг хаахад тоглоом үргэлжилнэ

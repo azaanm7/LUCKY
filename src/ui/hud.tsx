@@ -12,8 +12,8 @@ interface HudProps {
   onPause: () => void;
 }
 
-function Bar({ icon, label, value, color }: { icon: ReactNode; label: string; value: number; color: string }) {
-  const low = value < 25;
+function Bar({ icon, label, value, color, high }: { icon: ReactNode; label: string; value: number; color: string; high?: boolean }) {
+  const low = high ? value > 75 : value < 25; // high: их утга нь аюултай (цацрагийн тун)
   return (
     <div className="flex items-center gap-2">
       <span className="w-6 text-center text-lg">{icon}</span>
@@ -35,7 +35,6 @@ function Power({ s }: { s: GameState }) {
     <div className={`text-[11px] leading-4 font-extrabold ${short ? "text-red-300" : "text-emerald-300"}`}>
       <div>{t.power(input, demand)}</div>
       {s.load < 1 && <div className="animate-pulse">{t.slow(Math.round(s.load * 100))}</div>}
-      {s.safeMode > 0 && <div className="text-amber-200">{t.safeMode(Math.ceil(s.safeMode))}</div>}
     </div>
   );
 }
@@ -72,6 +71,7 @@ export function Hud({ s, muted, onMute, onPause }: HudProps) {
           <Power s={s} />
           <p className="mt-1 text-[10px] font-extrabold tracking-widest text-white/70 uppercase">{t.you}</p>
           <Bar icon={<span>👩‍🚀</span>} label={inside ? t.suitCharging : t.suit} value={s.suitO2} color="bg-cyan-300" />
+          <Bar icon={<span>☢️</span>} label={t.dose} value={s.dose} color="bg-lime-400" high />
         </div>
         <div className="grid justify-items-end gap-1 rounded-2xl bg-black/35 p-2.5 text-right backdrop-blur-sm">
           <div className="font-display text-xl whitespace-nowrap text-white">{isDay(s.time) ? "☀️" : "🌙"} Sol {sol}/{WIN_SOL}</div>

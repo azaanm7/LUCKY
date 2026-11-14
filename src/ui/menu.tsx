@@ -9,6 +9,7 @@ const SOURCES: { id: keyof Dict["menu"]["about"]; name: string; url: string }[] 
   { id: "moxie", name: "NASA: Perseverance, MOXIE", url: "https://science.nasa.gov/mission/mars-2020-perseverance/science-instruments/" },
   { id: "perseverance", name: "NASA: Perseverance rover", url: "https://science.nasa.gov/mission/mars-2020-perseverance/" },
   { id: "curiosity", name: "NASA: Curiosity rover", url: "https://science.nasa.gov/mission/msl-curiosity/" },
+  { id: "rad", name: "Hassler et al., Science 2014: Curiosity RAD", url: "https://doi.org/10.1126/science.1244797" },
   { id: "opportunity", name: "NASA: Opportunity rover", url: "https://science.nasa.gov/mission/mer-opportunity/" },
   { id: "orion", name: "NASA: Orion radiation plan", url: "https://www.nasa.gov/missions/artemis/orion/scientists-and-engineers-evaluate-orion-radiation-protection-plan/" },
   { id: "delay", name: "NASA NTRS: Communication delay", url: "https://ntrs.nasa.gov/citations/20250000703" },

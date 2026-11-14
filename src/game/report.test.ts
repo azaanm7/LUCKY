@@ -12,7 +12,7 @@ const say = (l: HeartLoss) => {
 };
 
 const loss = (over: Partial<HeartLoss>): HeartLoss => ({
-  sol: 3, cause: "oxygen", machineOn: true, broken: false, weak: false, leak: false, drilling: false, load: 1, dust: 0.1, storm: false, night: false, stormSol: 0, ...over,
+  sol: 3, cause: "oxygen", machineOn: true, broken: false, weak: false, leak: false, drilling: false, load: 1, dust: 0.1, storm: false, night: false, stormSol: 0, flareDose: 0, ...over,
 });
 
 describe("төгсгөлийн тайлан", () => {
@@ -38,6 +38,13 @@ describe("төгсгөлийн тайлан", () => {
     expect(say(loss({ broken: true })).steps[0]).toContain("Агаар үйлдвэр эвдэрсэн");
     expect(say(loss({ leak: true })).steps[0]).toContain("гоожсон");
     expect(say(loss({ cause: "suit" })).steps[1]).toContain("Скафандр");
+  });
+
+  test("цацрагийн тун: дэлбэрэлтээс ирсэн бол бамбай, үгүй бол гадаа удаан байсныг шалтгаан гэнэ", () => {
+    const flare = say(loss({ cause: "dose", flareDose: 60 }));
+    expect(flare.steps[0]).toContain("бамбай асаагаагүй");
+    expect(flare.tip).toContain("бамбай");
+    expect(say(loss({ cause: "dose", flareDose: 5 })).steps[0]).toContain("Гадаа");
   });
 
   test("шөнө батарей дууссан бол шөнийг шалтгаан гэнэ", () => {

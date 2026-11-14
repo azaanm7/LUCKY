@@ -56,6 +56,8 @@ export function createBase(scene: THREE.Scene, t: Dict) {
     shelter.run(night, t);
     (shelter.ring.material as THREE.MeshBasicMaterial).opacity = s.flareWarn > 0 || s.flare > 0 ? 0.5 + Math.sin(t * 10) * 0.4 : 0;
     shelter.dome.opacity = inShelter(s.player) ? 0.35 : 1; // дотор нь орвол бөмбөгөр тунгалаг болно
+    shelter.dome.emissive.set(s.shield ? "#3fa9ff" : "#000000"); // бамбай асаалттай: бөмбөгөр цэнхэр гэрэлтэнэ
+    shelter.dome.emissiveIntensity = s.shield ? 0.6 + Math.sin(t * 6) * 0.25 : 0;
     for (const u of units) {
       const broken = s.broken === u.m.id, on = s.on[u.m.id];
       u.building.run(works(s, u.m.id) ? s.load : 0, night, dt, t); // эрчим хүч дутвал (load < 1) удааширч, бүдгэрнэ

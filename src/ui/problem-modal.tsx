@@ -1,6 +1,7 @@
 import { EARTH_SECONDS_PER_MINUTE } from "../game/config";
 import { damageChance } from "../game/donki";
 import { PROBLEMS } from "../game/problems";
+import { shelteredFlareDose } from "../game/radiation";
 import type { GameState, PlanId } from "../game/types";
 import { useT } from "../i18n/context";
 
@@ -54,6 +55,11 @@ export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps)
             {modal.id === "flare" && (
               <p className="rounded-2xl bg-red-900/50 p-3 text-sm">
                 🛰️ <b>{t.donkiLabel(!!flare.live)}</b> {t.donki(flare.date, flare.cls, !!flare.live)}
+              </p>
+            )}
+            {modal.id === "flare" && (
+              <p className="rounded-2xl bg-lime-900/40 p-3 text-sm">
+                {t.doseInfo(Math.round(s.dose), Math.round(shelteredFlareDose(flare, false)), Math.round(shelteredFlareDose(flare, true)))}
               </p>
             )}
             <p className="text-sm font-extrabold text-orange-200">{t.choose}</p>

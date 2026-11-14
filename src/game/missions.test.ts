@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DEPOT, EARTH_SECONDS_PER_MINUTE, PROBLEM_TIMES, SOLAR_FIELD, STUDY_POWER, STUDY_SCIENCE, TASK_STEPS, WIPE_DUST } from "./config";
+import { DEPOT, EARTH_SECONDS_PER_MINUTE, PROBLEM_TIMES, SHIELD_POWER, SOLAR_FIELD, STUDY_POWER, STUDY_SCIENCE, TASK_STEPS, WIPE_DUST } from "./config";
 import { createGame, tick } from "./engine";
 import { askEarth, choose } from "./missions";
 import { PROBLEMS } from "./problems";
@@ -56,11 +56,16 @@ describe("асуудлын цонх: хоёр төлөвлөгөө", () => {
     expect(s.res.battery).toBe(Math.max(0, before.res.battery - STUDY_POWER));
   });
 
-  test("дэлбэрэлтийн аюулгүй горимд машинууд унтарна", () => {
-    const s = choose(facing("flare"), "a");
-    expect(s.safeMode).toBeGreaterThan(10);
-    expect(powerDemand(s)).toBe(0);
-    expect(run(s, 17).safeMode).toBe(0);
+  test("дэлбэрэлт: A бамбайг асааж батарей зарна, B батарейгаа хэмнэнэ", () => {
+    const before = facing("flare");
+    const shielded = choose(before, "a");
+    expect(shielded.shield).toBe(true);
+    expect(shielded.res.battery).toBe(Math.max(0, before.res.battery - SHIELD_POWER));
+    expect(powerDemand(shielded)).toBe(powerDemand(before)); // машинууд ажилласаар
+    const saved = choose(before, "b");
+    expect(saved.shield).toBe(false);
+    expect(saved.res.battery).toBe(before.res.battery);
+    expect(run(shielded, 20).shield).toBe(false); // дэлбэрэлт дуусахад бамбай унтарна
   });
 });
 

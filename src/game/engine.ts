@@ -3,6 +3,7 @@ import { updateSuit } from "./crew";
 import { FLARES } from "./donki";
 import { checkEnd, fact, weather } from "./events";
 import { progressProblem, startProblem } from "./missions";
+import { absorb } from "./radiation";
 import { explore } from "./science";
 import { workTask } from "./tasks";
 import { train } from "./training";
@@ -17,13 +18,13 @@ export function createGame(seed = Math.floor(Math.random() * 1e9), live: Flare |
   let s: GameState = {
     status: "playing", time: 0, hearts: HEARTS,
     res: { ...START },
-    on: { o2: true, recycler: true, greenhouse: true }, load: 1, broken: null, weak: [], safeMode: 0,
+    on: { o2: true, recycler: true, greenhouse: true }, load: 1, broken: null, weak: [],
     dust: 0.1, player: { x: 0, z: 6, angle: Math.PI, moving: false },
     suitO2: 100,
     carrying: null, task: null,
     deck, problem: null, plan: null, earthAt: 0, advice: null, solarFlare: live ?? FLARES[Math.floor(flare * FLARES.length)], solved: [], modal: null,
     science: 0, samples: [], drill: 0, siteLeft: { soil: SITE_SAMPLES, delta: SITE_SAMPLES, crater: SITE_SAMPLES },
-    ice: [], nextIceId: 0, storm: 0, stormSol: 0, flareWarn: 0, flare: 0, flareHit: false,
+    ice: [], nextIceId: 0, storm: 0, stormSol: 0, flareWarn: 0, flare: 0, flareHit: false, shield: false, dose: 0, flareDose: 0, doseHit: false,
     emptyTimer: 0, collected: 0, trained: [], losses: [], seen: ["start"],
     toast: { msg: { kind: "fact", id: "start" }, until: 8 }, seed: afterFlare,
   };
@@ -87,7 +88,7 @@ export function tick(prev: GameState, input: Input, dt: number): GameState {
   s = updateSuit(s, dt);
 
   // 8) Аюул, асуудал
-  s = weather(s, dt);
+  s = absorb(weather(s, dt), dt); // дэлбэрэлтийн цаг шинэчлэгдсэний дараа тунг тооцно
   s = progressProblem(startProblem(s));
   return train(prev, checkEnd(s, dt));
 }

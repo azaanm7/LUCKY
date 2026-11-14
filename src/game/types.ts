@@ -36,7 +36,7 @@ export interface Vec2 {
 }
 
 export type Need = "oxygen" | "water" | "food";
-export type Cause = Need | "radiation" | "suit";
+export type Cause = Need | "radiation" | "dose" | "suit";
 
 export interface Machine {
   id: MachineId;
@@ -68,6 +68,7 @@ export interface HeartLoss {
   storm: boolean;
   night: boolean;
   stormSol: number; // сүүлийн шуурга хэддүгээр sol-д болсон (0 = болоогүй)
+  flareDose: number; // багийн тунгийн хэдэн оноо нарны дэлбэрэлтээс ирсэн
 }
 
 export interface Ice extends Vec2 {
@@ -95,7 +96,6 @@ export interface GameState {
   load: number; // ажиллаж буй машинууд хүссэн эрчим хүчнийхээ хэдэн хувийг авч байна 0-1
   broken: MachineId | null; // эвдэрсэн машин
   weak: MachineId[]; // түр зассан эсвэл цацрагт гэмтсэн: хагас хүчээр ажиллана
-  safeMode: number; // аюулгүй горим дуусах хүртэлх секунд (машинууд унтарна)
   dust: number; // нарны панель дээрх шороо 0-1
   player: Vec2 & { angle: number; moving: boolean };
   suitO2: number; // скафандрын хүчилтөрөгч 0-100
@@ -120,6 +120,10 @@ export interface GameState {
   flareWarn: number; // дэлбэрэлт эхлэх хүртэлх секунд
   flare: number; // дэлбэрэлт дуусах хүртэлх секунд
   flareHit: boolean; // энэ дэлбэрэлтэд өртсөн үү
+  shield: boolean; // хоргодох байрны бамбай асаалттай юу (дэлбэрэлтийн картын A төлөвлөгөө)
+  dose: number; // багийн хуримтлагдсан цацрагийн тун 0-100. Хэзээ ч буурахгүй (radiation.ts)
+  flareDose: number; // үүнээс хэд нь нарны дэлбэрэлтээс ирсэн (тайланд хэрэгтэй)
+  doseHit: boolean; // 100-д хүрч зүрх алдсан уу (ганц удаа)
   emptyTimer: number; // нөөц дууссанаас хойш хэдэн секунд
   collected: number;
   trained: TrainingId[]; // сургалтын хийсэн алхмууд
@@ -130,12 +134,12 @@ export interface GameState {
 }
 
 // Тоглогчид харагдах бүх бичвэр src/i18n/-д байна. Engine зөвхөн кодыг нь буцаана.
-export type FactId = "trip" | "red" | "landing" | "start" | "ice" | "night" | "moxie" | "suit" | "soil" | "delta" | "crater";
+export type FactId = "trip" | "red" | "landing" | "start" | "ice" | "night" | "moxie" | "suit" | "rad" | "soil" | "delta" | "crater";
 
 // Дэлгэцийн доод хэсэгт түр гарах мэдэгдэл
 export type Msg =
   | { kind: "fact"; id: FactId }
-  | { kind: "luckyFlare" | "radiation" | "suitOut" | "trained" }
+  | { kind: "luckyFlare" | "radiation" | "doseLimit" | "shieldOn" | "suitOut" | "trained" }
   | { kind: "flareHit" | "fixed"; machine: MachineId }
   | { kind: "needOut"; need: Need }
   | { kind: "banked" | "stormStudy"; points: number }
@@ -143,14 +147,14 @@ export type Msg =
 
 // Төгсгөлийн тайлангийн нэг алхам (шалтгаан → ... → үр дагавар)
 export type Step =
-  | { id: "outsideFlare" | "radiationHit" | "drillO2" | "oneMore" | "suitEmpty" | "tooLong" | "noPart" | "halfPower" | "leak" | "slowPatch" | "noPower" | "night" | "storm" | "allOn" | "fewIce" }
+  | { id: "outsideFlare" | "radiationHit" | "drillO2" | "oneMore" | "suitEmpty" | "tooLong" | "noPart" | "halfPower" | "leak" | "slowPatch" | "noPower" | "night" | "storm" | "allOn" | "fewIce" | "flareNoShield" | "outsideDose" | "doseLimit" }
   | { id: "out"; need: Need }
   | { id: "broken" | "weakFix" | "off" | "slowed" | "late"; machine: MachineId }
   | { id: "dusty"; pct: number }
   | { id: "stormSol"; sol: number };
 
 // Тайлангийн "дараагийн удаа юу хийх вэ" зөвлөгөө
-export type TipId = "shelter" | "returnEarly" | "refill" | "fetchPart" | "fullFix" | "turnBackOn" | "patch" | "dusk" | "stormOff" | "wipe" | "spare" | "ice" | "early";
+export type TipId = "shelter" | "returnEarly" | "refill" | "fetchPart" | "fullFix" | "turnBackOn" | "patch" | "dusk" | "stormOff" | "wipe" | "spare" | "ice" | "early" | "shield" | "shortTrips";
 
 export interface Input {
   dx: number; // -1..1
