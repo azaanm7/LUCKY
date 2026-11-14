@@ -1,6 +1,6 @@
 import { EMPTY_SECONDS, FACTS, FLARE_SECONDS, MACHINES, NEED_NAME, SOL_SECONDS, WIN_SOL } from "./config";
 import type { FactId } from "./config";
-import { damageChance, FLARES } from "./donki";
+import { damageChance } from "./donki";
 import type { Cause, GameState, HeartLoss, Need } from "./types";
 import { inShelter, isDay, random, solOf } from "./world";
 
@@ -35,7 +35,7 @@ function flareStarts(s: GameState): GameState {
   const [hit, seed] = random(s.seed);
   const [pick, next] = random(seed);
   s = { ...s, seed: next };
-  if (hit >= damageChance(FLARES[s.flareEvent])) return toast(s, "😅 Азаар цацраг машинуудыг гэмтээсэнгүй.");
+  if (hit >= damageChance(s.solarFlare)) return toast(s, "😅 Азаар цацраг машинуудыг гэмтээсэнгүй.");
   const victim = MACHINES[Math.floor(pick * MACHINES.length)];
   return toast({ ...s, weak: [...s.weak.filter((m) => m !== victim.id), victim.id] }, `⚡ Цацраг ${victim.name}ийг гэмтээлээ! Одоо хагас хүчээр ажиллана.`, 8);
 }

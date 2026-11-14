@@ -1,5 +1,5 @@
 import { ADVISE, DEPOT, EARTH_SECONDS_PER_MINUTE, FLARE_SECONDS, FLARE_WARN, MACHINES, PROBLEM_TIMES, REPAIRS, STORM_SECONDS, STUDY_POWER, STUDY_SCIENCE } from "./config";
-import { damageChance, FLARES } from "./donki";
+import { damageChance } from "./donki";
 import { toast } from "./events";
 import { PROBLEMS } from "./problems";
 import type { GameState, ItemId, Machine, MachineId, PlanId, ProblemId } from "./types";
@@ -46,7 +46,7 @@ export function askEarth(s: GameState): GameState {
 
 // Дэлхий одоогийн нөхцөлийг хараад аль төлөвлөгөөг зөвлөх вэ
 export function advise(s: GameState): PlanId {
-  if (s.problem === "flare") return damageChance(FLARES[s.flareEvent]) >= ADVISE.strongFlare ? "a" : "b";
+  if (s.problem === "flare") return damageChance(s.solarFlare) >= ADVISE.strongFlare ? "a" : "b";
   if (s.problem === "storm") return s.res.battery >= ADVISE.studyBattery ? "b" : "a";
   const need = s.problem === "pump" ? "water" : "oxygen"; // шүүлтүүр, нүх хоёул агаарт нөлөөлнө
   return s.res[need] < ADVISE.lowNeed ? "b" : "a";

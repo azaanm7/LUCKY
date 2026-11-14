@@ -40,7 +40,7 @@ export function TaskOverlay({ s, onStep, onCancel }: TaskOverlayProps) {
   };
 
   return (
-    <div className="absolute inset-x-0 bottom-0 flex justify-center p-3">
+    <div className="safe-bottom absolute inset-x-0 bottom-0 flex justify-center p-3">
       <div className="grid w-full max-w-sm gap-3 rounded-3xl bg-space/95 p-4 shadow-2xl">
         <div>
           <h2 className="font-display text-lg leading-tight">{TEXT[task.kind][0]}</h2>

@@ -11,4 +11,9 @@
 
 html, body, #root { height: 100%; }
 body { margin: 0; background: var(--color-space); color: #f6eee6; font-family: var(--font-body); }
+body { overscroll-behavior: none; touch-action: manipulation; }
 button { -webkit-tap-highlight-color: transparent; }
+
+/* Утасны ховил, доод зураасны доор товч орохоос сэргийлнэ */
+.safe-top { padding-top: max(0.75rem, env(safe-area-inset-top)); padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right)); }
+.safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right)); }

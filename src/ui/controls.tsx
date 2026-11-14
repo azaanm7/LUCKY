@@ -17,7 +17,7 @@ export function Controls({ s, onPress, onStick }: ControlsProps) {
   const canWipe = !machine && inZone(s.player, SOLAR_FIELD) && s.dust > 0.05;
   const fact = s.toast && s.time < s.toast.until ? s.toast.text : null;
   return (
-    <div className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-3">
+    <div className="safe-bottom absolute inset-x-0 bottom-0 flex flex-col gap-3 p-3">
       {fact && (
         <div className="mx-auto max-w-md rounded-2xl bg-black/60 px-4 py-2.5 text-center text-sm text-white backdrop-blur-sm">
           <b>💡</b> {fact}

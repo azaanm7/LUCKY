@@ -16,6 +16,18 @@ export type TaskKind = "wipe" | ItemId;
 
 export type SiteId = "soil" | "delta" | "crater";
 
+// Эхний өдрийн сургалтын алхмууд
+export type TrainingId = "ice" | "switch" | "wipe" | "refill" | "gym" | "sample";
+
+// Нарны дэлбэрэлтийн бодит бүртгэл (NASA DONKI)
+export interface Flare {
+  date: string; // оргил үеийн огноо (UTC)
+  cls: string; // рентген зэрэглэл: C < M < X, тоо нь их байх тусам хүчтэй
+  region: number; // Нарны идэвхтэй бүсийн дугаар
+  link: string;
+  live?: boolean; // true = тоглоом эхлэхэд шууд татсан, үгүй бол архив
+}
+
 export type Status = "playing" | "won" | "lost";
 
 export interface Vec2 {
@@ -99,7 +111,7 @@ export interface GameState {
   plan: PlanId | null; // одоогийн асуудалд сонгосон төлөвлөгөө (null = шийдээгүй)
   earthAt: number; // Дэлхийн хариу ирэх цаг (0 = асуугаагүй)
   advice: PlanId | null; // Дэлхийн зөвлөсөн төлөвлөгөө
-  flareEvent: number; // DONKI архивын аль дэлбэрэлт (FLARES-ийн дугаар)
+  solarFlare: Flare; // энэ тоглолтын нарны дэлбэрэлт: NASA DONKI-ийн бодит бүртгэл
   solved: ProblemId[];
   modal: Modal | null; // нээлттэй бол тоглоом түр зогсоно
   science: number; // лабораторид хүргэсэн шинжлэх ухааны оноо
@@ -115,6 +127,7 @@ export interface GameState {
   flareHit: boolean; // энэ дэлбэрэлтэд өртсөн үү
   emptyTimer: number; // нөөц дууссанаас хойш хэдэн секунд
   collected: number;
+  trained: TrainingId[]; // сургалтын хийсэн алхмууд
   losses: HeartLoss[]; // алдсан зүрх бүрийн шалтгаан
   seen: string[]; // аль баримтуудыг (FACTS) аль хэдийн үзүүлсэн
   toast: { text: string; until: number } | null;

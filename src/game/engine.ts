@@ -5,10 +5,12 @@ import { checkEnd, fact, weather } from "./events";
 import { progressProblem, startProblem } from "./missions";
 import { explore } from "./science";
 import { workTask } from "./tasks";
-import type { GameState, Input, Resources } from "./types";
+import { train } from "./training";
+import type { Flare, GameState, Input, Resources } from "./types";
 import { dist, movePlayer, nearMachine, powerDemand, random, shuffle, solarInput, spawnIce, works } from "./world";
 
-export function createGame(seed = Math.floor(Math.random() * 1e9)): GameState {
+// live = NASA DONKI-оос дөнгөж татсан дэлбэрэлт. Байхгүй бол архиваас seed-ээр сонгоно.
+export function createGame(seed = Math.floor(Math.random() * 1e9), live: Flare | null = null): GameState {
   // Тоглолт бүр өөр: асуудлын дараалал, аль бодит дэлбэрэлт тохиохыг seed шийднэ
   const [deck, afterDeck] = shuffle(PROBLEM_IDS, seed);
   const [flare, afterFlare] = random(afterDeck);
@@ -19,10 +21,10 @@ export function createGame(seed = Math.floor(Math.random() * 1e9)): GameState {
     dust: 0.1, player: { x: 0, z: 6, angle: Math.PI, moving: false },
     suitO2: 100, fitness: 100, exercisedSol: 0, gymTimer: 0,
     carrying: null, task: null,
-    deck, problem: null, plan: null, earthAt: 0, advice: null, flareEvent: Math.floor(flare * FLARES.length), solved: [], modal: null,
+    deck, problem: null, plan: null, earthAt: 0, advice: null, solarFlare: live ?? FLARES[Math.floor(flare * FLARES.length)], solved: [], modal: null,
     science: 0, samples: [], drill: 0, siteLeft: { soil: SITE_SAMPLES, delta: SITE_SAMPLES, crater: SITE_SAMPLES },
     ice: [], nextIceId: 0, storm: 0, stormSol: 0, flareWarn: 0, flare: 0, flareHit: false,
-    emptyTimer: 0, collected: 0, losses: [], seen: ["start"],
+    emptyTimer: 0, collected: 0, trained: [], losses: [], seen: ["start"],
     toast: { text: FACTS.start, until: 8 }, seed: afterFlare,
   };
   for (let i = 0; i < ICE_COUNT; i++) s = addIce(s);
@@ -87,5 +89,5 @@ export function tick(prev: GameState, input: Input, dt: number): GameState {
   // 8) Аюул, асуудал
   s = weather(s, dt);
   s = progressProblem(startProblem(s));
-  return checkEnd(s, dt);
+  return train(prev, checkEnd(s, dt));
 }

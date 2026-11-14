@@ -1,5 +1,5 @@
 import { EARTH_SECONDS_PER_MINUTE } from "../game/config";
-import { damageChance, FLARES } from "../game/donki";
+import { damageChance } from "../game/donki";
 import { PROBLEMS } from "../game/problems";
 import type { GameState, PlanId } from "../game/types";
 
@@ -15,7 +15,7 @@ const BIG = "rounded-2xl bg-mars py-3.5 font-display text-lg text-[#1b0f0a] acti
 // Хоёр төлөвлөгөө: аль аль нь үнэтэй. advice = Дэлхийн зөвлөсөн нь.
 function Plans({ s, advice, onChoose }: { s: GameState; advice: PlanId | null; onChoose: (plan: PlanId) => void }) {
   const p = PROBLEMS[s.problem!];
-  const risk = s.problem === "flare" ? ` (${Math.round(damageChance(FLARES[s.flareEvent]) * 100)}%)` : "";
+  const risk = s.problem === "flare" ? ` (${Math.round(damageChance(s.solarFlare) * 100)}%)` : "";
   return (
     <div className="grid gap-2">
       {(["a", "b"] as const).map((id, i) => (
@@ -33,7 +33,7 @@ function Plans({ s, advice, onChoose }: { s: GameState; advice: PlanId | null; o
 export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps) {
   const modal = s.modal!;
   const p = PROBLEMS[modal.id];
-  const flare = FLARES[s.flareEvent];
+  const flare = s.solarFlare;
   const title = { brief: ["Онцгой байдал!", p.title, p.icon], answer: ["Дэлхийн хариу ирлээ", p.title, "📡"], debrief: ["Асуудлыг шийдлээ!", p.badge, "🏅"] }[modal.kind];
   return (
     <div className="absolute inset-0 grid place-items-center overflow-y-auto bg-black/45 p-4">
@@ -51,7 +51,7 @@ export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps)
             <p className="text-orange-50/90">{p.what}</p>
             {modal.id === "flare" && (
               <p className="rounded-2xl bg-red-900/50 p-3 text-sm">
-                🛰️ <b>Бодит өгөгдөл · NASA DONKI архив:</b> {flare.date}-нд Наран дээр <b>{flare.cls}</b> зэрэглэлийн дэлбэрэлт бүртгэгдсэн. Тоглоомын дэлбэрэлт яг ийм хүчтэй.
+                🛰️ <b>Бодит өгөгдөл · NASA DONKI{flare.live ? ", өнөөдөр татсан" : " архив"}:</b> {flare.date}-нд Наран дээр <b>{flare.cls}</b> зэрэглэлийн дэлбэрэлт бүртгэгдсэн{flare.live && " (сүүлийн 30 хоногийн хамгийн хүчтэй нь)"}. Тоглоомын дэлбэрэлт яг ийм хүчтэй.
               </p>
             )}
             <p className="text-sm font-extrabold text-orange-200">Аль аль нь үнэтэй. Чи юуг сонгох вэ?</p>

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { DEPOT, GYM, SAMPLES_MAX, SHELTER, SITES, SOLAR_FIELD } from "../game/config";
 import { repairTarget } from "../game/missions";
+import { trainingTarget } from "../game/training";
 import type { GameState, ItemId, Vec2 } from "../game/types";
 import { dist, isDay, solOf } from "../game/world";
 import { createAstronaut, createGuideArrow, createIce, glowMat, mesh } from "./models";
@@ -16,6 +17,8 @@ function guideTarget(s: GameState): { to: Vec2; color: string } | null {
   if (s.dust > 0.5 && s.storm <= 0) return { to: SOLAR_FIELD, color: "#ffd84a" };
   if (s.samples.length) return { to: SHELTER, color: "#7fe0ff" }; // дээжээ лабораторид хүргэ
   if (fix) return { to: s.carrying ? fix.pos : DEPOT, color: "#ffd84a" };
+  const lesson = s.problem ? null : trainingTarget(s); // сургалтын дараагийн алхмыг хийх газар
+  if (lesson) return { to: lesson, color: "#5fe08a" };
   if (s.exercisedSol < solOf(s.time)) return { to: GYM, color: "#b98cff" };
   // Тайван өдөр: дээж үлдсэн хамгийн ойрын шинжлэх ухааны талбайг заана
   const open = SITES.filter((x) => s.siteLeft[x.id] > 0).sort((a, b) => dist(a, s.player) - dist(b, s.player))[0];

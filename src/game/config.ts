@@ -1,4 +1,4 @@
-import type { ItemId, Machine, MachineId, ProblemId, Site, TaskKind, Vec2 } from "./types";
+import type { ItemId, Machine, MachineId, ProblemId, Site, TaskKind, TrainingId, Vec2 } from "./types";
 
 export const SOL_SECONDS = 45; // 1 sol (Ангарагийн өдөр) = 45 секунд
 export const DAY_PART = 0.7; // 70% нь өдөр, 30% нь шөнө
@@ -70,6 +70,16 @@ export const SITES: Site[] = [
   { id: "soil", name: "Хөрсний дээж", icon: "🧪", x: 13, z: 14, r: 2.6, worth: 1 },
   { id: "delta", name: "Голын бэлчир", icon: "🏞️", x: -25, z: 17, r: 2.8, worth: 2 },
   { id: "crater", name: "Том тогоо", icon: "🌋", x: 30, z: -30, r: 3.2, worth: 3 },
+];
+
+// Эхний өдрийн сургалт: үндсэн үйлдэл бүрийг нэг удаа хийж үзнэ (training.ts)
+export const TRAINING: { id: TrainingId; text: string }[] = [
+  { id: "ice", text: "🧊 Цэнхэр мөс түү" },
+  { id: "switch", text: "🔌 Машины дугуй дээр зогсоод унтраа эсвэл асаа" },
+  { id: "wipe", text: "🧹 Нарны панель дээр очоод арч" },
+  { id: "refill", text: "🏠 Хоргодох байранд орж скафандраа цэнэглэ" },
+  { id: "gym", text: "💪 Гүйлтийн зам дээр 3 секунд зогсож дасгал хий" },
+  { id: "sample", text: "🔬 Шинжлэх ухааны талбайгаас дээж авчир" },
 ];
 
 export const NEED_NAME = { oxygen: "Хүчилтөрөгч", water: "Ус", food: "Хүнс" };
