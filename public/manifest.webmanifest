@@ -1,0 +1,11 @@
+{
+  "name": "Junior Astronaut 3D",
+  "short_name": "Junior Astronaut",
+  "description": "Run a Mars outpost and keep your crew alive for 6 sols.",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#15110f",
+  "theme_color": "#15110f",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
