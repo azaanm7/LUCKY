@@ -17,3 +17,4 @@ Format: `- YYYY-MM-DD · <tool> · <what was done> · reviewed by <teammate>`
 - 2026-11-14 · Claude Code · Sound effects generated in code (Web Audio API, no audio files), camera shake, supply ship landing, README and CLAUDE.md updated · review pending
 - 2026-11-14 · Claude Code · First-sol training checklist, live NASA DONKI flare lookup with archive fallback, in-game sources page, pause menu, notch-safe padding, PNG home-screen icons rendered from our own icon.svg · review pending
 - 2026-11-14 · Claude Code · Removed the daily exercise and muscle-strength requirement (bar, treadmill, slower walking) to leave fewer things for young players to track; ice retuned to 3.5 water so the recycler still matters · review pending
+- 2026-11-14 · Claude Code · Landing intro: cockpit window view of Mars, approach and atmospheric entry with real facts, blink transition into the game (replaces the old start card; live space weather and sources link moved onto it) · review pending

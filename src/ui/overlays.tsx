@@ -1,54 +1,9 @@
 import { STARS, TRAINING, WIN_SOL } from "../game/config";
 import { PROBLEMS } from "../game/problems";
 import { starsOf } from "../game/science";
-import type { Flare, GameState } from "../game/types";
-import type { WeatherStatus } from "../hooks/use-space-weather";
+import type { GameState } from "../game/types";
 import { solOf } from "../game/world";
 import { FailureReport } from "./report";
-
-const STEPS = [
-  ["🕹️", "WASD / сумаар эсвэл джойстикоор алх"],
-  ["🚨", "Асуудал гарвал хоёр төлөвлөгөөнөөс сонго. Аль аль нь үнэтэй!"],
-  ["🔬", "Хол талбайгаас дээж авчирвал од авна. Гэхдээ скафандрын O₂-оо хар!"],
-  ["🔋", "Нар бүх машинд хүрэхгүй. Нөөц нь дүүрэн машинаа унтраа"],
-];
-
-interface StartOverlayProps {
-  weather: { flare: Flare | null; status: WeatherStatus };
-  onStart: () => void;
-  onSources: () => void;
-}
-
-// Өнөөдрийн сансрын цаг агаар: NASA DONKI-оос шууд татсан бодит дэлбэрэлт, эсвэл архив
-function SpaceWeather({ flare, status }: StartOverlayProps["weather"]) {
-  if (status === "loading") return <p className="rounded-xl bg-panel p-2.5 text-xs text-orange-100/70">🛰️ NASA-аас сансрын цаг агаарын мэдээ татаж байна…</p>;
-  if (!flare) return <p className="rounded-xl bg-panel p-2.5 text-xs text-orange-100/70">🛰️ Шууд мэдээ татаж чадсангүй. NASA DONKI-ийн 2024 оны архивын бодит дэлбэрэлтийг ашиглана.</p>;
-  return (
-    <p className="rounded-xl bg-red-900/50 p-2.5 text-left text-xs">
-      🛰️ <b>Өнөөдрийн сансрын цаг агаар · NASA DONKI:</b> сүүлийн 30 хоногт Наран дээр гарсан хамгийн хүчтэй дэлбэрэлт <b>{flare.cls}</b> ({flare.date}). Энэ тоглолтод яг тэр дэлбэрэлт тохионо!
-    </p>
-  );
-}
-
-export function StartOverlay({ weather, onStart, onSources }: StartOverlayProps) {
-  return (
-    <div className="absolute inset-0 grid place-items-center overflow-y-auto bg-black/35 p-4">
-      <div className="grid w-full max-w-sm gap-4 rounded-3xl bg-space/90 p-6 text-center shadow-2xl backdrop-blur">
-        <div className="text-6xl">👩‍🚀</div>
-        <h1 className="font-display text-2xl leading-tight">Бяцхан сансрын нисэгч</h1>
-        <p className="text-orange-100/85">Ангараг дээрх суурийг {WIN_SOL} өдөр хамгаалж, жинхэнэ сансрын нисэгчид шиг шийдвэр гаргаарай!</p>
-        <ul className="grid gap-2 text-left text-sm font-bold">
-          {STEPS.map(([icon, text]) => (
-            <li key={text} className="flex items-center gap-3 rounded-xl bg-panel p-2.5"><span className="text-2xl">{icon}</span>{text}</li>
-          ))}
-        </ul>
-        <SpaceWeather {...weather} />
-        <button onClick={onStart} className="rounded-2xl bg-mars py-4 font-display text-xl text-[#1b0f0a] active:scale-95">Эхлэх! 🚀</button>
-        <button onClick={onSources} className="text-sm font-bold text-sky-300 underline">📚 Шинжлэх ухаан ба эх сурвалж</button>
-      </div>
-    </div>
-  );
-}
 
 // Үнэлгээ: 1 од = амьд үлдсэн, 2-3 од = шинжлэх ухааны оноо
 function Stars({ s }: { s: GameState }) {

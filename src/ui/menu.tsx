@@ -15,10 +15,10 @@ const CARD = "grid w-full max-w-md gap-3 rounded-3xl bg-space/95 p-5 shadow-2xl"
 const BIG = "rounded-2xl bg-mars py-3.5 font-display text-lg text-[#1b0f0a] active:scale-95";
 const SMALL = "rounded-2xl bg-panel py-3 font-bold active:scale-95";
 
-// Тоглоомд ашигласан бодит мэдээллийн эх сурвалжууд
+// Тоглоомд ашигласан бодит мэдээллийн эх сурвалжууд (эхлэх дэлгэцээс ч нээгддэг тул z-30)
 export function Sources({ onClose }: { onClose: () => void }) {
   return (
-    <div className="absolute inset-0 z-10 grid place-items-center overflow-y-auto bg-black/60 p-4">
+    <div className="absolute inset-0 z-30 grid place-items-center overflow-y-auto bg-black/60 p-4">
       <div className={CARD}>
         <h2 className="font-display text-xl">📚 Шинжлэх ухаан ба эх сурвалж</h2>
         <p className="text-sm text-orange-100/80">Тоглоомын баримт, асуудал бүр бодит эх сурвалжтай. Харин зарцуулалт, үйлдвэрлэлийн тоонуудыг тоглоход зориулж тохируулсан: бодит хэмжээ биш.</p>

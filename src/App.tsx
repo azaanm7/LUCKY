@@ -5,7 +5,8 @@ import { useSpaceWeather } from "./hooks/use-space-weather";
 import { Controls } from "./ui/controls";
 import { Hud } from "./ui/hud";
 import { PauseMenu, Sources } from "./ui/menu";
-import { EndOverlay, StartOverlay } from "./ui/overlays";
+import { Landing } from "./ui/landing";
+import { EndOverlay } from "./ui/overlays";
 import { ProblemModal } from "./ui/problem-modal";
 import { TaskOverlay } from "./ui/task-overlay";
 
@@ -14,6 +15,7 @@ const LANDING_MS = 4500; // ялсны дараа нөөцийн хөлөг бу
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [started, setStarted] = useState(false);
+  const [intro, setIntro] = useState(true);
   const [paused, setPaused] = useState(false);
   const [sources, setSources] = useState(false);
   const [muted, setMute] = useState(false);
@@ -53,7 +55,7 @@ export default function App() {
           {paused && !s.modal && <PauseMenu onResume={() => setPaused(false)} onRestart={start} onSources={() => setSources(true)} />}
         </>
       )}
-      {!started && <StartOverlay weather={weather} onStart={start} onSources={() => setSources(true)} />}
+      {intro && <Landing weather={weather} onSources={() => setSources(true)} onLand={start} onDone={() => setIntro(false)} />}
       {started && won && !landed && (
         <div className="safe-top absolute inset-x-0 top-6 flex justify-center p-3">
           <p className="rounded-3xl bg-emerald-600 px-5 py-3 text-center font-display text-lg text-white shadow-xl">🚀 Нөөцийн хөлөг ирлээ! Чи багаа авралаа!</p>
