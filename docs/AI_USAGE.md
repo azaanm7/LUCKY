@@ -5,8 +5,10 @@ NASA Space Apps requires every team to explain how AI tools were used. Each AI-a
 Format: `- YYYY-MM-DD · <tool> · <what was done> · reviewed by <teammate>`
 
 - 2026-11-14 · Claude · Initial project setup: Vite + React + TypeScript + Tailwind + three.js structure, game engine from the team's rules, tests, README · reviewed by Munkhtuvshin
-- 2026-11-14 · Claude Code · One shared power budget (machines slow down together when power is short), balance retune (solar 15, ice 4 water, 5 ice), power line and hints in the HUD, balance bots and tests · review pending
+- 2026-11-14 · Claude · Added real astronaut emergencies (CO₂ filter, dust storm, solar flare, hull leak, water pump), spacesuit oxygen, exercise, depot/gym/antenna, problem dialogs and badges · reviewed by Munkhtuvshin
+- 2026-11-14 · Claude Code · One shared power budget (machines slow down together when power is short), power line and hints in the HUD, balance bots and tests · review pending
 - 2026-11-14 · Claude Code · Failure report on the end screen: each lost heart is traced back from result to cause, with one tip for next time · review pending
 - 2026-11-14 · Claude Code · Keyboard fixes: WASD/E work on a Mongolian layout, holding Space no longer flickers a machine, keys no longer stick when the window loses focus · review pending
-- 2026-11-14 · Claude Code · Facts: MOXIE and wind-cleaning facts are now shown in the game, each fact appears once per game, added the 2018 Opportunity dust storm fact (checked against science.nasa.gov) · review pending
-- 2026-11-14 · Claude Code · README and CLAUDE.md: new balance table from the bots, failure report and power budget described, NASA references added · review pending
+- 2026-11-14 · Claude Code · Facts: MOXIE fact shown at the oxygen maker, each fact appears once per game (checked against science.nasa.gov) · review pending
+- 2026-11-14 · Claude Code · README and CLAUDE.md: balance table from the bots, failure report and power budget described, NASA references added · review pending
+- 2026-11-14 · Claude Code · Merged the emergencies/spacesuit/exercise work with the power budget and failure report; retuned balance for the merged game (solar 12.5, ice 4 water, 5 ice) with bots that solve the emergencies · review pending

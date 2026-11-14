@@ -4,7 +4,7 @@ import { explain, report } from "./report";
 import type { HeartLoss } from "./types";
 
 const loss = (over: Partial<HeartLoss>): HeartLoss => ({
-  sol: 3, cause: "oxygen", machineOn: true, load: 1, dust: 0.1, storm: false, night: false, stormSol: 0, ...over,
+  sol: 3, cause: "oxygen", machineOn: true, broken: false, leak: false, load: 1, dust: 0.1, storm: false, night: false, stormSol: 0, ...over,
 });
 
 describe("төгсгөлийн тайлан", () => {
@@ -24,6 +24,12 @@ describe("төгсгөлийн тайлан", () => {
     expect(f.steps[0]).toContain("Sol 2");
     expect(f.steps[1]).toContain("90%");
     expect(f.tip).toContain("арч");
+  });
+
+  test("эвдэрсэн машин, гоожсон агаар, скафандр тус бүр өөрийн тайлбартай", () => {
+    expect(explain(loss({ broken: true })).steps[0]).toContain("Агаар үйлдвэр эвдэрсэн");
+    expect(explain(loss({ leak: true })).steps[0]).toContain("гоожсон");
+    expect(explain(loss({ cause: "suit" })).steps[1]).toContain("Скафандр");
   });
 
   test("шөнө батарей дууссан бол шөнийг шалтгаан гэнэ", () => {

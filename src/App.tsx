@@ -3,6 +3,7 @@ import { useGameLoop } from "./hooks/use-game-loop";
 import { Controls } from "./ui/controls";
 import { Hud } from "./ui/hud";
 import { EndOverlay, StartOverlay } from "./ui/overlays";
+import { ProblemModal } from "./ui/problem-modal";
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,6 +18,7 @@ export default function App() {
         <>
           <Hud s={s} />
           <Controls s={s} onPress={game.press} onStick={game.setStick} />
+          {s.modal && <ProblemModal modal={s.modal} onClose={game.ack} />}
         </>
       )}
       {!started && <StartOverlay onStart={() => { game.restart(); setStarted(true); }} />}

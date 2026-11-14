@@ -15,10 +15,19 @@ export function explain(l: HeartLoss): Omit<Finding, "count"> {
   if (l.cause === "radiation") {
     return { sol: l.sol, steps: ["☢️ Нарны дэлбэрэлтийн үеэр гадаа байсан", "💔 Цацрагт өртсөн"], tip: "Тэнгэр улайвал шууд хоргодох байр руу гүй." };
   }
+  if (l.cause === "suit") {
+    return { sol: l.sol, steps: ["👩‍🚀 Гадаа хэт удаан байсан", "💔 Скафандрын хүчилтөрөгч дууссан"], tip: "Скафандрын O₂ 30%-аас буувал хоргодох байранд орж цэнэглэ." };
+  }
   const machine = MACHINES.find((m) => m.makes === l.cause)!;
   const end = `💔 ${NEED_NAME[l.cause]} дууссан`;
+  if (l.broken) {
+    return { sol: l.sol, steps: [`🔧 ${machine.name} эвдэрсэн`, "📦 Сэлбэгийг нь удаан аваачаагүй", end], tip: "Асуудал гармагц агуулахаас сэлбэг аваад машин руу аваач." };
+  }
   if (!l.machineOn) {
     return { sol: l.sol, steps: [`⛔ ${machine.name} унтраалттай байсан`, end], tip: "Унтраасан машинаа нөөц нь багасахаас өмнө эргүүлж асаа." };
+  }
+  if (l.cause === "oxygen" && l.leak) {
+    return { sol: l.sol, steps: ["💨 Хүлэмжийн нүхээр агаар гоожсон", "🩹 Нүхийг удаан нөхөөгүй", end], tip: "Агаар гоожиж эхэлмэгц нөхөөс аваад хүлэмж рүү аваач." };
   }
   if (l.load < SHORT) {
     const chain = [`🔋 Эрчим хүч хүрээгүй`, `🐢 ${machine.name} удааширсан`, end];

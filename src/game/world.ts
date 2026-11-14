@@ -1,4 +1,4 @@
-import { DAY_PART, DUST_BLOCK, MACHINES, MACHINE_POWER, PLAYER_SPEED, SHELTER, SOLAR_FIELD, SOLAR_POWER, SOL_SECONDS, STORM_SUN, WORLD_RADIUS } from "./config";
+import { DAY_PART, DUST_BLOCK, MACHINES, MACHINE_POWER, PLAYER_SPEED, SHELTER, SOLAR_POWER, SOL_SECONDS, STORM_SUN, WORLD_RADIUS } from "./config";
 import type { GameState, Ice, Input, MachineId, Vec2 } from "./types";
 
 // Seed-тэй санамсаргүй тоо: ижил seed → ижил тоглолт
@@ -8,6 +8,8 @@ export function random(seed: number): [number, number] {
 }
 
 export const dist = (a: Vec2, b: Vec2) => Math.hypot(a.x - b.x, a.z - b.z);
+export const inZone = (p: Vec2, z: Vec2 & { r: number }) => dist(p, z) < z.r;
+export const inShelter = (p: Vec2) => inZone(p, SHELTER);
 export const solOf = (t: number) => Math.floor(t / SOL_SECONDS) + 1;
 export const dayPhase = (t: number) => (t % SOL_SECONDS) / SOL_SECONDS; // 0..1
 export const isDay = (t: number) => dayPhase(t) < DAY_PART;
@@ -19,24 +21,32 @@ export function sunlight(t: number): number {
   return Math.sin((p / DAY_PART) * Math.PI) * 0.6 + 0.4;
 }
 
-// Нэг эрчим хүчний төсөв: нарнаас орж ирэх ба асаалттай машинуудын хүсэх хэмжээ (секундэд)
+// Нэг эрчим хүчний төсөв: нарнаас орж ирэх ба ажиллаж буй (асаалттай, эвдрээгүй) машинуудын хүсэх хэмжээ (секундэд)
 export const solarInput = (s: GameState) => SOLAR_POWER * sunlight(s.time) * (s.storm > 0 ? STORM_SUN : 1) * (1 - s.dust * DUST_BLOCK);
-export const powerDemand = (s: GameState) => MACHINES.filter((m) => s.on[m.id]).length * MACHINE_POWER;
+export const works = (s: GameState, id: MachineId) => s.on[id] && s.broken !== id;
+export const powerDemand = (s: GameState) => MACHINES.filter((m) => works(s, m.id)).length * MACHINE_POWER;
 
 // Барилгууд нь тойрог хэлбэрийн саад. Тоглогчийг түлхэж гаргана.
 const OBSTACLES: (Vec2 & { r: number })[] = [
-  { x: -9, z: -1.2, r: 2.2 },
-  { x: 9, z: -1.2, r: 2.2 },
-  { x: 0, z: -11.6, r: 3.2 },
+  { x: -9, z: -1.2, r: 2.2 }, // агаар үйлдвэр
+  { x: 9, z: -1.2, r: 2.2 }, // ус цэвэршүүлэгч
+  { x: 0, z: -11.6, r: 3.2 }, // хүлэмж
+  { x: 5.5, z: -8, r: 1.6 }, // агуулах
+  { x: -5.5, z: -8, r: 1.6 }, // спорт модуль
+  { x: 13, z: -9, r: 1.4 }, // холбооны антен
 ];
+
+// Дасгал хийгээгүй бол булчин сулраад удаан алхна
+export const speedOf = (fitness: number) => PLAYER_SPEED * (0.55 + 0.45 * (fitness / 100));
 
 export function movePlayer(s: GameState, input: Input, dt: number): GameState["player"] {
   const len = Math.hypot(input.dx, input.dz);
   if (len < 0.1) return { ...s.player, moving: false };
   const nx = input.dx / Math.max(1, len);
   const nz = input.dz / Math.max(1, len);
-  let x = s.player.x + nx * PLAYER_SPEED * dt;
-  let z = s.player.z + nz * PLAYER_SPEED * dt;
+  const speed = speedOf(s.fitness);
+  let x = s.player.x + nx * speed * dt;
+  let z = s.player.z + nz * speed * dt;
   for (const o of OBSTACLES) {
     const d = Math.hypot(x - o.x, z - o.z);
     if (d < o.r) { x = o.x + ((x - o.x) / d) * o.r; z = o.z + ((z - o.z) / d) * o.r; }
@@ -51,9 +61,6 @@ export function nearMachine(p: Vec2): MachineId | null {
   const m = MACHINES.find((m) => dist(p, m.pos) < 2.2);
   return m ? m.id : null;
 }
-
-export const inShelter = (p: Vec2) => dist(p, SHELTER) < SHELTER.r;
-export const onSolarField = (p: Vec2) => dist(p, SOLAR_FIELD) < SOLAR_FIELD.r;
 
 // Мөсийг суурингаас хол, санамсаргүй газар гаргана
 export function spawnIce(s: GameState): { ice: Ice; seed: number } {

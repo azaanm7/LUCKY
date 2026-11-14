@@ -1,7 +1,8 @@
-import { MACHINES, MACHINE_POWER, SHELTER, SOLAR_FIELD } from "./config";
+import { DEPOT, GYM, MACHINES, MACHINE_POWER, REPAIRS, SHELTER, SOLAR_FIELD } from "./config";
 import { createGame, tick } from "./engine";
+import { acknowledge } from "./missions";
 import type { GameState, Input, Machine, Vec2 } from "./types";
-import { dist, powerDemand, solarInput } from "./world";
+import { dist, inShelter, inZone, powerDemand, solarInput, solOf } from "./world";
 
 // Тэнцвэр шалгах ботууд. Олон тоглолтыг автоматаар тоглож, аль арга барил ялдгийг хэмжинэ.
 export type Bot = (s: GameState) => Input;
@@ -18,13 +19,27 @@ function go(s: GameState, to: Vec2, stop = 0.5): Input {
   return d < stop ? stay : { dx: dx / d, dz: dz / d, action: false };
 }
 
+// Дэлгэцийн дээд мөрөнд гардаг яаралтай ажлууд (ui/mission.tsx-тэй ижил дараалал). Яаралтай ажилгүй бол null.
+function urgent(s: GameState): Input | null {
+  if (danger(s)) return go(s, SHELTER);
+  if (s.suitO2 < 30 || (inShelter(s.player) && s.suitO2 < 95)) return go(s, SHELTER); // орсон бол дүүртэл цэнэглэнэ
+  const repair = s.problem ? REPAIRS[s.problem] : undefined;
+  if (repair && !s.carrying) return go(s, DEPOT);
+  if (repair) return go(s, MACHINES.find((m) => m.id === repair.target)!.pos);
+  if (s.dust > 0.5 && s.storm <= 0) return go(s, SOLAR_FIELD, 1);
+  return null;
+}
+
+const needsGym = (s: GameState) => s.exercisedSol < solOf(s.time);
+const chores = (s: GameState): Input => (needsGym(s) ? (inZone(s.player, GYM) ? stay : go(s, GYM)) : go(s, nearestIce(s), 0));
+
 // Аль машины унтраалгыг өөрчлөх ёстой вэ: эрчим хүч дутвал хамгийн дүүрэн нөөцтэйг унтраана
 function wrongSwitch(s: GameState): Machine | undefined {
   const level = (m: Machine) => s.res[m.makes];
   const starving = MACHINES.find((m) => !s.on[m.id] && level(m) < 35);
   if (starving) return starving;
   const short = s.load < 1 || (s.res.battery < 40 && solarInput(s) < powerDemand(s));
-  const fullest = MACHINES.filter((m) => s.on[m.id]).sort((a, b) => level(b) - level(a));
+  const fullest = MACHINES.filter((m) => s.on[m.id] && s.broken !== m.id).sort((a, b) => level(b) - level(a));
   if (short && fullest.length > 1 && level(fullest[0]) > 45) return fullest[0];
   const plenty = s.res.battery > 60 && solarInput(s) >= powerDemand(s) + MACHINE_POWER;
   if (plenty) return MACHINES.find((m) => !s.on[m.id] && level(m) < 90);
@@ -32,29 +47,24 @@ function wrongSwitch(s: GameState): Machine | undefined {
 }
 
 export const idle: Bot = () => stay;
-export const shelterOnly: Bot = (s) => (danger(s) ? go(s, SHELTER) : stay);
+export const shelterOnly: Bot = (s) => go(s, SHELTER); // хоргодох байрандаа л сууна
 
-// Мөс түүнэ, панель арчина, дэлбэрэлтээс нуугдана. Машинд огт хүрэхгүй.
-export const explorer = (effort = 1): Bot => (s) => {
-  if (danger(s)) return go(s, SHELTER);
-  if (resting(s, effort)) return stay;
-  if (s.dust > 0.5 && s.storm <= 0) return go(s, SOLAR_FIELD, 1);
-  return go(s, nearestIce(s), 0);
-};
+// Дээд мөрний заавар бүрийг дагана (засвар, панель, дасгал, мөс). Машиныг асааж унтраахгүй.
+export const explorer = (effort = 1): Bot => (s) => urgent(s) ?? (resting(s, effort) ? stay : chores(s));
 
 // explorer + эрчим хүчээ удирдана: дутвал хамгийн дүүрэн нөөцтэй машинаа унтраана
 export const manager = (effort = 1): Bot => (s) => {
-  if (danger(s)) return go(s, SHELTER);
+  const first = urgent(s);
+  if (first) return first;
   if (resting(s, effort)) return stay;
-  if (s.dust > 0.5 && s.storm <= 0) return go(s, SOLAR_FIELD, 1);
   const fix = wrongSwitch(s);
   if (fix) return dist(s.player, fix.pos) < 1 ? { ...stay, action: true } : go(s, fix.pos, 0);
-  return go(s, nearestIce(s), 0);
+  return chores(s);
 };
 
 export function play(bot: Bot, seed: number, setup: Setup = (s) => s): GameState {
   let s = setup(createGame(seed));
-  while (s.status === "playing") s = tick(s, bot(s), 0.05);
+  while (s.status === "playing") s = s.modal ? acknowledge(s) : tick(s, bot(s), 0.05);
   return s;
 }
 

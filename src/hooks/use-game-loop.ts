@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createGame, tick } from "../game/engine";
+import { acknowledge } from "../game/missions";
 import type { GameState, Input } from "../game/types";
 import { createWorld } from "../three/scene";
 
@@ -20,6 +21,11 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     const onResize = () => world.resize();
     // e.code = товчны байрлал (KeyW, Space). Монгол гарын байрлал дээр ч WASD ажиллана.
     const down = (e: KeyboardEvent) => {
+      if (stateRef.current.modal && (e.code === "Enter" || e.code === "NumpadEnter" || e.code === "Space")) { // цонхыг гараар хаана
+        if (!e.repeat) stateRef.current = acknowledge(stateRef.current); // удаан дарсан товч цонхыг уншуулалгүй хаахгүй
+        e.preventDefault();
+        return;
+      }
       keys.current.add(e.code);
       if (e.code !== "Space" && e.code !== "KeyE") return;
       e.preventDefault();
@@ -65,5 +71,6 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     press: () => { inputRef.current.action = true; },
     setStick: (x: number, z: number) => { stick.current = { x, z }; },
     restart: () => { stateRef.current = createGame(); setHud(stateRef.current); },
+    ack: () => { stateRef.current = acknowledge(stateRef.current); setHud(stateRef.current); },
   };
 }
