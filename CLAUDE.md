@@ -37,6 +37,7 @@ src/
     donki.ts     Real NASA DONKI solar flare records. Never edit the numbers.
     tasks.ts     Hands-on work (wipe panels, fit a part): state.task advances on input.step
     science.ts   Sample sites, drilling, banking samples at the shelter, stars
+    training.ts  First-sol training: compares the state before and after a tick and ticks off steps
     crew.ts      Spacesuit oxygen and exercise
     events.ts    Storm and flare timers, facts (once each), lost hearts (loseHeart), win/lose.
     report.ts    Failure report built from GameState.losses.
@@ -55,6 +56,7 @@ src/
     ship.ts      Supply ship that lands when the player wins
   audio/   synth.ts (Web Audio tones, no files) and cues.ts (compares two states and plays sounds).
   hooks/   use-game-loop.ts: the one place that connects logic, 3D, input and sound.
+           use-space-weather.ts: the only network request in the app (live NASA DONKI flares).
   ui/      React + Tailwind HUD, joystick, overlays.
 ```
 
@@ -72,6 +74,8 @@ Power is one shared budget: when sun plus battery cannot cover the machines that
 Every emergency is a card with two plans, `a` (careful, slow) and `b` (quick, with a lasting cost), and **neither may be free**. `choose()` applies a plan, `askEarth()` delays the answer by the card's light time while the problem keeps running, and `advise()` decides what Earth recommends from the current state. The order of the cards is shuffled per game (`state.deck`).
 
 Adding a new emergency: add its id to `ProblemId` and `PROBLEM_IDS`, its text, both plans, Earth's reasons and the real story to `PROBLEMS` (`problems.ts`), what each plan does to `choose()` and `advise()` (`missions.ts`), and, if it needs a spare part, an entry in `REPAIRS` and `ITEMS` (`config.ts`). Then update the mission line (`ui/mission.tsx`) and guide arrow (`three/actors.ts`), which follow the same priority order, and add a test.
+
+The game must work with no internet. `createGame(seed, live)` takes the live flare if the fetch succeeded and otherwise picks one from the embedded archive; never label archived data as live.
 
 Sound never comes from the engine: `audio/cues.ts` compares the state before and after a tick. The game must stay fully playable with sound off.
 

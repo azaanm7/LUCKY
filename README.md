@@ -48,7 +48,15 @@ Surviving earns one star. The second and third stars come from science: three sa
 
 ### Real NASA data in the game
 
-The solar flare is not invented. Each game draws one real event from **NASA's DONKI** space weather database (eight X- and M-class flares recorded in 2024, for example X9.0 on 2024-10-03). The card shows the date and class and says the data is archived, not live. The flare's class sets how likely radiation is to damage a running machine, so the real measurement drives the decision. The end screen names the event again. The records are in `src/game/donki.ts` with their DONKI links.
+The solar flare is not invented. When the game opens it asks **NASA's DONKI** space weather database for the last 30 days of solar flares and uses the strongest one as this game's flare. The start screen shows it as "today's space weather", with its class and date. The flare's class sets how likely radiation is to damage a running machine, so the real measurement drives the decision, and the card and end screen name the event again.
+
+If the request fails or takes more than 7 seconds (no internet, school firewall), the game falls back to eight real 2024 flares embedded in `src/game/donki.ts` (for example X9.0 on 2024-10-03) and says on screen that it is using the archive. It never presents archived data as live.
+
+A "Science and sources" page inside the game (start screen and pause menu) lists every source with a link, and says plainly that consumption and production rates are tuned for play.
+
+### First-sol training
+
+Sol 1 has no emergency. Instead the prompt line walks the player through six actions, one at a time, with a green arrow pointing to each: collect ice, switch a machine, wipe the panels, refill the suit, exercise, and bring back a science sample. Each step ticks off as soon as it is done, in any order, and emergencies always take priority over the training prompt.
 
 Two needs run all game long:
 - **Spacesuit oxygen** drops whenever the astronaut is outside and refills in the shelter, so every trip outside must be planned.
@@ -62,6 +70,7 @@ Two needs run all game long:
 | Turn a machine on/off | Stand on its ring, press `Space` / `E` | Tap the big button |
 | Choose a plan on a card | `1` or `2`, `3` to ask Earth | Tap the plan |
 | Hands-on task | Mouse over or click the targets, or `Space` per step, `Esc` to stop | Swipe or tap the targets |
+| Pause | `P` or the ⏸ button (also pauses when you switch tabs) | ⏸ button |
 
 - 👩‍🚀 **Watch your suit oxygen** outside. Go back into the shelter to refill it.
 - 🚨 **Solve the daily emergency.** Spare parts are in the 📦 depot. A yellow arrow shows where to go.
@@ -135,6 +144,7 @@ The numbers in square brackets in the tables above refer to this list.
 - **three.js** for the 3D world
 - **Vite** for the build, **Bun** for packages and tests
 - Runs in any modern browser on desktop and phone, and can be added to a phone home screen
+- Works offline after loading: the only network request is the optional NASA space weather lookup
 
 ## Project structure
 
@@ -150,6 +160,7 @@ src/
     donki.ts     Real solar flare records from NASA DONKI
     tasks.ts     Hands-on work: wiping panels, fitting parts
     science.ts   Sample sites, banking samples, stars
+    training.ts  First-sol training checklist
     crew.ts      Spacesuit oxygen and exercise
     events.ts    Storm and flare timers, facts, lost hearts, win/lose
     report.ts    Failure report: why each heart was lost
@@ -157,7 +168,7 @@ src/
     *.test.ts
   three/     3D rendering only (terrain, buildings, astronaut, sky, science sites, supply ship)
   audio/     Sound made in code with the Web Audio API (no audio files)
-  hooks/     use-game-loop.ts connects game logic, 3D world and input
+  hooks/     use-game-loop.ts connects game logic, 3D world and input; use-space-weather.ts fetches live NASA flares
   ui/        React + Tailwind HUD, joystick, menus
 scripts/
   balance.ts   Prints the balance table above
@@ -187,7 +198,7 @@ Import the repository on [Vercel](https://vercel.com/new). It detects Vite autom
 
 - [ ] English / Mongolian language switch
 - [ ] Choose Moon or Mars (14-day lunar night vs. dust storms)
-- [ ] Short tutorial for the first sol
+- [x] Short tutorial for the first sol
 - [x] Sound effects
 
 ## Use of AI
