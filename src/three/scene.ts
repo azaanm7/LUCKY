@@ -60,10 +60,11 @@ export function createWorld(canvas: HTMLCanvasElement) {
     astro.root.position.y += p.moving ? Math.abs(Math.sin(t * 12)) * 0.12 : 0;
 
     // Машинууд
-    o2.fan.rotation.y += s.on.o2 ? dt * 8 : 0;
-    (o2.bulb.material as THREE.MeshStandardMaterial).emissiveIntensity = s.on.o2 ? 1.5 : 0;
-    (rec.bulb.material as THREE.MeshStandardMaterial).emissiveIntensity = s.on.recycler ? 1.5 : 0;
-    gh.glow.intensity = s.on.greenhouse ? 6 : 0;
+    // Эрчим хүч дутвал (s.load < 1) сэнс удааширч, гэрэл бүдгэрнэ
+    o2.fan.rotation.y += s.on.o2 ? dt * 8 * s.load : 0;
+    (o2.bulb.material as THREE.MeshStandardMaterial).emissiveIntensity = s.on.o2 ? 1.5 * s.load : 0;
+    (rec.bulb.material as THREE.MeshStandardMaterial).emissiveIntensity = s.on.recycler ? 1.5 * s.load : 0;
+    gh.glow.intensity = s.on.greenhouse ? 6 * s.load : 0;
     gh.plants.scale.setScalar(s.on.greenhouse ? 1 + Math.sin(t * 2) * 0.04 : 0.9);
     for (const m of MACHINES) {
       labels[m.id].on.visible = s.on[m.id]; labels[m.id].off.visible = !s.on[m.id];

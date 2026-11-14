@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { HEARTS, SOL_SECONDS, WIN_SOL } from "../game/config";
 import type { GameState } from "../game/types";
-import { isDay, solOf } from "../game/world";
+import { isDay, powerDemand, solarInput, solOf } from "../game/world";
 import { Mission } from "./mission";
 
 function Bar({ icon, label, value, color }: { icon: ReactNode; label: string; value: number; color: string }) {
@@ -13,6 +13,19 @@ function Bar({ icon, label, value, color }: { icon: ReactNode; label: string; va
         <div className={`h-full rounded-full transition-all ${low ? "animate-pulse bg-red-500" : color}`} style={{ width: `${value}%` }} />
         <span className="absolute inset-0 px-2 text-[11px] leading-5 font-extrabold text-white drop-shadow">{label}</span>
       </div>
+    </div>
+  );
+}
+
+// Эрчим хүчний төсөв: нарнаас орж ирэх ба машинуудын хүсэх хэмжээ. Дутвал улаан болно.
+function Power({ s }: { s: GameState }) {
+  const input = Math.round(solarInput(s));
+  const demand = powerDemand(s);
+  const short = input < demand;
+  return (
+    <div className={`text-[11px] leading-4 font-extrabold ${short ? "text-red-300" : "text-emerald-300"}`}>
+      <div>⚡ Нар +{input} · Машин −{demand}</div>
+      {s.load < 1 && <div className="animate-pulse">🐢 Машинууд {Math.round(s.load * 100)}% хүчээр</div>}
     </div>
   );
 }
@@ -29,6 +42,7 @@ export function Hud({ s }: { s: GameState }) {
           <Bar icon={<span>💧</span>} label="Ус" value={s.res.water} color="bg-blue-500" />
           <Bar icon={<span>🥕</span>} label="Хүнс" value={s.res.food} color="bg-orange-400" />
           <Bar icon={<span>🔋</span>} label="Батарей" value={s.res.battery} color="bg-yellow-400" />
+          <Power s={s} />
           <span className="text-[11px] font-bold text-white/80">☀️ Панель {Math.round((1 - s.dust) * 100)}% цэвэр</span>
         </div>
         <div className="grid justify-items-end gap-1 rounded-2xl bg-black/35 p-2.5 text-right backdrop-blur-sm">

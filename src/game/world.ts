@@ -1,4 +1,4 @@
-import { MACHINES, PLAYER_SPEED, SHELTER, SOLAR_FIELD, SOL_SECONDS, DAY_PART, WORLD_RADIUS } from "./config";
+import { DAY_PART, DUST_BLOCK, MACHINES, MACHINE_POWER, PLAYER_SPEED, SHELTER, SOLAR_FIELD, SOLAR_POWER, SOL_SECONDS, STORM_SUN, WORLD_RADIUS } from "./config";
 import type { GameState, Ice, Input, MachineId, Vec2 } from "./types";
 
 // Seed-тэй санамсаргүй тоо: ижил seed → ижил тоглолт
@@ -18,6 +18,10 @@ export function sunlight(t: number): number {
   if (p >= DAY_PART) return 0;
   return Math.sin((p / DAY_PART) * Math.PI) * 0.6 + 0.4;
 }
+
+// Нэг эрчим хүчний төсөв: нарнаас орж ирэх ба асаалттай машинуудын хүсэх хэмжээ (секундэд)
+export const solarInput = (s: GameState) => SOLAR_POWER * sunlight(s.time) * (s.storm > 0 ? STORM_SUN : 1) * (1 - s.dust * DUST_BLOCK);
+export const powerDemand = (s: GameState) => MACHINES.filter((m) => s.on[m.id]).length * MACHINE_POWER;
 
 // Барилгууд нь тойрог хэлбэрийн саад. Тоглогчийг түлхэж гаргана.
 const OBSTACLES: (Vec2 & { r: number })[] = [
