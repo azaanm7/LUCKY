@@ -12,3 +12,4 @@ Format: `- YYYY-MM-DD · <tool> · <what was done> · reviewed by <teammate>`
 - 2026-11-14 · Claude Code · Facts: MOXIE fact shown at the oxygen maker, each fact appears once per game (checked against science.nasa.gov) · review pending
 - 2026-11-14 · Claude Code · README and CLAUDE.md: balance table from the bots, failure report and power budget described, NASA references added · review pending
 - 2026-11-14 · Claude Code · Merged the emergencies/spacesuit/exercise work with the power budget and failure report; retuned balance for the merged game (solar 12.5, ice 4 water, 5 ice) with bots that solve the emergencies · review pending
+- 2026-11-14 · Claude Code · New 3D look: sky dome with sun and stars, tone mapping, night lighting, power cables with moving lights, battery rack, resource tanks beside each machine, dust storm particles, craters · review pending

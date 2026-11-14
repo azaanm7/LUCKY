@@ -40,9 +40,14 @@ src/
     bots.ts      Balance bots (idle, explorer, manager).
     *.test.ts
   three/   Rendering only. Reads GameState, never changes it.
-    scene.ts     Renderer, camera, astronaut, ice, guide arrow
-    base.ts      All base buildings, labels and pads, plus their per-frame update
+    scene.ts     Renderer (tone mapping), camera, and the order everything updates in
+    base.ts      All base buildings, labels, pads and resource tanks, plus their per-frame update
+    buildings.ts Shelter, the three machines (each has run(power, night, dt, t)) and the tank gauge
     props.ts     Depot, gym, comm dish, carried items
+    power.ts     Solar field, battery rack and the cables whose moving lights show the power flow
+    actors.ts    Astronaut, carried item, ice and the guide arrow
+    environment.ts Sky dome, sun, stars, lights and fog for day, dusk, night, storm and flare
+    effects.ts   Dust storm particles
   hooks/   use-game-loop.ts: the one place that connects logic, 3D and input.
   ui/      React + Tailwind HUD, joystick, overlays.
 ```
@@ -97,6 +102,8 @@ Space Apps requires teams to describe how AI was used. After any task where you 
 ## Gotchas
 
 - `three.js` objects are created once in `createWorld()`; per-frame work happens in `update()`. Do not create geometries or materials every frame.
+- Glows are additive sprites (`createGlow` in `models.ts`), not `PointLight`s. Only the greenhouse and the astronaut's headlamp are real point lights; adding more is slow on phones.
+- The sky is a shader dome that follows the camera. Its horizon colour is also the fog colour, so change both together in `environment.ts`.
 - The HUD updates about 10 times per second from `stateRef`; the 3D world updates every frame. Do not put the full game state into React state on every frame.
 - Labels are canvas-texture sprites (`createLabel`) with `sizeAttenuation: false`, so their scale is in screen units, not world units.
 - On portrait phones the camera moves higher (`moveCamera` in `scene.ts`). Test both desktop and a ~390px wide phone viewport.
