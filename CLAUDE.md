@@ -39,6 +39,8 @@ src/
     science.ts   Sample sites, drilling, banking samples at the shelter, stars
     training.ts  First-sol training: compares the state before and after a tick and ticks off steps
     crew.ts      Spacesuit oxygen
+    radiation.ts Crew radiation dose 0-100: accumulates and never goes down (like a real dose). Base rate is Curiosity RAD's
+                 0.64 mSv/day, scaled (DOSE in config.ts); flares add by DONKI class; the shelter and the flare card's shield cut it.
     events.ts    Storm and flare timers, facts (once each), lost hearts (loseHeart), win/lose.
     report.ts    Failure report built from GameState.losses.
     bots.ts      Balance bots (idle, explorer, manager).

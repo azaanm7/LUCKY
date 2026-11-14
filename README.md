@@ -17,7 +17,8 @@ Instead of reading about trade-offs, the player **lives them**:
 
 - Every machine draws from **one power budget** (solar panels plus battery). The panels cannot run all three machines all day and still charge the battery for the night, so the player must **choose** which machines stay on. When power runs short, every machine slows down together.
 - The greenhouse makes food but **uses water**, so growing more food means collecting more ice or running the water recycler.
-- A solar flare forces the player to **drop everything** and run to the shelter.
+- A solar flare forces the player to **drop everything** and run to the shelter, and to decide whether to spend 30% of the battery on the shelter's radiation shield or save it for the night.
+- The crew's **radiation dose** builds up all game: fast outside, slowly in the shelter, and in a jump during a flare. It never goes down, so every trip outside has a lasting cost.
 - A dust storm cuts solar power, and afterwards the panels must be wiped clean by hand before power returns.
 - Every emergency offers **two plans and no free one**: a careful plan that takes time, or a quick plan with a lasting cost.
 - Science samples lie far from the base. The farther the site, the more a sample is worth and the more spacesuit oxygen the trip costs.
@@ -34,7 +35,7 @@ From sol 2, every sol brings one emergency that real astronauts have actually fa
 | --- | --- | --- | --- |
 | CO₂ filter clogged, oxygen maker stops | Fetch a new filter and fit it by hand; the machine is down until then | Improvise a fix now; the machine runs at half strength until properly repaired | Apollo 13 (1970): the crew built a filter adapter from tape, plastic bags and cardboard |
 | Dust storm | Low-power mode: keep the battery, earn nothing | Study the storm: science points, but the instruments drain the battery | Opportunity rover (2018) went silent in a planet-wide dust storm |
-| Solar flare | Safe mode: machines off and undamaged, nothing produced | Keep machines running: radiation may damage one | Artemis / Orion: the crew builds a radiation shelter from stowage bags |
+| Solar flare | Turn on the shelter shield: 30% of the battery (less power tonight), crew dose barely rises | Save the battery: crew dose rises more, and radiation may damage one machine | Artemis / Orion: the crew builds a radiation shelter from stowage bags |
 | Micrometeoroid hole in the greenhouse | Fetch a patch kit; air leaks until it is sealed | Plug the hole now; the greenhouse runs at half strength | ISS (2018): the crew sealed a 2 mm hole with sealant and gauze |
 | Water recycler pump fails | Fetch a spare pump | Nurse the old pump along at half strength | ISS (2023): the water system now recycles 98% of the crew's water |
 
@@ -48,7 +49,7 @@ Surviving earns one star. The second and third stars come from science: three sa
 
 ### Real NASA data in the game
 
-The solar flare is not invented. When the game opens it asks **NASA's DONKI** space weather database for the last 30 days of solar flares and uses the strongest one as this game's flare. The start screen shows it as "today's space weather", with its class and date. The flare's class sets how likely radiation is to damage a running machine, so the real measurement drives the decision, and the card and end screen name the event again.
+The solar flare is not invented. When the game opens it asks **NASA's DONKI** space weather database for the last 30 days of solar flares and uses the strongest one as this game's flare. The start screen shows it as "today's space weather", with its class and date. The flare's class sets how much radiation dose it adds and how likely it is to damage a running machine, so the real measurement drives the decision, and the card and end screen name the event again.
 
 If the request fails or takes more than 7 seconds (no internet, school firewall), the game falls back to eight real 2024 flares embedded in `src/game/donki.ts` (for example X9.0 on 2024-10-03) and says on screen that it is using the archive. It never presents archived data as live.
 
@@ -59,6 +60,17 @@ A "Science and sources" page inside the game (start screen and pause menu) lists
 Sol 1 has no emergency. Instead the prompt line walks the player through five actions, one at a time, with a green arrow pointing to each: collect ice, switch a machine, wipe the panels, refill the suit, and bring back a science sample. Each step ticks off as soon as it is done, in any order, and emergencies always take priority over the training prompt.
 
 One need runs all game long: **spacesuit oxygen** drops whenever the astronaut is outside and refills in the shelter, so every trip outside must be planned.
+
+### Crew radiation dose
+
+A ☢️ bar (0–100) shows the crew's **accumulated** radiation dose. Like a real dose it never goes down. Its base rate is a real measurement: Curiosity's RAD instrument recorded about **0.64 mSv per day** on the surface of Mars [12]. The game scales this to 12 points per mSv, so a full sol outside adds about 7.7 points. Everything else about the dose is a game rule, not a measurement, and the game says so on the end screen:
+
+- In the shelter the dose rises at 40% of the outside rate.
+- A solar flare adds a dose set by its DONKI class (40 + 18 × X-class points if caught outside). In the shelter that becomes 40% of it, or 5% with the shield on. For example, an X9.0 flare adds about 81 points in an unshielded shelter and about 10 with the shield; an M3.5 flare adds about 19 without it.
+- The flare card shows the current dose and how much the flare would add with and without the shield, so the choice is made with numbers. Earth recommends the shield only when the unshielded flare would push the dose to 80 or more.
+- Reaching 100 costs one heart (once). The failure report says whether the dose came mostly from an unshielded flare or from long trips outside.
+
+Swapping the old "safe mode" for the shield made the game easier for players who never manage power, so `SOLAR_POWER` was lowered from 14 to 13.5 to keep the balance below.
 
 ## How to play
 
@@ -76,7 +88,8 @@ One need runs all game long: **spacesuit oxygen** drops whenever the astronaut i
 - 🫧 🚰 🌱 **Machines** (oxygen maker, water recycler, greenhouse) use battery power.
 - 🧹 **Wipe the solar panels** after dust storms: walk to them, press the button and wipe each cell.
 - 🔬 **Collect science samples** at the marked sites and carry them back to the shelter for stars.
-- ☢️ **Solar flare!** When the sky turns red, run into the shelter before the countdown ends.
+- ☢️ **Solar flare!** When the sky turns red, run into the shelter before the countdown ends. Spend battery on the shield if the flare is strong.
+- ☢️ **Crew dose** only goes up. Keep trips outside short.
 - 🌙 **Night:** no sunlight, no solar power. Machines run on the battery only.
 - ⚡ **Power line:** when it turns red, the machines want more than the sun gives. Turn off the machine whose bar is fullest.
 
@@ -95,12 +108,13 @@ You win by surviving 6 sols. You lose if the crew's 3 hearts run out.
 | 1 sol | A Martian day is about 40 minutes longer than an Earth day. [2] |
 | Message delay to Earth | A radio signal between Mars and Earth takes about 3 to 22 minutes one way, so the crew must solve problems on their own. [8] |
 | Spacesuit oxygen | Suit consumables are limited, so outside work is planned carefully. |
-| Solar flare strength | Real flares from NASA's DONKI database (2024), shown with their date and class. [9] |
+| Solar flare strength | Real flares from NASA's DONKI database (live, or the 2024 archive), shown with their date and class. [9] |
+| Crew radiation dose | Curiosity's RAD instrument measured about 0.64 mSv per day on the surface of Mars during its first months there. The game's base dose rate is this number, scaled; shelter, shield and flare doses are game rules. [12] |
 | Sample collecting | Perseverance collects cores of Martian rock and soil in tubes for a possible return to Earth. [10] |
 | River delta site | Jezero Crater held a lake more than 3.5 billion years ago, fed by a river delta. [10] |
 | Crater site | Curiosity found organic molecules, the chemical building blocks of life, in Gale Crater rocks. [11] |
 
-Game numbers (consumption and production rates) are tuned for play balance and are not real mission values.
+Game numbers (consumption and production rates, and every dose number except the 0.64 mSv/day base rate) are tuned for play balance and are not real mission values.
 
 ## Game balance
 
@@ -109,12 +123,14 @@ We test balance with bots that play hundreds of games automatically (`bun run ba
 | Strategy | Wins (300 games) | Hearts left | Stars |
 | --- | --- | --- | --- |
 | Stand still, or sit in the shelter all game | 0% | 0 | none |
-| Follow every prompt, but never switch a machine | 78–82% | 1.6–1.7 | 1 |
-| Follow every prompt, water recycler off all game (slow player) | 40% | 0.8 | 1 at best |
-| Manage power; always the careful plan, always the quick plan, or Earth's advice (slow player) | 100% each | 3.0 | 1 |
-| Manage power **and go on expeditions** (fast player) | 100% | 3.0 | 2 stars in 85% of games, 3 stars in 10% |
+| Follow every prompt, but never switch a machine | 80–81% | 1.7–1.8 | 1 |
+| Follow every prompt, water recycler off all game (slow player) | 36% | 0.7 | 1 at best |
+| Manage power, always the careful plan (shield on every flare) (slow player) | 100% | 3.0 | 1 |
+| Manage power, always the quick plan (never the shield) (slow player) | 100% | 2.5 | 1 |
+| Manage power, follow Earth's advice (slow player) | 100% | 2.9 | 1 |
+| Manage power **and go on expeditions** (fast player) | 100% | 2.9 | 2 stars in 97% of games, 3 stars in 24% |
 
-So a child who reacts usually wins but loses hearts, a child who manages the power budget wins every time, and only a child who takes the risk of expeditions earns more than one star. Neither card plan is the safe one: both win, with different costs. A child who ignores the base reads in the failure report why it failed. `bun test` fails if a change to the numbers breaks this order.
+So a child who reacts usually wins but loses hearts, a child who manages the power budget wins every time, and only a child who takes the risk of expeditions earns more than one star. Neither card plan is the safe one: both win, with different costs. Never using the shield costs about half a heart on average, because a strong flare pushes the crew's radiation dose to the limit; always using it costs battery at night. A child who ignores the base reads in the failure report why it failed. `bun test` fails if a change to the numbers breaks this order.
 
 ## Sources
 
@@ -131,6 +147,7 @@ The numbers in square brackets in the tables above refer to this list.
 9. [NASA CCMC: DONKI, the Space Weather Database Of Notifications, Knowledge, Information](https://ccmc.gsfc.nasa.gov/tools/DONKI/) (flare records from `https://ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR`)
 10. [NASA: Mars 2020 Perseverance rover](https://science.nasa.gov/mission/mars-2020-perseverance/)
 11. [NASA: Curiosity rover](https://science.nasa.gov/mission/msl-curiosity/)
+12. Hassler, D. M. et al. (2014). *Mars' surface radiation environment measured with the Mars Science Laboratory's Curiosity rover.* Science 343(6169): 1244797. [doi:10.1126/science.1244797](https://doi.org/10.1126/science.1244797) ([PubMed 24324275](https://pubmed.ncbi.nlm.nih.gov/24324275/))
 
 ## Tech stack
 
@@ -158,6 +175,7 @@ src/
     training.ts  First-sol training checklist
     crew.ts      Spacesuit oxygen
     events.ts    Storm and flare timers, facts, lost hearts, win/lose
+    radiation.ts Crew radiation dose (Curiosity RAD base rate, flare by DONKI class, shelter shield)
     report.ts    Failure report: why each heart was lost
     bots.ts      Bots that play the game to check balance
     *.test.ts
