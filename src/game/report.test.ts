@@ -4,7 +4,7 @@ import { explain, report } from "./report";
 import type { HeartLoss } from "./types";
 
 const loss = (over: Partial<HeartLoss>): HeartLoss => ({
-  sol: 3, cause: "oxygen", machineOn: true, broken: false, leak: false, load: 1, dust: 0.1, storm: false, night: false, stormSol: 0, ...over,
+  sol: 3, cause: "oxygen", machineOn: true, broken: false, weak: false, leak: false, drilling: false, load: 1, dust: 0.1, storm: false, night: false, stormSol: 0, ...over,
 });
 
 describe("төгсгөлийн тайлан", () => {

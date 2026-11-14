@@ -1,52 +1,99 @@
-import { DEPOT, MACHINES, REPAIRS, SCHEDULE } from "./config";
-import type { GameState, ProblemId } from "./types";
+import { ADVISE, DEPOT, EARTH_SECONDS_PER_MINUTE, FLARE_SECONDS, FLARE_WARN, MACHINES, PROBLEM_TIMES, REPAIRS, STORM_SECONDS, STUDY_POWER, STUDY_SCIENCE } from "./config";
+import { damageChance, FLARES } from "./donki";
+import { toast } from "./events";
+import { PROBLEMS } from "./problems";
+import type { GameState, ItemId, Machine, MachineId, PlanId, ProblemId } from "./types";
 import { dist, inZone, solOf } from "./world";
 
-// Хуваарийн дагуу дараагийн асуудлыг эхлүүлнэ
+// Дараагийн асуудлыг эхлүүлнэ. Дараалал нь тоглолт бүрд өөр (state.deck).
 export function startProblem(s: GameState): GameState {
   if (s.problem || s.modal) return s;
-  const next = SCHEDULE.find((p) => !s.solved.includes(p.id) && s.time >= p.at);
-  if (!next) return s;
-  const repair = REPAIRS[next.id];
+  const i = s.solved.length;
+  if (i >= s.deck.length || s.time < PROBLEM_TIMES[i]) return s;
+  const id = s.deck[i];
+  const repair = REPAIRS[id];
   return {
     ...s,
-    problem: next.id,
-    modal: { kind: "brief", id: next.id },
+    problem: id, plan: null, advice: null, earthAt: 0, task: null, carrying: null,
+    modal: { kind: "brief", id },
     broken: repair ? repair.target : s.broken,
-    storm: next.id === "storm" ? 18 : s.storm,
-    stormSol: next.id === "storm" ? solOf(s.time) : s.stormSol,
-    flareWarn: next.id === "flare" ? 10 : s.flareWarn,
+    storm: id === "storm" ? STORM_SECONDS : s.storm,
+    stormSol: id === "storm" ? solOf(s.time) : s.stormSol,
+    flareWarn: id === "flare" ? FLARE_WARN : s.flareWarn,
   };
+}
+
+// Тоглогч хоёр төлөвлөгөөний нэгийг сонгоно. Аль аль нь үнэтэй (problems.ts).
+export function choose(s: GameState, plan: PlanId): GameState {
+  const id = s.problem;
+  if (!id || s.plan) return acknowledge(s);
+  s = { ...s, plan, modal: null, earthAt: 0 };
+  const repair = REPAIRS[id];
+  if (repair && plan === "b") return solve({ ...s, weak: weaken(s, repair.target) }, id); // түр засвар: одоо ажиллана, гэхдээ хагас хүчээр
+  if (id === "storm" && plan === "b") {
+    const battery = Math.max(0, s.res.battery - STUDY_POWER);
+    return toast({ ...s, science: s.science + STUDY_SCIENCE, res: { ...s.res, battery } }, `🔬 Шуурганы хэмжилтийг Дэлхий рүү илгээлээ! +${STUDY_SCIENCE} оноо`);
+  }
+  if (id === "flare" && plan === "a") return { ...s, safeMode: s.flareWarn + FLARE_SECONDS };
+  return s;
+}
+
+// Дэлхийгээс асуувал хариу хожуу ирнэ. Тэр хооронд асуудал үргэлжилсээр байна.
+export function askEarth(s: GameState): GameState {
+  if (!s.problem || s.plan) return acknowledge(s);
+  return { ...s, modal: null, earthAt: s.time + PROBLEMS[s.problem].delay * EARTH_SECONDS_PER_MINUTE };
+}
+
+// Дэлхий одоогийн нөхцөлийг хараад аль төлөвлөгөөг зөвлөх вэ
+export function advise(s: GameState): PlanId {
+  if (s.problem === "flare") return damageChance(FLARES[s.flareEvent]) >= ADVISE.strongFlare ? "a" : "b";
+  if (s.problem === "storm") return s.res.battery >= ADVISE.studyBattery ? "b" : "a";
+  const need = s.problem === "pump" ? "water" : "oxygen"; // шүүлтүүр, нүх хоёул агаарт нөлөөлнө
+  return s.res[need] < ADVISE.lowNeed ? "b" : "a";
+}
+
+export const weaken = (s: GameState, id: MachineId): MachineId[] => [...s.weak.filter((m) => m !== id), id];
+
+// Одоо сэлбэг аваачиж засах машин: A төлөвлөгөөтэй эвдрэл, эсвэл тайван үед түр зассан машин
+export function repairTarget(s: GameState): Machine | undefined {
+  const repair = s.problem && s.plan === "a" ? REPAIRS[s.problem] : undefined;
+  return MACHINES.find((m) => m.id === (repair ? repair.target : s.problem ? undefined : s.weak[0]));
 }
 
 // Асуудал шийдэгдсэн эсэхийг шалгана
 export function progressProblem(s: GameState): GameState {
-  const id = s.problem;
-  if (!id || s.modal) return s;
-  const repair = REPAIRS[id];
-
-  if (repair) {
-    // Агуулахад очвол хэрэгтэй сэлбэгийг автоматаар авна
-    if (!s.carrying && inZone(s.player, DEPOT)) s = { ...s, carrying: repair.item };
-    // Сэлбэгтэйгээ машины дугуй дээр очвол засна
-    const target = MACHINES.find((m) => m.id === repair.target)!;
-    if (s.carrying === repair.item && dist(s.player, target.pos) < 2.2) return solve(s, id);
-    return s;
+  if (s.modal) return s;
+  if (s.earthAt > 0 && s.time >= s.earthAt) { // Дэлхийн хариу ирлээ
+    if (!s.problem) return { ...s, earthAt: 0 };
+    return { ...s, earthAt: 0, advice: advise(s), modal: { kind: "answer", id: s.problem } };
   }
+  if (s.task) return s;
+  const fix = repairTarget(s); // тайван үед түр зассан машинаа бүрэн засаж болно
+  if (fix) return fetchPart(s, fix.item, fix.id);
+  const id = s.problem;
   if (id === "storm" && s.storm <= 0 && s.dust < 0.25) return solve(s, id);
   if (id === "flare" && s.flareWarn <= 0 && s.flare <= 0) return solve(s, id);
   return s;
 }
 
+// Агуулахад очвол сэлбэгээ авна. Сэлбэгтэйгээ машины дугуй дээр очвол гараараа суулгаж эхэлнэ (tasks.ts).
+function fetchPart(s: GameState, item: ItemId, target: MachineId): GameState {
+  if (!s.carrying && inZone(s.player, DEPOT)) return { ...s, carrying: item };
+  const pad = MACHINES.find((m) => m.id === target)!.pos;
+  if (s.carrying === item && dist(s.player, pad) < 2.2) return { ...s, task: { kind: item, done: 0 } };
+  return s;
+}
+
+// Сэлбэгээ суулгаж дуусахад дуудагдана
+export function installed(s: GameState, item: ItemId): GameState {
+  const machine = MACHINES.find((m) => m.item === item)!;
+  s = { ...s, carrying: null, weak: s.weak.filter((m) => m !== machine.id) };
+  if (s.problem && REPAIRS[s.problem]) return solve(s, s.problem);
+  return toast(s, `🔧 ${machine.name}ийг бүрэн заслаа! Одоо бүтэн хүчээрээ ажиллана.`);
+}
+
 function solve(s: GameState, id: ProblemId): GameState {
-  return {
-    ...s,
-    problem: null,
-    broken: null,
-    carrying: null,
-    solved: [...s.solved, id],
-    modal: { kind: "debrief", id },
-  };
+  return { ...s, problem: null, plan: null, broken: null, carrying: null, solved: [...s.solved, id], modal: { kind: "debrief", id } };
 }
 
 // Цонхыг хаахад тоглоом үргэлжилнэ

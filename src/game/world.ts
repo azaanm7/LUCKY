@@ -7,6 +7,18 @@ export function random(seed: number): [number, number] {
   return [next / 4294967296, next];
 }
 
+// Seed-тэй холих: ижил seed → ижил дараалал
+export function shuffle<T>(list: readonly T[], seed: number): [T[], number] {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    let r;
+    [r, seed] = random(seed);
+    const j = Math.floor(r * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return [out, seed];
+}
+
 export const dist = (a: Vec2, b: Vec2) => Math.hypot(a.x - b.x, a.z - b.z);
 export const inZone = (p: Vec2, z: Vec2 & { r: number }) => dist(p, z) < z.r;
 export const inShelter = (p: Vec2) => inZone(p, SHELTER);
@@ -23,7 +35,7 @@ export function sunlight(t: number): number {
 
 // Нэг эрчим хүчний төсөв: нарнаас орж ирэх ба ажиллаж буй (асаалттай, эвдрээгүй) машинуудын хүсэх хэмжээ (секундэд)
 export const solarInput = (s: GameState) => SOLAR_POWER * sunlight(s.time) * (s.storm > 0 ? STORM_SUN : 1) * (1 - s.dust * DUST_BLOCK);
-export const works = (s: GameState, id: MachineId) => s.on[id] && s.broken !== id;
+export const works = (s: GameState, id: MachineId) => s.on[id] && s.broken !== id && s.safeMode <= 0;
 export const powerDemand = (s: GameState) => MACHINES.filter((m) => works(s, m.id)).length * MACHINE_POWER;
 
 // Барилгууд нь тойрог хэлбэрийн саад. Тоглогчийг түлхэж гаргана.

@@ -1,5 +1,5 @@
-import { DAY_PART, DUSK_WARN, ITEMS, MACHINES, REPAIRS } from "../game/config";
-import { PROBLEMS } from "../game/problems";
+import { DAY_PART, DUSK_WARN, ITEMS, MACHINES, SITES } from "../game/config";
+import { repairTarget } from "../game/missions";
 import type { GameState, Need } from "../game/types";
 import { dayPhase, isDay, powerDemand, solarInput, solOf, works } from "../game/world";
 
@@ -17,20 +17,21 @@ function spare(s: GameState): string {
   return on.length > 1 ? `${on[0].icon} ${on[0].name}ийг түр унтраа` : "";
 }
 
-// "Одоо юу хийх вэ?" Хамгийн яаралтай нэг ажлыг л харуулна (scene.ts-ийн сумтай ижил дараалал).
+// "Одоо юу хийх вэ?" Хамгийн яаралтай нэг ажлыг л харуулна (three/actors.ts-ийн сумтай ижил дараалал).
 function nextTask(s: GameState): Task {
   if (s.flare > 0) return { text: "☢️ Нарны дэлбэрэлт! Хоргодох байрандаа бай!", tone: "bg-red-600" };
   if (s.flareWarn > 0) return { text: `☢️ ${Math.ceil(s.flareWarn)} секундын дараа дэлбэрэлт! Хоргодох байр руу гүй!`, tone: "bg-red-600 animate-pulse" };
   if (s.suitO2 < 30) return { text: "👩‍🚀 Скафандрын O₂ дуусаж байна! Хоргодох байр руу буц!", tone: "bg-cyan-700 animate-pulse" };
-  const repair = s.problem ? REPAIRS[s.problem] : undefined;
-  if (repair && !s.carrying) return { text: `${PROBLEMS[s.problem!].icon} 📦 Агуулахаас ${ITEMS[repair.item].name} ав`, tone: "bg-amber-600" };
-  if (repair) {
-    const m = MACHINES.find((x) => x.id === repair.target)!;
-    return { text: `${ITEMS[repair.item].icon} ${m.icon} ${m.name} руу аваачиж зас`, tone: "bg-amber-600" };
+  if (s.drill > 0) return { text: "⛏️ Дээж өрөмдөж байна… Хүнд ажилд скафандрын O₂ хурдан буурна!", tone: "bg-sky-700" };
+  if (s.earthAt > 0) return { text: `📡 Дэлхийн хариуг хүлээж байна… ${Math.ceil(s.earthAt - s.time)} сек. Асуудал үргэлжилсээр!`, tone: "bg-sky-700 animate-pulse" };
+  const fix = repairTarget(s);
+  if (fix && s.problem) {
+    const item = ITEMS[fix.item];
+    return { text: s.carrying ? `${item.icon} ${fix.icon} ${fix.name} руу аваачиж суулга` : `📦 Агуулахаас ${item.name} ав`, tone: "bg-amber-600" };
   }
   const off = spare(s);
   if (s.storm > 0) return { text: `🌪️ Шороон шуурга! Нар бүдэг, эрчим хүч бага. ${off}`, tone: "bg-amber-700" };
-  if (s.dust > 0.5) return { text: "🧹 Нарны панель шороотой! Шар сумаар очиж дээр нь зогс", tone: "bg-amber-600" };
+  if (s.dust > 0.5) return { text: "🧹 Нарны панель шороотой! Шар сумаар очоод арч", tone: "bg-amber-600" };
 
   // Нөөц багасвал: машин нь унтраалттай юу, эрчим хүч хүрч байна уу
   const short = powerDemand(s) > 0 && s.load < 0.95;
@@ -42,6 +43,8 @@ function nextTask(s: GameState): Task {
     if (short) return { text: `${LOW[low]} багасаж байна, эрчим хүч хүрэхгүй! ${off}`, tone: "bg-yellow-600" };
     return { text: `${LOW[low]} бага байна. ${machine.icon} ${machine.name}ээ бүү унтраа`, tone: "bg-sky-700" };
   }
+  if (s.samples.length) return { text: `🧪 ${s.samples.length} дээж гарт байна. Хоргодох байранд хүргэвэл оноо болно!`, tone: "bg-sky-700" };
+  if (fix) return { text: `🩹 ${fix.name} хагас хүчээр ажиллаж байна. ${s.carrying ? "Сэлбэгээ аваачиж суулга" : "Агуулахаас сэлбэг авч бүрэн зас"}`, tone: "bg-amber-700" };
 
   if (isDay(s.time)) {
     const dusk = dayPhase(s.time) > DAY_PART - DUSK_WARN;
@@ -55,6 +58,7 @@ function nextTask(s: GameState): Task {
     if (s.res.battery <= 0) return { text: "🌙 Батарей хоослоо. Нар гартал машинууд зогсоно", tone: "bg-black/60" };
     return { text: `🌙 Шөнө машинууд зөвхөн батарейгаар ажиллана. ${off}`, tone: "bg-indigo-600" };
   }
+  if (SITES.some((x) => s.siteLeft[x.id] > 0)) return { text: "🔬 Тайван байна. Шинжлэх ухааны талбайгаас дээж авчир: хол байх тусам үнэтэй!", tone: "bg-black/45" };
   return { text: "🧊 Мөс түүж, машинуудаа хянаарай", tone: "bg-black/45" };
 }
 

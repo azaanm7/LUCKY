@@ -1,18 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { playCues, playModalCue } from "../audio/cues";
+import { startAudio } from "../audio/synth";
 import { createGame, tick } from "../game/engine";
-import { acknowledge } from "../game/missions";
-import type { GameState, Input } from "../game/types";
+import { acknowledge, askEarth, choose } from "../game/missions";
+import type { GameState, Input, PlanId } from "../game/types";
 import { createWorld } from "../three/scene";
 
-// three.js-ийн дэлгэц, тоглоомын давталт, гарын товчлуурыг нэг дор холбоно
+// three.js-ийн дэлгэц, тоглоомын давталт, гарын товчлуур, дууг нэг дор холбоно
 export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>, started: boolean) {
   const [hud, setHud] = useState<GameState>(() => createGame()); // React-д 10 удаа/сек шинэчилнэ
   const stateRef = useRef<GameState>(hud); // бодит цагийн state (60 удаа/сек)
-  const inputRef = useRef<Input>({ dx: 0, dz: 0, action: false });
+  const once = useRef({ action: false, step: false, cancel: false }); // нэг frame-д л хүчинтэй товчнууд
   const keys = useRef(new Set<string>());
   const stick = useRef({ x: 0, z: 0 });
   const startedRef = useRef(started);
   useEffect(() => { startedRef.current = started; }, [started]);
+
+  // tick-ээс гадуурх өөрчлөлт (цонх хаах, төлөвлөгөө сонгох, шинээр эхлэх)
+  const apply = useCallback((change: (s: GameState) => GameState) => {
+    const next = change(stateRef.current);
+    playModalCue(stateRef.current, next);
+    stateRef.current = next;
+    setHud(next);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -21,15 +31,25 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     const onResize = () => world.resize();
     // e.code = товчны байрлал (KeyW, Space). Монгол гарын байрлал дээр ч WASD ажиллана.
     const down = (e: KeyboardEvent) => {
-      if (stateRef.current.modal && (e.code === "Enter" || e.code === "NumpadEnter" || e.code === "Space")) { // цонхыг гараар хаана
-        if (!e.repeat) stateRef.current = acknowledge(stateRef.current); // удаан дарсан товч цонхыг уншуулалгүй хаахгүй
+      const s = stateRef.current;
+      if (s.modal) { // цонх нээлттэй: 1 / 2 = төлөвлөгөө, 3 = Дэлхийгээс асуух, Enter = үргэлжлүүлэх
+        const decided = s.modal.kind === "debrief" || !!s.plan;
+        if (e.repeat) return;
+        if (decided && (e.code === "Enter" || e.code === "NumpadEnter" || e.code === "Space")) apply(acknowledge);
+        else if (!decided && e.code === "Digit1") apply((x) => choose(x, "a"));
+        else if (!decided && e.code === "Digit2") apply((x) => choose(x, "b"));
+        else if (!decided && e.code === "Digit3" && s.modal.kind === "brief") apply(askEarth);
+        else return;
         e.preventDefault();
         return;
       }
       keys.current.add(e.code);
+      if (e.code === "Escape") once.current.cancel = true;
       if (e.code !== "Space" && e.code !== "KeyE") return;
       e.preventDefault();
-      if (!e.repeat) inputRef.current.action = true; // удаан дарахад дахин дахин асааж унтраахгүй
+      if (e.repeat) return; // удаан дарахад дахин дахин асааж унтраахгүй
+      if (s.task) once.current.step = true; // гараар хийдэг ажлын үед Space = нэг алхам
+      else once.current.action = true;
     };
     const up = (e: KeyboardEvent) => keys.current.delete(e.code);
     const blur = () => keys.current.clear(); // цонх солиход товч "гацаж" үлдэхгүй
@@ -45,10 +65,13 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
       const k = keys.current;
       const kx = (k.has("KeyD") || k.has("ArrowRight") ? 1 : 0) - (k.has("KeyA") || k.has("ArrowLeft") ? 1 : 0);
       const kz = (k.has("KeyS") || k.has("ArrowDown") ? 1 : 0) - (k.has("KeyW") || k.has("ArrowUp") ? 1 : 0);
-      const input: Input = { dx: kx || stick.current.x, dz: kz || stick.current.z, action: inputRef.current.action };
-      inputRef.current.action = false;
-      if (startedRef.current) stateRef.current = tick(stateRef.current, input, dt);
-      else introTime += dt;
+      const input: Input = { dx: kx || stick.current.x, dz: kz || stick.current.z, ...once.current };
+      once.current = { action: false, step: false, cancel: false };
+      if (startedRef.current) {
+        const before = stateRef.current;
+        stateRef.current = tick(before, input, dt);
+        if (stateRef.current !== before) { playCues(before, stateRef.current); playModalCue(before, stateRef.current); }
+      } else introTime += dt;
       const s = startedRef.current ? stateRef.current : { ...stateRef.current, time: 8 + introTime };
       world.update(s, dt, !startedRef.current);
       hudTimer += dt;
@@ -64,13 +87,17 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
       window.removeEventListener("blur", blur);
       world.dispose();
     };
-  }, [canvasRef]);
+  }, [canvasRef, apply]);
 
   return {
     hud,
-    press: () => { inputRef.current.action = true; },
+    press: () => { once.current.action = true; },
+    step: () => { once.current.step = true; },
+    cancel: () => { once.current.cancel = true; },
     setStick: (x: number, z: number) => { stick.current = { x, z }; },
-    restart: () => { stateRef.current = createGame(); setHud(stateRef.current); },
-    ack: () => { stateRef.current = acknowledge(stateRef.current); setHud(stateRef.current); },
+    restart: () => { startAudio(); apply(() => createGame()); },
+    ack: () => apply(acknowledge),
+    choose: (plan: PlanId) => apply((s) => choose(s, plan)),
+    ask: () => apply(askEarth),
   };
 }

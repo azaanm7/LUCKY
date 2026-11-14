@@ -1,19 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { DAY_PART, DEPOT, FACTS, GYM, ICE_WATER, SHELTER, SOL_SECONDS, WIN_SOL } from "./config";
+import { DAY_PART, FACTS, GYM, ICE_WATER, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
 import { createGame, tick } from "./engine";
-import { acknowledge } from "./missions";
-import type { GameState, Input } from "./types";
+import { at, game, idle, press, run } from "./testing";
 
-const idle: Input = { dx: 0, dz: 0, action: false };
-const at = (s: GameState, x: number, z: number): GameState => ({ ...s, player: { x, z, angle: 0, moving: false } });
-// Цонх гарвал шууд хааж, тоглоомыг тодорхой хугацаагаар урагшлуулна
-const run = (s: GameState, seconds: number, input = idle) => {
-  for (let t = 0; t < seconds; t += 0.05) s = tick(s.modal ? acknowledge(s) : s, input, 0.05);
-  return s;
-};
 const NIGHT = SOL_SECONDS * 0.8; // шөнийн цаг
 const NOON = SOL_SECONDS * 0.35; // үд дунд
-const game = (over: Partial<GameState>): GameState => ({ ...createGame(1), ...over });
 
 describe("tick", () => {
   test("анхны state-ийг өөрчлөхгүй (immutable)", () => {
@@ -21,6 +12,13 @@ describe("tick", () => {
     tick(s, { dx: 1, dz: 0, action: false }, 0.1);
     expect(s.time).toBe(0);
     expect(s.player.x).toBe(0);
+  });
+
+  test("ижил seed ижил тоглолт, өөр seed өөр дараалалтай асуудлууд", () => {
+    expect(createGame(7).deck).toEqual(createGame(7).deck);
+    expect([...createGame(7).deck].sort()).toEqual([...PROBLEM_IDS].sort());
+    const firsts = new Set(Array.from({ length: 30 }, (_, i) => createGame(i + 1).deck[0]));
+    expect(firsts.size).toBeGreaterThan(2);
   });
 
   test("мөс түүвэл ус нэмэгдэнэ", () => {
@@ -32,8 +30,7 @@ describe("tick", () => {
   });
 
   test("машины дэвсгэр дээр товч дарвал асаана / унтраана", () => {
-    const s = at(createGame(1), -9, 2);
-    expect(tick(s, { ...idle, action: true }, 0.05).on.o2).toBe(false);
+    expect(tick(at(createGame(1), -9, 2), press, 0.05).on.o2).toBe(false);
   });
 
   test("юу ч хийхгүй бол ялахгүй", () => {
@@ -41,26 +38,9 @@ describe("tick", () => {
   });
 });
 
-describe("сансрын нисэгчийн асуудлууд", () => {
-  test("цонх нээлттэй үед тоглоом зогсоно", () => {
-    const s = { ...createGame(1), modal: { kind: "brief" as const, id: "filter" as const } };
-    expect(tick(s, idle, 1).time).toBe(0);
-  });
-
-  test("CO₂ шүүлтүүр: агуулахаас аваад агаар үйлдвэрт аваачвал засагдана", () => {
-    let s = run(createGame(1), SOL_SECONDS + 7); // Sol 2-т асуудал эхэлнэ
-    expect(s.problem).toBe("filter");
-    expect(s.broken).toBe("o2");
-    s = tick(at(s, DEPOT.x, DEPOT.z), idle, 0.05);
-    expect(s.carrying).toBe("filter");
-    s = tick(at(s, -9, 2), idle, 0.05);
-    expect(s.solved).toContain("filter");
-    expect(s.broken).toBeNull();
-    expect(s.modal?.kind).toBe("debrief");
-  });
-
+describe("сансрын нисэгчийн бие", () => {
   test("дэлбэрэлтийн үед гадаа байвал 1 зүрх алдана, байранд бол үгүй", () => {
-    const base = { ...createGame(1), flare: 3, problem: "flare" as const };
+    const base = game({ flare: 3 });
     const hit = run(at(base, 20, 0), 1);
     expect(hit.hearts).toBe(2);
     expect(hit.losses.map((l) => l.cause)).toEqual(["radiation"]);
@@ -80,7 +60,7 @@ describe("сансрын нисэгчийн асуудлууд", () => {
   });
 
   test("гүйлтийн зам дээр 3 секунд зогсвол дасгал хийгдэнэ", () => {
-    const s = run(at({ ...createGame(1), fitness: 50 }, GYM.x, GYM.z), 3.5);
+    const s = run(at(game({ fitness: 50 }), GYM.x, GYM.z), 3.5);
     expect(s.fitness).toBe(100);
     expect(s.exercisedSol).toBe(1);
   });
@@ -119,11 +99,18 @@ describe("эрчим хүчний төсөв", () => {
     expect(broken.res.battery).toBeGreaterThan(fine.res.battery);
   });
 
+  test("түр зассан машин бүтэн эрчим хүч авч, хагас хүчээр ажиллана", () => {
+    const s = game({ time: NIGHT, res: { ...empty, battery: 80 } });
+    const fine = tick(s, idle, 0.05), weak = tick({ ...s, weak: ["o2"] }, idle, 0.05);
+    expect(weak.res.battery).toBe(fine.res.battery);
+    expect(fine.res.oxygen - weak.res.oxygen).toBeCloseTo(2.0 * (1 - WEAK_OUTPUT) * 0.05, 5);
+  });
+
   test("бүх машин өдөржин асвал батарей цэнэглэгдэхгүй, нэгийг унтраавал цэнэглэгдэнэ (trade-off)", () => {
-    const s = game({ res: { oxygen: 100, water: 100, food: 100, battery: 0 } });
+    const s = at(game({ res: { oxygen: 100, water: 100, food: 100, battery: 0 } }), 0, 0);
     const day = SOL_SECONDS * DAY_PART - 1; // нар жаргахын өмнөхөн
-    expect(run(at(s, 0, 0), day).res.battery).toBeLessThan(10);
-    expect(run(at({ ...s, on: { ...s.on, greenhouse: false } }, 0, 0), day).res.battery).toBeGreaterThan(20);
+    expect(run(s, day).res.battery).toBeLessThan(10);
+    expect(run({ ...s, on: { ...s.on, greenhouse: false } }, day).res.battery).toBeGreaterThan(20);
   });
 });
 
@@ -134,7 +121,8 @@ describe("баримт ба тэмдэглэл", () => {
   });
 
   test("баримт бүрийг ганц удаа үзүүлнэ", () => {
-    const first = tick(at(createGame(1), createGame(1).ice[0].x, createGame(1).ice[0].z), idle, 0.05);
+    const s = createGame(1);
+    const first = tick(at(s, s.ice[0].x, s.ice[0].z), idle, 0.05);
     expect(first.seen).toContain("ice");
     const quiet = { ...first, toast: null };
     const second = tick(at(quiet, quiet.ice[0].x, quiet.ice[0].z), idle, 0.05);

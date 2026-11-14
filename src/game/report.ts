@@ -15,6 +15,9 @@ export function explain(l: HeartLoss): Omit<Finding, "count"> {
   if (l.cause === "radiation") {
     return { sol: l.sol, steps: ["☢️ Нарны дэлбэрэлтийн үеэр гадаа байсан", "💔 Цацрагт өртсөн"], tip: "Тэнгэр улайвал шууд хоргодох байр руу гүй." };
   }
+  if (l.cause === "suit" && l.drilling) {
+    return { sol: l.sol, steps: ["⛏️ Дээж өрөмдөх хүнд ажилд O₂ хурдан буурсан", "🧪 Дахиад нэг дээж авах гэж үлдсэн", "💔 Скафандрын хүчилтөрөгч дууссан"], tip: "Буцах замдаа хүрэх O₂ үлдээ. Хол талбайд цөөн дээж аваад буц." };
+  }
   if (l.cause === "suit") {
     return { sol: l.sol, steps: ["👩‍🚀 Гадаа хэт удаан байсан", "💔 Скафандрын хүчилтөрөгч дууссан"], tip: "Скафандрын O₂ 30%-аас буувал хоргодох байранд орж цэнэглэ." };
   }
@@ -22,6 +25,9 @@ export function explain(l: HeartLoss): Omit<Finding, "count"> {
   const end = `💔 ${NEED_NAME[l.cause]} дууссан`;
   if (l.broken) {
     return { sol: l.sol, steps: [`🔧 ${machine.name} эвдэрсэн`, "📦 Сэлбэгийг нь удаан аваачаагүй", end], tip: "Асуудал гармагц агуулахаас сэлбэг аваад машин руу аваач." };
+  }
+  if (l.weak) {
+    return { sol: l.sol, steps: [`🩹 ${machine.name} түр засвартай байсан`, "🐢 Хагас хүчээр ажилласан", end], tip: "Тайван үед агуулахаас сэлбэг аваачиж бүрэн зас." };
   }
   if (!l.machineOn) {
     return { sol: l.sol, steps: [`⛔ ${machine.name} унтраалттай байсан`, end], tip: "Унтраасан машинаа нөөц нь багасахаас өмнө эргүүлж асаа." };

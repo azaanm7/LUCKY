@@ -5,8 +5,16 @@ export type MachineId = "o2" | "recycler" | "greenhouse";
 // Сансрын нисэгчдийн бодитоор тулгардаг асуудлууд
 export type ProblemId = "filter" | "storm" | "flare" | "leak" | "pump";
 
+// Асуудал бүрд хоёр төлөвлөгөө бий: a = болгоомжтой / удаан, b = хурдан / эрсдэлтэй
+export type PlanId = "a" | "b";
+
 // Агуулахаас авч очих сэлбэг
 export type ItemId = "filter" | "patch" | "pump";
+
+// Гараараа хийдэг ажил (ui/task-overlay.tsx): панель арчих, сэлбэг суулгах
+export type TaskKind = "wipe" | ItemId;
+
+export type SiteId = "soil" | "delta" | "crater";
 
 export type Status = "playing" | "won" | "lost";
 
@@ -24,6 +32,16 @@ export interface Machine {
   icon: string;
   pos: Vec2; // дэвсгэр (pad) хаана байх
   makes: Need; // аль нөөцийг үйлдвэрлэдэг
+  item: ItemId; // эвдэрвэл ямар сэлбэгээр засах
+}
+
+// Шинжлэх ухааны талбай: хол байх тусам дээж нь үнэтэй
+export interface Site extends Vec2 {
+  id: SiteId;
+  name: string;
+  icon: string;
+  r: number;
+  worth: number; // нэг дээж хэдэн оноо
 }
 
 // Зүрх алдах үеийн нөхцөл. Тоглоомын төгсгөлийн тайлан үүнээс шалтгааныг гаргана.
@@ -32,7 +50,9 @@ export interface HeartLoss {
   cause: Cause;
   machineOn: boolean; // тэр нөөцийг хийдэг машин асаалттай байсан уу
   broken: boolean; // тэр машин эвдэрсэн байсан уу
+  weak: boolean; // тэр машин түр засвартай, хагас хүчээр ажиллаж байсан уу
   leak: boolean; // хүлэмжээс агаар гоожиж байсан уу
+  drilling: boolean; // дээж өрөмдөж байсан уу (скафандрын O2 хурдан буурдаг)
   load: number; // машинууд хүссэн эрчим хүчнийхээ хэдэн хувийг авч байсан 0-1
   dust: number;
   storm: boolean;
@@ -52,7 +72,7 @@ export interface Resources {
 }
 
 export interface Modal {
-  kind: "brief" | "debrief"; // асуудал эхлэх / шийдэгдсэн
+  kind: "brief" | "answer" | "debrief"; // асуудал эхлэх / Дэлхийн хариу ирэх / шийдэгдсэн
   id: ProblemId;
 }
 
@@ -64,6 +84,8 @@ export interface GameState {
   on: Record<MachineId, boolean>;
   load: number; // ажиллаж буй машинууд хүссэн эрчим хүчнийхээ хэдэн хувийг авч байна 0-1
   broken: MachineId | null; // эвдэрсэн машин
+  weak: MachineId[]; // түр зассан эсвэл цацрагт гэмтсэн: хагас хүчээр ажиллана
+  safeMode: number; // аюулгүй горим дуусах хүртэлх секунд (машинууд унтарна)
   dust: number; // нарны панель дээрх шороо 0-1
   player: Vec2 & { angle: number; moving: boolean };
   suitO2: number; // скафандрын хүчилтөрөгч 0-100
@@ -71,9 +93,19 @@ export interface GameState {
   exercisedSol: number; // хамгийн сүүлд дасгал хийсэн sol
   gymTimer: number;
   carrying: ItemId | null;
+  task: { kind: TaskKind; done: number } | null; // гараар хийж буй ажил, done 0-1
+  deck: ProblemId[]; // энэ тоглолтын асуудлуудын дараалал (seed-ээр холино)
   problem: ProblemId | null; // одоо шийдэж буй асуудал
+  plan: PlanId | null; // одоогийн асуудалд сонгосон төлөвлөгөө (null = шийдээгүй)
+  earthAt: number; // Дэлхийн хариу ирэх цаг (0 = асуугаагүй)
+  advice: PlanId | null; // Дэлхийн зөвлөсөн төлөвлөгөө
+  flareEvent: number; // DONKI архивын аль дэлбэрэлт (FLARES-ийн дугаар)
   solved: ProblemId[];
   modal: Modal | null; // нээлттэй бол тоглоом түр зогсоно
+  science: number; // лабораторид хүргэсэн шинжлэх ухааны оноо
+  samples: number[]; // гартаа яваа, хүргээгүй дээжүүдийн оноо
+  drill: number; // одоогийн дээжийг хэдэн секунд өрөмдсөн
+  siteLeft: Record<SiteId, number>; // талбай бүрт үлдсэн дээж
   ice: Ice[];
   nextIceId: number;
   storm: number; // шуурга дуусах хүртэлх секунд
@@ -93,4 +125,6 @@ export interface Input {
   dx: number; // -1..1
   dz: number;
   action: boolean; // энэ frame-д товч дарсан уу
+  step?: boolean; // гараар хийдэг ажлын нэг алхам хийсэн үү
+  cancel?: boolean; // гараар хийдэг ажлаа орхисон уу
 }

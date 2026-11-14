@@ -12,7 +12,8 @@ export function updateSuit(s: GameState, dt: number): GameState {
   if (suitO2 > 0) return { ...s, suitO2 };
   // Скафандрын O2 дуусвал баг аврах ч 1 зүрх алдана
   s = loseHeart(s, "suit", "Скафандрын хүчилтөрөгч дууслаа! Баг чамайг аварлаа, гэхдээ −1 ❤️. Дараа нь эрт буцаарай.");
-  return { ...s, suitO2: 100, player: { x: SHELTER.x, z: SHELTER.z + 5, angle: Math.PI, moving: false } };
+  // Аврагдахдаа гартаа байсан дээжээ гээнэ
+  return { ...s, suitO2: 100, samples: [], drill: 0, task: null, player: { x: SHELTER.x, z: SHELTER.z + 5, angle: Math.PI, moving: false } };
 }
 
 // Дасгал: өдөрт нэг удаа гүйлтийн зам дээр 3 секунд зогсох
