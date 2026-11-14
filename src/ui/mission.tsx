@@ -40,7 +40,9 @@ function nextTask(s: GameState): Task {
   }
   const dusk = dayPhase(s.time) > DAY_PART - DUSK_WARN;
   if (dusk && off) return { text: `🌙 Шөнө болох гэж байна! Батарейгаа хэмнэ: ${off}`, tone: "bg-indigo-600" };
-  if (short && off && solarInput(s) < powerDemand(s)) return { text: `🔋 Нар бүх машинд хүрэхгүй байна! ${off}`, tone: "bg-yellow-600" };
+  // Батарей бүрэн хоосрохоос өмнө сануулна: нар хүрэхгүй, батарей 40%-аас доош
+  const draining = solarInput(s) < powerDemand(s) && s.res.battery < 40;
+  if (draining && off) return { text: `🔋 Нар бүх машинд хүрэхгүй, батарей цэнэглэгдэхгүй байна! ${off}`, tone: "bg-yellow-600" };
   return { text: "🧊 Мөс түүж, машинуудаа хянаарай", tone: "bg-black/45" };
 }
 
