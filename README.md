@@ -3,7 +3,7 @@
 **Team LUCKY · NASA Space Apps Challenge 2026 · Ulaanbaatar**
 Challenge: *Build a Junior Astronaut Mission Trainer*
 
-🎮 **Play:** *(add the Vercel link here after deploy)*
+🎮 **Play:** **https://lucky-mars.vercel.app** (no download or account; English by default, tap **MN** on the start screen for Mongolian)
 
 A 3D browser game where kids become the commander of a small Mars outpost. Keep your crew alive for **6 sols** (Martian days) until the supply ship arrives by balancing **oxygen, water, food, power and radiation shielding**.
 
@@ -205,11 +205,17 @@ Contributors and AI assistants: read [CLAUDE.md](./CLAUDE.md) first.
 
 ## Deploy
 
-Import the repository on [Vercel](https://vercel.com/new). It detects Vite automatically (build: `bun run build`, output: `dist`).
+The game is live on **Vercel**: https://lucky-mars.vercel.app
+
+- Every push to `main` deploys automatically. The build command in [`vercel.json`](./vercel.json) is `bun test && bun run lint && bun run build`, so if a test fails the deploy fails and the previous version stays live.
+- Every other branch and pull request gets its own preview link, so a teammate's change can be played before it reaches `main`.
+- [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs the same three checks on GitHub for every push and pull request, so each commit shows ✓ or ✗.
+
+The build is a plain static site in `dist/`, so it can also be served from any static host.
 
 ## Roadmap
 
-- [x] English / Mongolian language switch (MN/EN on the start screen)
+- [x] English / Mongolian language switch (English by default, MN/EN on the start screen, choice remembered)
 - [ ] Choose Moon or Mars (14-day lunar night vs. dust storms)
 - [x] Short tutorial for the first sol
 - [x] Sound effects

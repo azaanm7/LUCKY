@@ -61,7 +61,7 @@ src/
            use-space-weather.ts: the only network request in the app (live NASA DONKI flares).
   ui/      React + Tailwind HUD, joystick, overlays.
   i18n/    Every player-facing string. mn.ts (defines the Dict type) and en.ts (same shape),
-           index.ts (Lang, loadLang/saveLang, say() for Msg, stepText() for report steps), context.ts (useT()).
+           index.ts (Lang, DEFAULT_LANG = "en", loadLang/saveLang, say() for Msg, stepText() for report steps), context.ts (useT()).
 ```
 
 The single most important rule: **logic decides, three.js draws.**
@@ -116,6 +116,12 @@ Space Apps requires teams to describe how AI was used. After any task where you 
 - Small commits with clear messages, e.g. `feat: add meteor event`, `fix: shelter radius`.
 - Do not commit `node_modules`, `dist`, `.env*` or zip files.
 - Do not add AI tools as commit co-authors; commits are made by team members.
+
+## Deploy
+
+- Live at https://lucky-mars.vercel.app (Vercel project `lucky-mars`, linked to this repo). **A push to `main` is a release.**
+- `vercel.json` builds with `bun test && bun run lint && bun run build`: a failing test stops the deploy and the old version stays live. Other branches and PRs get preview links.
+- `.github/workflows/ci.yml` runs the same checks on GitHub for every push and PR. It does not deploy.
 
 ## Gotchas
 
