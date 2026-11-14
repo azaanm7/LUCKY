@@ -32,9 +32,12 @@ src/
     config.ts    Every tunable number and every science fact.
     world.ts     Movement, collisions, day/night, power helpers.
     engine.ts    tick(state, input, dt) → new GameState
-    missions.ts  Daily emergencies: start (SCHEDULE), progress, solve, acknowledge
+    missions.ts  Emergency cards: start (state.deck), choose a plan, ask Earth, repairs, acknowledge
+    problems.ts  Emergency texts, the two plans and the real astronaut story behind each one
+    donki.ts     Real NASA DONKI solar flare records. Never edit the numbers.
+    tasks.ts     Hands-on work (wipe panels, fit a part): state.task advances on input.step
+    science.ts   Sample sites, drilling, banking samples at the shelter, stars
     crew.ts      Spacesuit oxygen and exercise
-    problems.ts  Emergency texts + the real astronaut story behind each one
     events.ts    Storm and flare timers, facts (once each), lost hearts (loseHeart), win/lose.
     report.ts    Failure report built from GameState.losses.
     bots.ts      Balance bots (idle, explorer, manager).
@@ -48,12 +51,15 @@ src/
     actors.ts    Astronaut, carried item, ice and the guide arrow
     environment.ts Sky dome, sun, stars, lights and fog for day, dusk, night, storm and flare
     effects.ts   Dust storm particles
-  hooks/   use-game-loop.ts: the one place that connects logic, 3D and input.
+    sites.ts     Science sites: drill rig, beacon, samples left
+    ship.ts      Supply ship that lands when the player wins
+  audio/   synth.ts (Web Audio tones, no files) and cues.ts (compares two states and plays sounds).
+  hooks/   use-game-loop.ts: the one place that connects logic, 3D, input and sound.
   ui/      React + Tailwind HUD, joystick, overlays.
 ```
 
 The single most important rule: **logic decides, three.js draws.**
-- New gameplay rule → `src/game/` (engine.ts or world.ts) + a test in `engine.test.ts`.
+- New gameplay rule → `src/game/` + a test in the matching `*.test.ts` (helpers are in `testing.ts`).
 - New number (rate, cost, duration) → `src/game/config.ts`, never hard-coded elsewhere.
 - Changed a number in `config.ts` → run `bun run balance` and update the "Game balance" table in README. `bots.test.ts` must still pass: managing power has to beat not managing it.
 - New 3D object → `src/three/`, driven by fields on `GameState`.
@@ -63,7 +69,11 @@ While `state.modal` is open, `tick()` returns the state unchanged (the game is p
 
 Power is one shared budget: when sun plus battery cannot cover the machines that are on and not broken, all of them slow down by the same share (`state.load`, 0–1). Anything that takes a heart must go through `loseHeart()` in `events.ts`, so the failure report can explain it.
 
-Adding a new emergency: add its id to `ProblemId`, its text and real story to `PROBLEMS` (`problems.ts`), a time to `SCHEDULE`, and, if it needs a spare part, an entry in `REPAIRS` and `ITEMS` (`config.ts`). Then update the mission line (`ui/mission.tsx`) and guide arrow (`three/scene.ts`), which follow the same priority order, and add a test.
+Every emergency is a card with two plans, `a` (careful, slow) and `b` (quick, with a lasting cost), and **neither may be free**. `choose()` applies a plan, `askEarth()` delays the answer by the card's light time while the problem keeps running, and `advise()` decides what Earth recommends from the current state. The order of the cards is shuffled per game (`state.deck`).
+
+Adding a new emergency: add its id to `ProblemId` and `PROBLEM_IDS`, its text, both plans, Earth's reasons and the real story to `PROBLEMS` (`problems.ts`), what each plan does to `choose()` and `advise()` (`missions.ts`), and, if it needs a spare part, an entry in `REPAIRS` and `ITEMS` (`config.ts`). Then update the mission line (`ui/mission.tsx`) and guide arrow (`three/actors.ts`), which follow the same priority order, and add a test.
+
+Sound never comes from the engine: `audio/cues.ts` compares the state before and after a tick. The game must stay fully playable with sound off.
 
 `tick()` must stay **pure and immutable**: return a new object with spread (`{ ...s }`), never mutate `prev`. Randomness goes through `random(seed)` in `world.ts`, never `Math.random()` inside the engine, so tests are repeatable.
 
