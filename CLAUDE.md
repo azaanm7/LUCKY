@@ -58,6 +58,8 @@ src/
   hooks/   use-game-loop.ts: the one place that connects logic, 3D, input and sound.
            use-space-weather.ts: the only network request in the app (live NASA DONKI flares).
   ui/      React + Tailwind HUD, joystick, overlays.
+  i18n/    Every player-facing string. mn.ts (defines the Dict type) and en.ts (same shape),
+           index.ts (Lang, loadLang/saveLang, say() for Msg, stepText() for report steps), context.ts (useT()).
 ```
 
 The single most important rule: **logic decides, three.js draws.**
@@ -89,11 +91,11 @@ Sound never comes from the engine: `audio/cues.ts` compares the state before and
 - Components: function components, props typed with an `interface`. Pass icons as rendered JSX (`icon={<span>💧</span>}`).
 - Use plain HTML elements styled with Tailwind. No UI component library.
 - Comments may be in Mongolian; identifiers in English.
-- Player-facing text: short, friendly sentences a child understands. Mongolian now; every new string must also get an English version once i18n exists (see Roadmap in README).
+- Player-facing text: short, friendly sentences a child (7–12) understands. **Never write it in game/, three/ or ui/ code**: add it to both `src/i18n/mn.ts` and `src/i18n/en.ts` (TypeScript fails if en.ts is missing a key) and read it with `useT()`. The engine returns codes, not text: toasts are a `Msg`, the failure report returns `Step` and `TipId`. `i18n.test.ts` checks both languages have the same shape and that English sentences stay short.
 
 ## Science and content rules
 
-- Facts shown to players live in `FACTS` in `config.ts` and must be true. If unsure, leave it out and ask the team.
+- Facts shown to players live in `facts` in `src/i18n/mn.ts` and `en.ts` (ids in `FactId`, `game/types.ts`) and must be true in both languages. If unsure, leave it out and ask the team.
 - Game rates are tuned for fun and are not real NASA values; do not present them as real.
 - **Never** use NASA logos, insignia, mission patches or other NASA branding (Space Apps rule).
 - AI-generated images or videos must carry a visible "AI-generated" watermark (Space Apps rule).

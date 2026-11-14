@@ -32,7 +32,7 @@ export function choose(s: GameState, plan: PlanId): GameState {
   if (repair && plan === "b") return solve({ ...s, weak: weaken(s, repair.target) }, id); // түр засвар: одоо ажиллана, гэхдээ хагас хүчээр
   if (id === "storm" && plan === "b") {
     const battery = Math.max(0, s.res.battery - STUDY_POWER);
-    return toast({ ...s, science: s.science + STUDY_SCIENCE, res: { ...s.res, battery } }, `🔬 Шуурганы хэмжилтийг Дэлхий рүү илгээлээ! +${STUDY_SCIENCE} оноо`);
+    return toast({ ...s, science: s.science + STUDY_SCIENCE, res: { ...s.res, battery } }, { kind: "stormStudy", points: STUDY_SCIENCE });
   }
   if (id === "flare" && plan === "a") return { ...s, safeMode: s.flareWarn + FLARE_SECONDS };
   return s;
@@ -89,7 +89,7 @@ export function installed(s: GameState, item: ItemId): GameState {
   const machine = MACHINES.find((m) => m.item === item)!;
   s = { ...s, carrying: null, weak: s.weak.filter((m) => m !== machine.id) };
   if (s.problem && REPAIRS[s.problem]) return solve(s, s.problem);
-  return toast(s, `🔧 ${machine.name}ийг бүрэн заслаа! Одоо бүтэн хүчээрээ ажиллана.`);
+  return toast(s, { kind: "fixed", machine: machine.id });
 }
 
 function solve(s: GameState, id: ProblemId): GameState {

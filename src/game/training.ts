@@ -17,7 +17,7 @@ export function train(prev: GameState, next: GameState): GameState {
   if (!fresh.length) return next;
   const trained = [...next.trained, ...fresh];
   if (trained.length < TRAINING.length) return { ...next, trained };
-  return toast({ ...next, trained }, "🎓 Сургалтаа дүүргэлээ! Чи одоо жинхэнэ бяцхан сансрын нисэгч боллоо.", 8);
+  return toast({ ...next, trained }, { kind: "trained" }, 8);
 }
 
 // Дараагийн хийх сургалтын алхам (бүгдийг хийсэн бол undefined)

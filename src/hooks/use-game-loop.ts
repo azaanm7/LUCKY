@@ -4,10 +4,12 @@ import { startAudio } from "../audio/synth";
 import { createGame, tick } from "../game/engine";
 import { acknowledge, askEarth, choose } from "../game/missions";
 import type { Flare, GameState, Input, PlanId } from "../game/types";
+import type { Dict } from "../i18n/mn";
 import { createWorld } from "../three/scene";
 
 // three.js-ийн дэлгэц, тоглоомын давталт, гарын товчлуур, дууг нэг дор холбоно
-export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>, started: boolean, paused: boolean) {
+// t: сонгосон хэлний толь. 3D хаягууд үүгээр зурагдана, хэл солигдвол ертөнцийг шинээр үүсгэнэ.
+export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>, started: boolean, paused: boolean, t: Dict) {
   const [hud, setHud] = useState<GameState>(() => createGame()); // React-д 10 удаа/сек шинэчилнэ
   const stateRef = useRef<GameState>(hud); // бодит цагийн state (60 удаа/сек)
   const once = useRef({ action: false, step: false, cancel: false }); // нэг frame-д л хүчинтэй товчнууд
@@ -26,7 +28,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
 
   useEffect(() => {
     const canvas = canvasRef.current!;
-    const world = createWorld(canvas);
+    const world = createWorld(canvas, t);
     world.resize();
     const onResize = () => world.resize();
     // e.code = товчны байрлал (KeyW, Space). Монгол гарын байрлал дээр ч WASD ажиллана.
@@ -88,7 +90,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
       window.removeEventListener("blur", blur);
       world.dispose();
     };
-  }, [canvasRef, apply]);
+  }, [canvasRef, apply, t]);
 
   return {
     hud,

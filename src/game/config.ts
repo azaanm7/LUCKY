@@ -1,5 +1,7 @@
 import type { ItemId, Machine, MachineId, ProblemId, Site, TaskKind, TrainingId, Vec2 } from "./types";
 
+// Тоглогчид харагдах бичвэр (нэр, баримт) энд биш, src/i18n/mn.ts, en.ts-д байна.
+
 export const SOL_SECONDS = 45; // 1 sol (Ангарагийн өдөр) = 45 секунд
 export const DAY_PART = 0.7; // 70% нь өдөр, 30% нь шөнө
 export const DUSK_WARN = 0.12; // шөнө болохоос өмнөх sol-ын энэ хэсэгт "батарейгаа хэмнэ" гэж сануулна
@@ -58,27 +60,19 @@ export const SOLAR_FIELD: Zone = { x: -13, z: -11, r: 4.5 };
 export const DEPOT: Zone = { x: 5, z: -5, r: 1.8 }; // сэлбэгийн агуулах
 
 export const MACHINES: Machine[] = [
-  { id: "o2", name: "Агаар үйлдвэр", icon: "🫧", pos: { x: -9, z: 2 }, makes: "oxygen", item: "filter" },
-  { id: "recycler", name: "Ус цэвэршүүлэгч", icon: "🚰", pos: { x: 9, z: 2 }, makes: "water", item: "pump" },
-  { id: "greenhouse", name: "Хүлэмж", icon: "🌱", pos: { x: 0, z: -8 }, makes: "food", item: "patch" },
+  { id: "o2", icon: "🫧", pos: { x: -9, z: 2 }, makes: "oxygen", item: "filter" },
+  { id: "recycler", icon: "🚰", pos: { x: 9, z: 2 }, makes: "water", item: "pump" },
+  { id: "greenhouse", icon: "🌱", pos: { x: 0, z: -8 }, makes: "food", item: "patch" },
 ];
 
 export const SITES: Site[] = [
-  { id: "soil", name: "Хөрсний дээж", icon: "🧪", x: 13, z: 14, r: 2.6, worth: 1 },
-  { id: "delta", name: "Голын бэлчир", icon: "🏞️", x: -25, z: 17, r: 2.8, worth: 2 },
-  { id: "crater", name: "Том тогоо", icon: "🌋", x: 30, z: -30, r: 3.2, worth: 3 },
+  { id: "soil", icon: "🧪", x: 13, z: 14, r: 2.6, worth: 1 },
+  { id: "delta", icon: "🏞️", x: -25, z: 17, r: 2.8, worth: 2 },
+  { id: "crater", icon: "🌋", x: 30, z: -30, r: 3.2, worth: 3 },
 ];
 
-// Эхний өдрийн сургалт: үндсэн үйлдэл бүрийг нэг удаа хийж үзнэ (training.ts)
-export const TRAINING: { id: TrainingId; text: string }[] = [
-  { id: "ice", text: "🧊 Цэнхэр мөс түү" },
-  { id: "switch", text: "🔌 Машины дугуй дээр зогсоод унтраа эсвэл асаа" },
-  { id: "wipe", text: "🧹 Нарны панель дээр очоод арч" },
-  { id: "refill", text: "🏠 Хоргодох байранд орж скафандраа цэнэглэ" },
-  { id: "sample", text: "🔬 Шинжлэх ухааны талбайгаас дээж авчир" },
-];
-
-export const NEED_NAME = { oxygen: "Хүчилтөрөгч", water: "Ус", food: "Хүнс" };
+// Эхний өдрийн сургалт: үндсэн үйлдэл бүрийг нэг удаа хийж үзнэ (training.ts). Бичвэр нь i18n-ийн `training`-д.
+export const TRAINING: { id: TrainingId }[] = [{ id: "ice" }, { id: "switch" }, { id: "wipe" }, { id: "refill" }, { id: "sample" }];
 
 // Асуудлууд хэзээ эхлэх (секунд): Sol 2-оос эхлэн өдөр бүр нэг. Дарааллыг нь тоглолт бүрд холино (state.deck).
 export const PROBLEM_TIMES = [SOL_SECONDS * 1 + 6, SOL_SECONDS * 2 + 4, SOL_SECONDS * 3 + 6, SOL_SECONDS * 4 + 6, SOL_SECONDS * 5 + 4];
@@ -91,23 +85,8 @@ export const REPAIRS: Partial<Record<ProblemId, { item: ItemId; target: MachineI
   pump: { item: "pump", target: "recycler" },
 };
 
-export const ITEMS: Record<ItemId, { name: string; icon: string; color: string }> = {
-  filter: { name: "CO₂ шүүлтүүр", icon: "🧽", color: "#f2d45c" },
-  patch: { name: "Нөхөөсний иж бүрдэл", icon: "🩹", color: "#f28c5c" },
-  pump: { name: "Шинэ насос", icon: "⚙️", color: "#8fd0ff" },
+export const ITEMS: Record<ItemId, { icon: string; color: string }> = {
+  filter: { icon: "🧽", color: "#f2d45c" },
+  patch: { icon: "🩹", color: "#f28c5c" },
+  pump: { icon: "⚙️", color: "#8fd0ff" },
 };
-
-export const FACTS = {
-  trip: "Дэлхийгээс Ангараг хүртэл хөлөг 7 орчим сар нисдэг. Бараг ирлээ!",
-  red: "Ангараг улаан харагддаг нь хөрсөнд нь төмрийн исэл буюу зэв их байдгаас болдог.",
-  landing: "Агаар мандалд орлоо! Хөлөг маш их халдаг тул дулааны бамбай хамгаална. Газардах хүртэл ердөө 7 орчим минут.",
-  start: "Ангараг дээрх 1 өдрийг sol гэдэг. Энэ нь Дэлхийн өдрөөс 40 орчим минутаар урт.",
-  ice: "Ангарагийн хөрсөн доор болон туйлд нь мөс бий. Хайлуулбал ус болно!",
-  night: "Шөнө нар байхгүй тул нарны панель ажиллахгүй. Батарейн цахилгаанаа хэмнээрэй!",
-  moxie: "Perseverance ровер дээрх MOXIE төхөөрөмж 2021 онд Ангарагийн агаараас хүчилтөрөгч гаргаж авсан: хамгийн ихдээ цагт 12 грамм.",
-  suit: "Скафандр доторх хүчилтөрөгч хязгаартай. Сансрын нисэгчид гадаа ажиллах цагаа нарийн төлөвлөдөг.",
-  soil: "Perseverance ровер Ангарагийн чулуу, хөрсний дээжийг жижиг хоолойд хийж цуглуулдаг. Эрдэмтэд хожим нь Дэлхийд авчирч судлахыг хүсдэг.",
-  delta: "Perseverance роверын буусан Jezero тогоо олон тэрбум жилийн өмнө нуур байжээ. Түүн рүү цутгаж байсан голын бэлчир одоо ч харагддаг.",
-  crater: "Curiosity ровер Gale тогооны эртний чулуунаас органик молекул олсон. Органик молекул бол амьдралын барилгын материал юм.",
-};
-export type FactId = keyof typeof FACTS;

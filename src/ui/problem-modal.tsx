@@ -2,6 +2,7 @@ import { EARTH_SECONDS_PER_MINUTE } from "../game/config";
 import { damageChance } from "../game/donki";
 import { PROBLEMS } from "../game/problems";
 import type { GameState, PlanId } from "../game/types";
+import { useT } from "../i18n/context";
 
 interface ProblemModalProps {
   s: GameState;
@@ -14,7 +15,7 @@ const BIG = "rounded-2xl bg-mars py-3.5 font-display text-lg text-[#1b0f0a] acti
 
 // Хоёр төлөвлөгөө: аль аль нь үнэтэй. advice = Дэлхийн зөвлөсөн нь.
 function Plans({ s, advice, onChoose }: { s: GameState; advice: PlanId | null; onChoose: (plan: PlanId) => void }) {
-  const p = PROBLEMS[s.problem!];
+  const p = useT().problems[s.problem!];
   const risk = s.problem === "flare" ? ` (${Math.round(damageChance(s.solarFlare) * 100)}%)` : "";
   return (
     <div className="grid gap-2">
@@ -31,10 +32,11 @@ function Plans({ s, advice, onChoose }: { s: GameState; advice: PlanId | null; o
 
 // Асуудал эхлэхэд: юу болсон, юуг сонгох вэ. Дэлхийн хариу. Шийдсэний дараа: бодит амьдрал дээр яасан бэ.
 export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps) {
+  const all = useT(), t = all.modal;
   const modal = s.modal!;
-  const p = PROBLEMS[modal.id];
+  const p = all.problems[modal.id], icon = PROBLEMS[modal.id].icon, delay = PROBLEMS[modal.id].delay;
   const flare = s.solarFlare;
-  const title = { brief: ["Онцгой байдал!", p.title, p.icon], answer: ["Дэлхийн хариу ирлээ", p.title, "📡"], debrief: ["Асуудлыг шийдлээ!", p.badge, "🏅"] }[modal.kind];
+  const title = { brief: [t.emergency, p.title, icon], answer: [t.earthReplied, p.title, "📡"], debrief: [t.solved, p.badge, "🏅"] }[modal.kind];
   return (
     <div className="absolute inset-0 grid place-items-center overflow-y-auto bg-black/45 p-4">
       <div className="grid w-full max-w-md gap-3 rounded-3xl bg-space/95 p-5 shadow-2xl">
@@ -51,15 +53,15 @@ export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps)
             <p className="text-orange-50/90">{p.what}</p>
             {modal.id === "flare" && (
               <p className="rounded-2xl bg-red-900/50 p-3 text-sm">
-                🛰️ <b>Бодит өгөгдөл · NASA DONKI{flare.live ? ", өнөөдөр татсан" : " архив"}:</b> {flare.date}-нд Наран дээр <b>{flare.cls}</b> зэрэглэлийн дэлбэрэлт бүртгэгдсэн{flare.live && " (сүүлийн 30 хоногийн хамгийн хүчтэй нь)"}. Тоглоомын дэлбэрэлт яг ийм хүчтэй.
+                🛰️ <b>{t.donkiLabel(!!flare.live)}</b> {t.donki(flare.date, flare.cls, !!flare.live)}
               </p>
             )}
-            <p className="text-sm font-extrabold text-orange-200">Аль аль нь үнэтэй. Чи юуг сонгох вэ?</p>
+            <p className="text-sm font-extrabold text-orange-200">{t.choose}</p>
             <Plans s={s} advice={null} onChoose={onChoose} />
             <button onClick={onAsk} className="rounded-2xl bg-sky-900/60 p-3 text-left text-sm active:scale-[.98]">
-              <b>📡 Дэлхийгээс асуух</b> <span className="text-xs font-bold text-white/40">[3]</span>
+              <b>{t.ask}</b> <span className="text-xs font-bold text-white/40">[3]</span>
               <span className="block text-sky-100/80">
-                Ангараг маш хол тул хариу <b>{p.delay} минутын</b> дараа ирнэ (тоглоомд {Math.round(p.delay * EARTH_SECONDS_PER_MINUTE)} секунд). Тэр хооронд асуудал үргэлжилнэ!
+                {t.askText(delay, Math.round(delay * EARTH_SECONDS_PER_MINUTE))}
               </span>
             </button>
           </>
@@ -67,16 +69,14 @@ export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps)
 
         {modal.kind === "answer" && (s.plan ? (
           <>
-            <p className="rounded-2xl bg-sky-900/50 p-3">📡 Дэлхий: «{p.why[s.advice ?? "a"]}»</p>
-            <p className="text-orange-50/90">
-              Гэхдээ хариу <b>хожимдлоо</b>: чи хүлээж байх хооронд дэлбэрэлт эхэлчихсэн. Ангараг дээр яаралтай шийдвэрийг сансрын нисэгчид өөрсдөө гаргадаг.
-            </p>
-            <button onClick={onClose} className={BIG}>Ойлголоо 💪</button>
+            <p className="rounded-2xl bg-sky-900/50 p-3">{t.earthSays(p.why[s.advice ?? "a"])}</p>
+            <p className="text-orange-50/90">{t.late}</p>
+            <button onClick={onClose} className={BIG}>{t.gotIt}</button>
           </>
         ) : (
           <>
-            <p className="rounded-2xl bg-sky-900/50 p-3">📡 Дэлхий: «{p.why[s.advice ?? "a"]}»</p>
-            <p className="text-sm font-extrabold text-orange-200">⭐ тэмдэгтэй нь Дэлхийн зөвлөгөө. Эцсийн шийдвэр чинийх!</p>
+            <p className="rounded-2xl bg-sky-900/50 p-3">{t.earthSays(p.why[s.advice ?? "a"])}</p>
+            <p className="text-sm font-extrabold text-orange-200">{t.adviceHint}</p>
             <Plans s={s} advice={s.advice} onChoose={onChoose} />
           </>
         ))}
@@ -84,10 +84,10 @@ export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps)
         {modal.kind === "debrief" && (
           <>
             <div className="grid gap-1 rounded-2xl bg-panel p-3">
-              <p className="text-xs font-extrabold tracking-widest text-emerald-300 uppercase">Бодит амьдрал дээр · {p.realTitle}</p>
+              <p className="text-xs font-extrabold tracking-widest text-emerald-300 uppercase">{t.realLife(p.realTitle)}</p>
               <p className="text-orange-50/90">{p.real}</p>
             </div>
-            <button onClick={onClose} className={BIG}>Үргэлжлүүлэх 🚀</button>
+            <button onClick={onClose} className={BIG}>{t.next}</button>
           </>
         )}
       </div>

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DAY_PART, FACTS, ICE_WATER, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
+import { DAY_PART, ICE_WATER, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
 import { createGame, tick } from "./engine";
 import { at, game, idle, press, run } from "./testing";
 
@@ -125,6 +125,6 @@ describe("баримт ба тэмдэглэл", () => {
   });
 
   test("агаар үйлдвэр дээр очиход MOXIE-ийн баримт гарна", () => {
-    expect(tick(at(createGame(1), -9, 2), idle, 0.05).toast?.text).toBe(FACTS.moxie);
+    expect(tick(at(createGame(1), -9, 2), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "moxie" });
   });
 });

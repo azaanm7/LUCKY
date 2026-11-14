@@ -1,6 +1,8 @@
 import { MACHINES, SOLAR_FIELD } from "../game/config";
 import type { GameState } from "../game/types";
 import { inZone, nearMachine } from "../game/world";
+import { useT } from "../i18n/context";
+import { say } from "../i18n/index";
 import { Joystick } from "./joystick";
 
 interface ControlsProps {
@@ -12,10 +14,11 @@ interface ControlsProps {
 const BUTTON = "rounded-3xl px-5 py-4 text-lg font-extrabold text-white shadow-xl active:scale-95";
 
 export function Controls({ s, onPress, onStick }: ControlsProps) {
+  const t = useT();
   const near = nearMachine(s.player);
   const machine = MACHINES.find((m) => m.id === near);
   const canWipe = !machine && inZone(s.player, SOLAR_FIELD) && s.dust > 0.05;
-  const fact = s.toast && s.time < s.toast.until ? s.toast.text : null;
+  const fact = s.toast && s.time < s.toast.until ? say(t, s.toast.msg) : null;
   return (
     <div className="safe-bottom absolute inset-x-0 bottom-0 flex flex-col gap-3 p-3">
       {fact && (
@@ -27,18 +30,18 @@ export function Controls({ s, onPress, onStick }: ControlsProps) {
         <Joystick onMove={onStick} />
         {machine && (
           <button onClick={onPress} className={`${BUTTON} ${s.on[machine.id] ? "bg-red-500" : "bg-emerald-500"}`}>
-            {machine.icon} {s.on[machine.id] ? "Унтраах" : "Асаах"}
-            <span className="block text-xs font-bold opacity-90">{machine.name} · Space</span>
+            {machine.icon} {s.on[machine.id] ? t.controls.off : t.controls.on}
+            <span className="block text-xs font-bold opacity-90">{t.machines[machine.id]} · Space</span>
           </button>
         )}
         {canWipe && (
           <button onClick={onPress} className={`${BUTTON} bg-amber-500`}>
-            🧹 Арчих
-            <span className="block text-xs font-bold opacity-90">Панель {Math.round(s.dust * 100)}% шороотой · Space</span>
+            {t.controls.wipe}
+            <span className="block text-xs font-bold opacity-90">{t.controls.dusty(Math.round(s.dust * 100))}</span>
           </button>
         )}
         {!machine && !canWipe && (
-          <span className="hidden rounded-xl bg-black/40 px-3 py-2 text-xs font-bold text-white/80 sm:block">WASD / ← ↑ → ↓ алхах · Space үйлдэл</span>
+          <span className="hidden rounded-xl bg-black/40 px-3 py-2 text-xs font-bold text-white/80 sm:block">{t.controls.keys}</span>
         )}
       </div>
     </div>

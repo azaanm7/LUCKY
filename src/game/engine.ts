@@ -1,4 +1,4 @@
-import { CREW_USE, FACTS, HEARTS, ICE_COUNT, ICE_WATER, LEAK_RATE, MACHINES, MAKES, PROBLEM_IDS, SITE_SAMPLES, START, WEAK_OUTPUT } from "./config";
+import { CREW_USE, HEARTS, ICE_COUNT, ICE_WATER, LEAK_RATE, MACHINES, MAKES, PROBLEM_IDS, SITE_SAMPLES, START, WEAK_OUTPUT } from "./config";
 import { updateSuit } from "./crew";
 import { FLARES } from "./donki";
 import { checkEnd, fact, weather } from "./events";
@@ -25,7 +25,7 @@ export function createGame(seed = Math.floor(Math.random() * 1e9), live: Flare |
     science: 0, samples: [], drill: 0, siteLeft: { soil: SITE_SAMPLES, delta: SITE_SAMPLES, crater: SITE_SAMPLES },
     ice: [], nextIceId: 0, storm: 0, stormSol: 0, flareWarn: 0, flare: 0, flareHit: false,
     emptyTimer: 0, collected: 0, trained: [], losses: [], seen: ["start"],
-    toast: { text: FACTS.start, until: 8 }, seed: afterFlare,
+    toast: { msg: { kind: "fact", id: "start" }, until: 8 }, seed: afterFlare,
   };
   for (let i = 0; i < ICE_COUNT; i++) s = addIce(s);
   return s;

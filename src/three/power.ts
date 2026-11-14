@@ -3,6 +3,7 @@ import { MACHINES, SOLAR_FIELD, SOLAR_POWER } from "../game/config";
 import type { GameState, MachineId } from "../game/types";
 import { solarInput, works } from "../game/world";
 import { createGlow, createLabel, glowMat, mat, mesh } from "./models";
+import type { Dict } from "../i18n/mn";
 
 // Эрчим хүчний сүлжээ: нарны панель → батарей → машинууд. Кабелиар гүйх гэрэл нь эрчим хүчний урсгал.
 const FLOWING = new THREE.Color("#19d3ff"), SHORT = new THREE.Color("#ff3d1f");
@@ -72,12 +73,12 @@ function createCable(scene: THREE.Scene, route: Route) {
   };
 }
 
-export function createPowerGrid(scene: THREE.Scene) {
+export function createPowerGrid(scene: THREE.Scene, t: Dict) {
   const solar = createSolarField();
   solar.root.position.set(SOLAR_FIELD.x, 0, SOLAR_FIELD.z);
   const battery = createBattery();
   battery.root.position.set(BATTERY[0], 0, BATTERY[1]);
-  const label = createLabel("☀️ Нарны панель");
+  const label = createLabel(t.world.solar);
   label.position.set(SOLAR_FIELD.x, 3.4, SOLAR_FIELD.z - 2.6);
   scene.add(solar.root, battery.root, label);
 

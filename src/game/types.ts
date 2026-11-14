@@ -40,7 +40,6 @@ export type Cause = Need | "radiation" | "suit";
 
 export interface Machine {
   id: MachineId;
-  name: string;
   icon: string;
   pos: Vec2; // дэвсгэр (pad) хаана байх
   makes: Need; // аль нөөцийг үйлдвэрлэдэг
@@ -50,7 +49,6 @@ export interface Machine {
 // Шинжлэх ухааны талбай: хол байх тусам дээж нь үнэтэй
 export interface Site extends Vec2 {
   id: SiteId;
-  name: string;
   icon: string;
   r: number;
   worth: number; // нэг дээж хэдэн оноо
@@ -127,9 +125,32 @@ export interface GameState {
   trained: TrainingId[]; // сургалтын хийсэн алхмууд
   losses: HeartLoss[]; // алдсан зүрх бүрийн шалтгаан
   seen: string[]; // аль баримтуудыг (FACTS) аль хэдийн үзүүлсэн
-  toast: { text: string; until: number } | null;
+  toast: { msg: Msg; until: number } | null; // текстийг биш кодыг хадгална, UI сонгосон хэлээр орчуулна
   seed: number;
 }
+
+// Тоглогчид харагдах бүх бичвэр src/i18n/-д байна. Engine зөвхөн кодыг нь буцаана.
+export type FactId = "trip" | "red" | "landing" | "start" | "ice" | "night" | "moxie" | "suit" | "soil" | "delta" | "crater";
+
+// Дэлгэцийн доод хэсэгт түр гарах мэдэгдэл
+export type Msg =
+  | { kind: "fact"; id: FactId }
+  | { kind: "luckyFlare" | "radiation" | "suitOut" | "trained" }
+  | { kind: "flareHit" | "fixed"; machine: MachineId }
+  | { kind: "needOut"; need: Need }
+  | { kind: "banked" | "stormStudy"; points: number }
+  | { kind: "sampled"; site: SiteId };
+
+// Төгсгөлийн тайлангийн нэг алхам (шалтгаан → ... → үр дагавар)
+export type Step =
+  | { id: "outsideFlare" | "radiationHit" | "drillO2" | "oneMore" | "suitEmpty" | "tooLong" | "noPart" | "halfPower" | "leak" | "slowPatch" | "noPower" | "night" | "storm" | "allOn" | "fewIce" }
+  | { id: "out"; need: Need }
+  | { id: "broken" | "weakFix" | "off" | "slowed" | "late"; machine: MachineId }
+  | { id: "dusty"; pct: number }
+  | { id: "stormSol"; sol: number };
+
+// Тайлангийн "дараагийн удаа юу хийх вэ" зөвлөгөө
+export type TipId = "shelter" | "returnEarly" | "refill" | "fetchPart" | "fullFix" | "turnBackOn" | "patch" | "dusk" | "stormOff" | "wipe" | "spare" | "ice" | "early";
 
 export interface Input {
   dx: number; // -1..1

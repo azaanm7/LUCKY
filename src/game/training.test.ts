@@ -21,7 +21,7 @@ describe("эхний өдрийн сургалт", () => {
     const s = game({ trained: all.slice(1) });
     const done = tick(at(s, s.ice[0].x, s.ice[0].z), idle, 0.05);
     expect(done.trained).toHaveLength(TRAINING.length);
-    expect(done.toast?.text).toContain("Сургалтаа дүүргэлээ");
+    expect(done.toast?.msg).toEqual({ kind: "trained" });
     const again = tick(at({ ...done, toast: null }, done.ice[0].x, done.ice[0].z), idle, 0.05);
     expect(again.trained).toHaveLength(TRAINING.length);
   });

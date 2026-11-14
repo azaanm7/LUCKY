@@ -1,19 +1,19 @@
-import { EMPTY_SECONDS, FACTS, FLARE_SECONDS, MACHINES, NEED_NAME, SOL_SECONDS, WIN_SOL } from "./config";
-import type { FactId } from "./config";
+import { EMPTY_SECONDS, FLARE_SECONDS, MACHINES, SOL_SECONDS, WIN_SOL } from "./config";
 import { damageChance } from "./donki";
-import type { Cause, GameState, HeartLoss, Need } from "./types";
+import type { Cause, FactId, GameState, HeartLoss, Msg, Need } from "./types";
 import { inShelter, isDay, random, solOf } from "./world";
 
-export const toast = (s: GameState, text: string, sec = 6): GameState => ({ ...s, toast: { text, until: s.time + sec } });
+// Мэдэгдлийн кодыг хадгална. Бичвэрийг нь UI сонгосон хэлээр гаргана (i18n/index.ts: say).
+export const toast = (s: GameState, msg: Msg, sec = 6): GameState => ({ ...s, toast: { msg, until: s.time + sec } });
 
 // Баримт бүрийг нэг тоглолтод ганц удаа үзүүлнэ
-export function fact(s: GameState, id: FactId, extra = "", sec = 7): GameState {
+export function fact(s: GameState, id: FactId, sec = 7): GameState {
   if (s.seen.includes(id)) return s;
-  return toast({ ...s, seen: [...s.seen, id] }, FACTS[id] + extra, sec);
+  return toast({ ...s, seen: [...s.seen, id] }, { kind: "fact", id }, sec);
 }
 
 // Зүрх алдахдаа тухайн үеийн нөхцөлийг тэмдэглэнэ (төгсгөлийн тайланд хэрэгтэй)
-export function loseHeart(s: GameState, cause: Cause, text: string): GameState {
+export function loseHeart(s: GameState, cause: Cause, msg: Msg): GameState {
   const machine = MACHINES.find((m) => m.makes === cause);
   const loss: HeartLoss = {
     sol: solOf(s.time), cause,
@@ -24,7 +24,7 @@ export function loseHeart(s: GameState, cause: Cause, text: string): GameState {
     drilling: s.drill > 0,
     load: s.load, dust: s.dust, storm: s.storm > 0, night: !isDay(s.time), stormSol: s.stormSol,
   };
-  return toast({ ...s, hearts: s.hearts - 1, losses: [...s.losses, loss] }, text);
+  return toast({ ...s, hearts: s.hearts - 1, losses: [...s.losses, loss] }, msg);
 }
 
 // Дэлбэрэлт эхлэх мөч: машинуудаа унтраагаагүй бол цацраг нэгийг нь гэмтээж магадгүй (хүчтэй дэлбэрэлт бол магадлал өндөр)
@@ -35,9 +35,9 @@ function flareStarts(s: GameState): GameState {
   const [hit, seed] = random(s.seed);
   const [pick, next] = random(seed);
   s = { ...s, seed: next };
-  if (hit >= damageChance(s.solarFlare)) return toast(s, "😅 Азаар цацраг машинуудыг гэмтээсэнгүй.");
+  if (hit >= damageChance(s.solarFlare)) return toast(s, { kind: "luckyFlare" });
   const victim = MACHINES[Math.floor(pick * MACHINES.length)];
-  return toast({ ...s, weak: [...s.weak.filter((m) => m !== victim.id), victim.id] }, `⚡ Цацраг ${victim.name}ийг гэмтээлээ! Одоо хагас хүчээр ажиллана.`, 8);
+  return toast({ ...s, weak: [...s.weak.filter((m) => m !== victim.id), victim.id] }, { kind: "flareHit", machine: victim.id }, 8);
 }
 
 // Шуурга, нарны дэлбэрэлт, аюулгүй горим (хэзээ эхлэхийг missions.ts шийднэ)
@@ -52,7 +52,7 @@ export function weather(s: GameState, dt: number): GameState {
     flare = Math.max(0, flare - dt);
     if (!inShelter(s.player) && !flareHit) {
       flareHit = true;
-      s = loseHeart(s, "radiation", "Цацрагт өртлөө! −1 ❤️ Дараагийн удаа хоргодох байр руу эрт гүй!");
+      s = loseHeart(s, "radiation", { kind: "radiation" });
     }
   }
   return { ...s, storm, safeMode, flareWarn, flare, flareHit };
@@ -61,7 +61,7 @@ export function weather(s: GameState, dt: number): GameState {
 export function checkEnd(s: GameState, dt: number): GameState {
   const out: Need | null = s.res.oxygen <= 0 ? "oxygen" : s.res.water <= 0 ? "water" : s.res.food <= 0 ? "food" : null;
   let emptyTimer = out ? s.emptyTimer + dt : 0;
-  if (out && emptyTimer > EMPTY_SECONDS) { emptyTimer = 0; s = loseHeart(s, out, `${NEED_NAME[out]} дууссан тул баг өвдлөө. −1 ❤️`); }
+  if (out && emptyTimer > EMPTY_SECONDS) { emptyTimer = 0; s = loseHeart(s, out, { kind: "needOut", need: out }); }
   s = { ...s, emptyTimer };
   if (s.hearts <= 0) return { ...s, hearts: 0, status: "lost" };
   if (s.time >= WIN_SOL * SOL_SECONDS && !s.problem) return { ...s, status: "won" };

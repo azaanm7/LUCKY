@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { GameState } from "../game/types";
+import type { Dict } from "../i18n/mn";
 import { createActors } from "./actors";
 import { createBase } from "./base";
 import { createDust } from "./effects";
@@ -9,7 +10,8 @@ import { createShip, LANDING } from "./ship";
 import { createSites } from "./sites";
 import { createRocks, createTerrain, height } from "./terrain";
 
-export function createWorld(canvas: HTMLCanvasElement) {
+// t: 3D хаягууд ямар хэлээр байх. Хэл солигдвол ертөнцийг дахин үүсгэнэ (use-game-loop.ts).
+export function createWorld(canvas: HTMLCanvasElement, t: Dict) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
   renderer.shadowMap.enabled = true;
@@ -21,11 +23,11 @@ export function createWorld(canvas: HTMLCanvasElement) {
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
   const env = createEnvironment(scene);
   scene.add(createTerrain(), createRocks());
-  const updateBase = createBase(scene);
-  const grid = createPowerGrid(scene);
+  const updateBase = createBase(scene, t);
+  const grid = createPowerGrid(scene, t);
   const updateActors = createActors(scene);
   const updateDust = createDust(scene);
-  const updateSites = createSites(scene);
+  const updateSites = createSites(scene, t);
   const updateShip = createShip(scene);
   const camTarget = new THREE.Vector3(), focus = new THREE.Vector3();
   let shake = 0, hearts = 3, shipY = 0;

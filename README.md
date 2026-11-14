@@ -191,7 +191,7 @@ Import the repository on [Vercel](https://vercel.com/new). It detects Vite autom
 
 ## Roadmap
 
-- [ ] English / Mongolian language switch
+- [x] English / Mongolian language switch (MN/EN on the start screen)
 - [ ] Choose Moon or Mars (14-day lunar night vs. dust storms)
 - [x] Short tutorial for the first sol
 - [x] Sound effects

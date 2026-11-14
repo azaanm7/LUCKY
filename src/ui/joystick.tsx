@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
+import { useT } from "../i18n/context";
 
 // Утсан дээр хуруугаараа чирж хөдөлгөх джойстик
 export function Joystick({ onMove }: { onMove: (x: number, z: number) => void }) {
+  const t = useT();
   const base = useRef<HTMLDivElement>(null);
   const [knob, setKnob] = useState({ x: 0, y: 0 });
 
@@ -24,7 +26,7 @@ export function Joystick({ onMove }: { onMove: (x: number, z: number) => void })
       onPointerUp={stop}
       onPointerCancel={stop}
       className="relative h-32 w-32 touch-none rounded-full border-2 border-white/30 bg-black/30 backdrop-blur-sm"
-      aria-label="Хөдөлгөх джойстик"
+      aria-label={t.controls.joystick}
     >
       <div
         className="absolute top-1/2 left-1/2 h-14 w-14 rounded-full bg-white/80 shadow-lg"
