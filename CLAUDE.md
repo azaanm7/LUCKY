@@ -14,7 +14,8 @@ Use **bun**, never npm or yarn.
 ```bash
 bun install
 bun dev            # dev server at http://localhost:5173
-bun test           # game logic tests (src/game/*.test.ts)
+bun test           # game logic and balance tests (src/game/*.test.ts)
+bun run balance    # win rates of the balance bots
 bun run typecheck  # tsc -b
 bun run lint       # oxlint
 bun run build      # production build to dist/
@@ -29,9 +30,12 @@ src/
   game/    Pure game logic. NO React, NO three.js, NO DOM.
     types.ts     All types. Read this first.
     config.ts    Every tunable number and every science fact.
-    world.ts     Movement, collisions, day/night, small helpers.
+    world.ts     Movement, collisions, day/night, power helpers.
     engine.ts    tick(state, input, dt) → new GameState
-    engine.test.ts
+    events.ts    Storms, flares, facts (once each), lost hearts, win/lose.
+    report.ts    Failure report built from GameState.losses.
+    bots.ts      Balance bots (idle, explorer, manager).
+    *.test.ts
   three/   Rendering only. Reads GameState, never changes it.
   hooks/   use-game-loop.ts: the one place that connects logic, 3D and input.
   ui/      React + Tailwind HUD, joystick, overlays.
@@ -40,6 +44,7 @@ src/
 The single most important rule: **logic decides, three.js draws.**
 - New gameplay rule → `src/game/` (engine.ts or world.ts) + a test in `engine.test.ts`.
 - New number (rate, cost, duration) → `src/game/config.ts`, never hard-coded elsewhere.
+- Changed a number in `config.ts` → run `bun run balance` and update the "Game balance" table in README. `bots.test.ts` must still pass: managing power has to beat not managing it.
 - New 3D object → `src/three/`, driven by fields on `GameState`.
 - New HUD element → `src/ui/`, reading the `hud` snapshot from `useGameLoop`.
 
