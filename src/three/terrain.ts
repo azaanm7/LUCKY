@@ -1,10 +1,12 @@
 import * as THREE from "three";
+import { SITES, WORLD_RADIUS } from "../game/config";
 
-// Тогоонууд (суурингаас хол). r = радиус
+// Тогоонууд (суурингаас хол). r = радиус. Эхнийх нь "Том тогоо" шинжлэх ухааны талбай.
 const CRATERS = [
-  { x: 24, z: 9, r: 5 }, { x: -23, z: 15, r: 4 }, { x: 12, z: -25, r: 6 },
-  { x: -27, z: -17, r: 4.5 }, { x: 3, z: 26, r: 3.5 }, { x: 27, z: -12, r: 3.5 },
+  { x: 30, z: -30, r: 9 }, { x: 26, z: 8, r: 4 }, { x: 10, z: -27, r: 4.5 }, { x: -27, z: -19, r: 4.5 },
+  { x: 2, z: 30, r: 4 }, { x: -40, z: 2, r: 5 }, { x: 40, z: 16, r: 5 }, { x: -12, z: 38, r: 4.5 },
 ];
+const RIM = WORLD_RADIUS + 4; // уулс эндээс эхэлнэ
 
 // Тогооны хэлбэр: голдоо хонхор, ирмэгээрээ өргөгдсөн
 function crater(x: number, z: number): number {
@@ -22,12 +24,12 @@ export function height(x: number, z: number): number {
   const r = Math.hypot(x, z);
   const hills = Math.sin(x * 0.15) * 1.2 + Math.cos(z * 0.13) * 1.0 + Math.sin((x + z) * 0.07) * 1.5;
   const flat = Math.min(1, Math.max(0, (r - 19) / 10));
-  const rim = r > 33 ? (r - 33) * 1.1 + Math.sin(x * 0.4) * Math.cos(z * 0.35) * (r - 33) * 0.35 : 0;
+  const rim = r > RIM ? (r - RIM) * 1.1 + Math.sin(x * 0.4) * Math.cos(z * 0.35) * (r - RIM) * 0.35 : 0;
   return hills * flat + rim + crater(x, z);
 }
 
 export function createTerrain(): THREE.Mesh {
-  const geo = new THREE.PlaneGeometry(130, 130, 130, 130);
+  const geo = new THREE.PlaneGeometry(150, 150, 150, 150);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
   const colors: number[] = [];
@@ -53,11 +55,11 @@ export function createRocks(): THREE.Group {
   const g = new THREE.Group();
   const mats = ["#6e3320", "#58281a", "#834129"].map((color) => new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 1 }));
   // Барилга, кабелийн газарт чулуу тавихгүй: [x, z, радиус]
-  const busy = [[-13, -11, 6.5], [0, -11.6, 5], [5.5, -8, 3.5], [-5.5, -8, 3.5], [13, -9, 3], [-4, -8, 5], [0, -4, 6]];
+  const busy = [[-13, -11, 6.5], [0, -11.6, 5], [5.5, -8, 3.5], [-5.5, -8, 3.5], [13, -9, 3], [-4, -8, 5], [0, -4, 6], [8, 11, 4], ...SITES.map((x) => [x.x, x.z, x.r + 1.5])];
   let seed = 7;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < 90; i++) {
-    const angle = rnd() * Math.PI * 2, r = 9 + rnd() * 28;
+  for (let i = 0; i < 130; i++) {
+    const angle = rnd() * Math.PI * 2, r = 9 + rnd() * 40;
     const x = Math.cos(angle) * r, z = Math.sin(angle) * r;
     const s = 0.3 + rnd() * (r > 20 ? 1.5 : 0.6);
     const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), mats[i % 3]);

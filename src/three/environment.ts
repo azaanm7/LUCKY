@@ -37,7 +37,7 @@ export function createEnvironment(scene: THREE.Scene) {
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   const cam = sun.shadow.camera;
-  cam.left = -36; cam.right = 36; cam.top = 36; cam.bottom = -36; cam.near = 1; cam.far = 140;
+  cam.left = -52; cam.right = 52; cam.top = 52; cam.bottom = -52; cam.near = 1; cam.far = 160;
   const uniforms = { top: { value: new THREE.Color() }, horizon: { value: new THREE.Color() } };
   const dome = new THREE.Mesh(new THREE.SphereGeometry(330, 24, 12),
     new THREE.ShaderMaterial({ uniforms, vertexShader: SKY_VERT, fragmentShader: SKY_FRAG, side: THREE.BackSide, depthWrite: false, fog: false }));

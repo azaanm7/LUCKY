@@ -1,8 +1,9 @@
 import * as THREE from "three";
-import { DEPOT, GYM, MACHINES, REPAIRS, SHELTER, SOLAR_FIELD } from "../game/config";
+import { DEPOT, GYM, SAMPLES_MAX, SHELTER, SITES, SOLAR_FIELD } from "../game/config";
+import { repairTarget } from "../game/missions";
 import type { GameState, ItemId, Vec2 } from "../game/types";
-import { solOf } from "../game/world";
-import { createAstronaut, createGuideArrow, createIce } from "./models";
+import { dist, isDay, solOf } from "../game/world";
+import { createAstronaut, createGuideArrow, createIce, glowMat, mesh } from "./models";
 import { createCarried } from "./props";
 import { height } from "./terrain";
 
@@ -10,12 +11,15 @@ import { height } from "./terrain";
 function guideTarget(s: GameState): { to: Vec2; color: string } | null {
   if (s.flareWarn > 0 || s.flare > 0) return { to: SHELTER, color: "#ff5a4a" };
   if (s.suitO2 < 30) return { to: SHELTER, color: "#7fe0ff" };
-  const repair = s.problem ? REPAIRS[s.problem] : undefined;
-  if (repair && !s.carrying) return { to: DEPOT, color: "#ffd84a" };
-  if (repair) return { to: MACHINES.find((m) => m.id === repair.target)!.pos, color: "#ffd84a" };
+  const fix = repairTarget(s);
+  if (fix && s.problem) return { to: s.carrying ? fix.pos : DEPOT, color: "#ffd84a" };
   if (s.dust > 0.5 && s.storm <= 0) return { to: SOLAR_FIELD, color: "#ffd84a" };
+  if (s.samples.length) return { to: SHELTER, color: "#7fe0ff" }; // дээжээ лабораторид хүргэ
+  if (fix) return { to: s.carrying ? fix.pos : DEPOT, color: "#ffd84a" };
   if (s.exercisedSol < solOf(s.time)) return { to: GYM, color: "#b98cff" };
-  return null;
+  // Тайван өдөр: дээж үлдсэн хамгийн ойрын шинжлэх ухааны талбайг заана
+  const open = SITES.filter((x) => s.siteLeft[x.id] > 0).sort((a, b) => dist(a, s.player) - dist(b, s.player))[0];
+  return open && isDay(s.time) && !s.problem && !s.drill ? { to: open, color: "#c9a0ff" } : null;
 }
 
 // Хөдөлдөг зүйлс: сансрын нисэгч, барьж яваа сэлбэг, мөс, зорих газрыг заах сум
@@ -25,7 +29,9 @@ export function createActors(scene: THREE.Scene) {
   headlamp.position.set(0, 2.2, 1.2);
   const carried = createCarried();
   for (const m of Object.values(carried)) { m.position.y = 2.75; astro.root.add(m); }
-  astro.root.add(headlamp);
+  // Гартаа яваа дээжүүд: нуруун дээрх гэрэлтдэг жижиг савнууд
+  const tubes = Array.from({ length: SAMPLES_MAX }, (_, i) => mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.4, 8), glowMat("#7fe0ff", 1.4), (i - 1) * 0.22, 1.75, -0.48));
+  astro.root.add(headlamp, ...tubes);
   const arrow = createGuideArrow();
   scene.add(astro.root, arrow);
   const iceMeshes = new Map<number, THREE.Group>();
@@ -40,6 +46,7 @@ export function createActors(scene: THREE.Scene) {
     astro.armL.rotation.x = s.carrying ? -2.6 : -swing * 0.8;
     astro.armR.rotation.x = s.carrying ? -2.6 : swing * 0.8;
     for (const [id, m] of Object.entries(carried)) m.visible = s.carrying === (id as ItemId);
+    tubes.forEach((tube, i) => { tube.visible = i < s.samples.length; });
     astro.lamp.material.opacity = night;
     headlamp.intensity = night * 14;
 
