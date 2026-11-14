@@ -33,6 +33,7 @@ export function tick(prev: GameState, input: Input, dt: number): GameState {
   // 1) Товч дарвал ойрын машиныг асаах / унтраах
   const near = nearMachine(s.player);
   if (input.action && near) s = { ...s, on: { ...s.on, [near]: !s.on[near] } };
+  if (near === "o2") s = fact(s, "moxie");
 
   // 2) Нэг эрчим хүчний төсөв: нар + батарей. Хүрэхгүй бол асаалттай бүх машин ижил хувиар удааширна.
   const demand = powerDemand(s) * dt;
@@ -61,7 +62,10 @@ export function tick(prev: GameState, input: Input, dt: number): GameState {
 
   // 5) Шороо: шуургатай үед хурдан хуримтлагдана, панель дээр зогсвол арчина
   let dust = s.dust + (s.storm > 0 ? 0.05 : 0.004) * dt;
-  if (onSolarField(s.player)) dust -= 0.45 * dt;
+  if (onSolarField(s.player)) {
+    if (s.dust > 0.3) s = fact(s, "dust");
+    dust -= 0.45 * dt;
+  }
   s = { ...s, dust: Math.max(0, Math.min(1, dust)) };
 
   s = { ...s, res: { oxygen: clamp(res.oxygen), water: clamp(res.water), food: clamp(res.food), battery: clamp(res.battery) } };

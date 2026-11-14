@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DAY_PART, ICE_WATER, SHELTER, SOL_SECONDS, WIN_SOL } from "./config";
+import { DAY_PART, FACTS, ICE_WATER, SHELTER, SOLAR_FIELD, SOL_SECONDS, WIN_SOL } from "./config";
 import { createGame, tick } from "./engine";
 import type { GameState, Input } from "./types";
 
@@ -101,5 +101,25 @@ describe("баримт ба тэмдэглэл", () => {
     const second = tick(at({ ...first, toast: null }, 0), idle, 0.05);
     expect(second.collected).toBe(2);
     expect(second.toast).toBeNull();
+  });
+
+  test("агаар үйлдвэр дээр очиход MOXIE, шороотой панель дээр очиход салхины баримт гарна", () => {
+    const o2 = tick(quiet({ player: { x: -9, z: 2, angle: 0, moving: false } }), idle, 0.05);
+    expect(o2.toast?.text).toBe(FACTS.moxie);
+    const field = tick(quiet({ dust: 0.8, player: { x: SOLAR_FIELD.x, z: SOLAR_FIELD.z, angle: 0, moving: false } }), idle, 0.05);
+    expect(field.toast?.text).toBe(FACTS.dust);
+  });
+
+  test("хоёр дахь шуурганд Opportunity роверын баримт гарна", () => {
+    const storm = (s: GameState) => {
+      for (let seed = 1; ; seed++) {
+        const next = tick({ ...s, seed, nextEventAt: 0 }, idle, 0.05);
+        if (next.storm > 0) return next;
+      }
+    };
+    const first = storm(quiet({}));
+    expect(first.toast?.text).toContain(FACTS.storm);
+    expect(first.stormSol).toBe(1);
+    expect(storm({ ...first, storm: 0 }).toast?.text).toBe(FACTS.opportunity);
   });
 });

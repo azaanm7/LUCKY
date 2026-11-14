@@ -36,7 +36,8 @@ export function events(s: GameState, dt: number): GameState {
   s = { ...s, seed, nextEventAt: s.time + 30 + r * 20 };
   if (r >= 0.5) return fact({ ...s, flareWarn: 10 }, "flare", "", 8);
   s = { ...s, storm: 18, stormSol: solOf(s.time) };
-  return fact(s, "storm", " Дараа нь нарны панелийн шороог арчаарай!", 8);
+  // Эхний шуурганд ерөнхий баримт, хоёр дахьд Opportunity роверын түүх
+  return s.seen.includes("storm") ? fact(s, "opportunity", "", 8) : fact(s, "storm", " Дараа нь нарны панелийн шороог арчаарай!", 8);
 }
 
 export function checkEnd(s: GameState, dt: number): GameState {
