@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createGame, tick } from "../game/engine";
+import { acknowledge } from "../game/missions";
 import type { GameState, Input } from "../game/types";
 import { createWorld } from "../three/scene";
 
@@ -19,6 +20,11 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     world.resize();
     const onResize = () => world.resize();
     const down = (e: KeyboardEvent) => {
+      if (stateRef.current.modal && (e.key === "Enter" || e.key === " ")) { // цонхыг гараар хаана
+        stateRef.current = acknowledge(stateRef.current);
+        e.preventDefault();
+        return;
+      }
       keys.current.add(e.key.toLowerCase());
       if (e.key === " " || e.key.toLowerCase() === "e") { inputRef.current.action = true; e.preventDefault(); }
     };
@@ -59,5 +65,6 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     press: () => { inputRef.current.action = true; },
     setStick: (x: number, z: number) => { stick.current = { x, z }; },
     restart: () => { stateRef.current = createGame(); setHud(stateRef.current); },
+    ack: () => { stateRef.current = acknowledge(stateRef.current); setHud(stateRef.current); },
   };
 }

@@ -22,6 +22,22 @@ Instead of reading about trade-offs, the player **lives them**:
 
 Every decision has a visible cost. A single line at the top of the screen always shows the most urgent task, so children can play without reading any rules. At the end, the game explains in one sentence what a *trade-off* is and why engineers care about it.
 
+### Real astronaut problems
+
+From sol 2, every sol brings one emergency that real astronauts have actually faced. The game pauses, explains what happened and what to do, and reminds the player that a message to Earth takes minutes to arrive, so **they must solve it themselves**. After solving it, the player reads how real astronauts handled the same problem and earns a badge.
+
+| Sol | Emergency | What the player does | What really happened |
+| --- | --- | --- | --- |
+| 2 | CO₂ filter clogged, oxygen maker stops | Fetch a new filter from the depot, install it | Apollo 13 (1970): the crew built a filter adapter from tape, plastic bags and cardboard |
+| 3 | Dust storm | Save power, then clean the solar panels | Opportunity rover (2018) went silent in a planet-wide dust storm |
+| 4 | Solar flare | Run to the shelter within 10 seconds | Artemis / Orion: the crew builds a radiation shelter from stowage bags |
+| 5 | Micrometeoroid hole in the greenhouse | Fetch a patch kit and seal the leak | ISS (2018): the crew sealed a 2 mm hole with sealant and gauze |
+| 6 | Water recycler pump fails | Fetch a spare pump, collect ice meanwhile | ISS (2023): the water system now recycles 98% of the crew's water |
+
+Two needs run all game long:
+- **Spacesuit oxygen** drops whenever the astronaut is outside and refills in the shelter, so every trip outside must be planned.
+- **Exercise once per sol** on the treadmill. Skipping it weakens the astronaut's muscles and they walk slower, just like real astronauts in low gravity.
+
 ## How to play
 
 | Action | Desktop | Phone |
@@ -29,6 +45,9 @@ Every decision has a visible cost. A single line at the top of the screen always
 | Walk | `WASD` or arrow keys | Joystick (bottom left) |
 | Turn a machine on/off | Stand on its ring, press `Space` / `E` | Tap the big button |
 
+- 👩‍🚀 **Watch your suit oxygen** outside. Go back into the shelter to refill it.
+- 🚨 **Solve the daily emergency.** Spare parts are in the 📦 depot. A yellow arrow shows where to go.
+- 💪 **Exercise once per sol** on the treadmill.
 - 🧊 **Collect blue ice** to make water.
 - 🫧 🚰 🌱 **Machines** (oxygen maker, water recycler, greenhouse) use battery power.
 - 🧹 **Clean the solar panels** after dust storms by standing on them.
@@ -48,6 +67,9 @@ You win by surviving 6 sols. You lose if the crew's 3 hearts run out.
 | Shelter from flares | Mars has no global magnetic field and a thin atmosphere, so solar particles reach the surface. |
 | Blue sunsets | Martian dust makes the sky near the setting Sun look blue. |
 | 1 sol | A Martian day is about 40 minutes longer than an Earth day. |
+| Message delay to Earth | A radio signal between Mars and Earth takes about 3 to 22 minutes one way, so the crew must solve problems on their own. |
+| Daily exercise | ISS astronauts exercise about 2 hours a day to protect muscles and bones; Mars gravity is about 38% of Earth's. |
+| Spacesuit oxygen | Suit consumables are limited, so outside work is planned carefully. |
 
 Game numbers (consumption and production rates) are tuned for play balance and are not real mission values.
 
@@ -57,11 +79,17 @@ We test balance with bots that play hundreds of games automatically:
 
 | Strategy | Result |
 | --- | --- |
-| Stand still, do nothing | Always loses, after about 3.5 sols |
-| Only run to the shelter during flares | Almost always loses |
-| Collect ice, clean panels, shelter during flares | Wins almost every game |
+| Stand still, do nothing | Always loses, by sol 3 |
+| Fix each emergency, exercise, shelter during flares, collect ice | Wins every test game with all 3 hearts |
 
 So a child who explores and reacts will win, and a child who ignores the base learns why it failed.
+
+## Sources
+
+- [NASA: Orion radiation protection plan (storm shelter from stowage bags)](https://www.nasa.gov/missions/artemis/orion/scientists-and-engineers-evaluate-orion-radiation-protection-plan/)
+- [Space.com: ISS recycles 98% of crew water (2023)](https://www.space.com/astronaut-pee-iss-water-recycling-98-percent-milestone)
+- [NASA: Astronaut exercise on the ISS](https://www.nasa.gov/missions/station/iss-research/astronaut-exercise)
+- [NASA NTRS: Communication delay research for missions beyond low Earth orbit](https://ntrs.nasa.gov/citations/20250000703)
 
 ## Tech stack
 
@@ -80,6 +108,9 @@ src/
     config.ts    Every number and fact in one place
     world.ts     Movement, collisions, day/night, helpers
     engine.ts    tick(state, input, dt) → new state
+    missions.ts  Starts and solves the daily emergencies
+    crew.ts      Spacesuit oxygen and exercise
+    problems.ts  Emergency texts and the real stories behind them
     engine.test.ts
   three/     3D rendering only (terrain, buildings, astronaut, sky)
   hooks/     use-game-loop.ts connects game logic, 3D world and input

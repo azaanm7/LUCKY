@@ -5,3 +5,4 @@ NASA Space Apps requires every team to explain how AI tools were used. Each AI-a
 Format: `- YYYY-MM-DD · <tool> · <what was done> · reviewed by <teammate>`
 
 - 2026-11-14 · Claude · Initial project setup: Vite + React + TypeScript + Tailwind + three.js structure, game engine from the team's rules, tests, README · reviewed by Munkhtuvshin
+- 2026-11-14 · Claude · Added real astronaut emergencies (CO₂ filter, dust storm, solar flare, hull leak, water pump), spacesuit oxygen, exercise, depot/gym/antenna, problem dialogs and badges · reviewed by Munkhtuvshin

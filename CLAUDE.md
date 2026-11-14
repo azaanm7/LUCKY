@@ -31,8 +31,14 @@ src/
     config.ts    Every tunable number and every science fact.
     world.ts     Movement, collisions, day/night, small helpers.
     engine.ts    tick(state, input, dt) → new GameState
+    missions.ts  Daily emergencies: start (SCHEDULE), progress, solve, acknowledge
+    crew.ts      Spacesuit oxygen and exercise
+    problems.ts  Emergency texts + the real astronaut story behind each one
     engine.test.ts
   three/   Rendering only. Reads GameState, never changes it.
+    scene.ts     Renderer, camera, astronaut, ice, guide arrow
+    base.ts      All base buildings, labels and pads, plus their per-frame update
+    props.ts     Depot, gym, comm dish, carried items
   hooks/   use-game-loop.ts: the one place that connects logic, 3D and input.
   ui/      React + Tailwind HUD, joystick, overlays.
 ```
@@ -42,6 +48,10 @@ The single most important rule: **logic decides, three.js draws.**
 - New number (rate, cost, duration) → `src/game/config.ts`, never hard-coded elsewhere.
 - New 3D object → `src/three/`, driven by fields on `GameState`.
 - New HUD element → `src/ui/`, reading the `hud` snapshot from `useGameLoop`.
+
+While `state.modal` is open, `tick()` returns the state unchanged (the game is paused); `acknowledge()` closes it.
+
+Adding a new emergency: add its id to `ProblemId`, its text and real story to `PROBLEMS` (`problems.ts`), a time to `SCHEDULE`, and, if it needs a spare part, an entry in `REPAIRS` and `ITEMS` (`config.ts`). Then update the mission line (`ui/mission.tsx`) and guide arrow (`three/scene.ts`), which follow the same priority order, and add a test.
 
 `tick()` must stay **pure and immutable**: return a new object with spread (`{ ...s }`), never mutate `prev`. Randomness goes through `random(seed)` in `world.ts`, never `Math.random()` inside the engine, so tests are repeatable.
 

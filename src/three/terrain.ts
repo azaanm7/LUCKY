@@ -37,7 +37,8 @@ export function createRocks(): THREE.Group {
   for (let i = 0; i < 70; i++) {
     const angle = rnd() * Math.PI * 2, r = 9 + rnd() * 26;
     const x = Math.cos(angle) * r, z = Math.sin(angle) * r;
-    if (Math.hypot(x + 13, z + 11) < 6.5 || Math.hypot(x, z + 11.6) < 5) continue; // барилгын газарт чулуу тавихгүй
+    const busy = [[-13, -11, 6.5], [0, -11.6, 5], [5.5, -8, 3.5], [-5.5, -8, 3.5], [13, -9, 3]];
+    if (busy.some(([bx, bz, br]) => Math.hypot(x - bx, z - bz) < br)) continue; // барилгын газарт чулуу тавихгүй
     const s = 0.3 + rnd() * (r > 20 ? 1.4 : 0.6);
     const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), mat);
     rock.position.set(x, height(x, z) + s * 0.3, z);
