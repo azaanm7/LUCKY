@@ -74,19 +74,19 @@ describe("хэл хадгалах", () => {
   test("хадгалсан хэлээ дахин уншина", () => {
     const store = new Map<string, string>();
     setStorage({ getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => store.set(k, v) });
+    expect(loadLang()).toBe("en"); // анх удаа: англи
+    saveLang("mn");
     expect(loadLang()).toBe("mn");
-    saveLang("en");
-    expect(loadLang()).toBe("en");
   });
 
-  test("storage алдаа өгвөл монгол хэл, хадгалахад унахгүй", () => {
+  test("storage алдаа өгвөл англи хэл, хадгалахад унахгүй", () => {
     setStorage({ getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); } });
-    expect(loadLang()).toBe("mn");
-    expect(() => saveLang("en")).not.toThrow();
+    expect(loadLang()).toBe("en");
+    expect(() => saveLang("mn")).not.toThrow();
   });
 
-  test("танихгүй утга хадгалагдсан бол монгол хэл", () => {
+  test("танихгүй утга хадгалагдсан бол англи хэл", () => {
     setStorage({ getItem: () => "fr", setItem: () => {} });
-    expect(loadLang()).toBe("mn");
+    expect(loadLang()).toBe("en");
   });
 });

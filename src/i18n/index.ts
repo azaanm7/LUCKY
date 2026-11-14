@@ -5,19 +5,21 @@ import { mn } from "./mn";
 import type { Dict } from "./mn";
 
 export type { Dict };
-export type Lang = "mn" | "en";
-export const LANGS: Lang[] = ["mn", "en"];
+export type Lang = "en" | "mn";
+export const LANGS: Lang[] = ["en", "mn"];
+// Шинэ тоглогч (олон улсын шүүгчид ч) англиар эхэлнэ. MN товч эхлэх дэлгэц дээр, сонголт нь хадгалагдана.
+export const DEFAULT_LANG: Lang = "en";
 export const DICTS: Record<Lang, Dict> = { mn, en };
 
 const KEY = "lucky.lang";
 
-// Хадгалсан хэлийг уншина. Хувийн цонх, хаалттай storage, сервер дээр алдаа гарвал монгол хэл.
+// Хадгалсан хэлийг уншина. Анх удаа, хувийн цонх, хаалттай storage, сервер дээр бол DEFAULT_LANG (англи).
 export function loadLang(): Lang {
   try {
     const saved = localStorage.getItem(KEY);
-    return saved === "en" || saved === "mn" ? saved : "mn";
+    return saved === "en" || saved === "mn" ? saved : DEFAULT_LANG;
   } catch {
-    return "mn";
+    return DEFAULT_LANG;
   }
 }
 
