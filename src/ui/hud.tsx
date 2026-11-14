@@ -68,12 +68,12 @@ export function Hud({ s, muted, onMute }: HudProps) {
           <Bar icon={<span>💪</span>} label="Булчингийн хүч" value={s.fitness} color="bg-violet-400" />
         </div>
         <div className="grid justify-items-end gap-1 rounded-2xl bg-black/35 p-2.5 text-right backdrop-blur-sm">
-          <div className="flex items-center gap-2">
-            <button onClick={onMute} aria-label={muted ? "Дуу асаах" : "Дуу хаах"} className="pointer-events-auto rounded-full bg-black/40 px-2 py-1 text-sm active:scale-90">{muted ? "🔇" : "🔊"}</button>
-            <div className="font-display text-xl text-white">{isDay(s.time) ? "☀️" : "🌙"} Sol {sol}/{WIN_SOL}</div>
-          </div>
+          <div className="font-display text-xl whitespace-nowrap text-white">{isDay(s.time) ? "☀️" : "🌙"} Sol {sol}/{WIN_SOL}</div>
           <div className="h-2 w-28 overflow-hidden rounded-full bg-black/50"><div className="h-full bg-mars" style={{ width: `${progress}%` }} /></div>
-          <div className="text-xl">{Array.from({ length: HEARTS }, (_, i) => <span key={i} className={i < s.hearts ? "" : "opacity-25 grayscale"}>❤️</span>)}</div>
+          <div className="flex items-center gap-2 text-xl">
+            <button onClick={onMute} aria-label={muted ? "Дуу асаах" : "Дуу хаах"} className="pointer-events-auto rounded-full bg-black/40 px-2 py-1 text-sm active:scale-90">{muted ? "🔇" : "🔊"}</button>
+            <span>{Array.from({ length: HEARTS }, (_, i) => <span key={i} className={i < s.hearts ? "" : "opacity-25 grayscale"}>❤️</span>)}</span>
+          </div>
           <Science s={s} />
           <div className="text-xs font-bold text-white/85">🏅 {s.solved.length} асуудал шийдсэн</div>
           {s.carrying && (
