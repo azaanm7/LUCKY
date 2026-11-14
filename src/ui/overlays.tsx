@@ -1,6 +1,7 @@
 import { WIN_SOL } from "../game/config";
 import type { GameState } from "../game/types";
 import { solOf } from "../game/world";
+import { FailureReport } from "./report";
 
 const STEPS = [
   ["🕹️", "WASD / сумаар эсвэл джойстикоор алх"],
@@ -30,12 +31,13 @@ export function StartOverlay({ onStart }: { onStart: () => void }) {
 export function EndOverlay({ s, onRestart }: { s: GameState; onRestart: () => void }) {
   const won = s.status === "won";
   return (
-    <div className="absolute inset-0 grid place-items-center bg-black/50 p-4">
-      <div className="grid w-full max-w-sm gap-4 rounded-3xl bg-space/95 p-6 text-center shadow-2xl">
-        <div className="text-6xl">{won ? "🚀" : "💔"}</div>
+    <div className="absolute inset-0 grid place-items-center overflow-y-auto bg-black/50 p-4">
+      <div className="grid w-full max-w-sm gap-3 rounded-3xl bg-space/95 p-5 text-center shadow-2xl">
+        <div className="text-5xl">{won ? "🚀" : "💔"}</div>
         <h1 className="font-display text-2xl">{won ? "Баяр хүргэе! Багаа авралаа!" : "Энэ удаад бүтсэнгүй"}</h1>
         <p className="text-orange-100/85">{won ? `Чи ${s.collected} мөс түүж, суурийг ${WIN_SOL} өдөр хамгааллаа.` : `Чи ${Math.min(WIN_SOL, solOf(s.time))}-р өдөр хүртэл тэслээ. Дахиад оролдоорой!`}</p>
-        <div className="rounded-2xl bg-panel p-4 text-left text-sm">
+        <FailureReport s={s} />
+        <div className="rounded-2xl bg-panel p-3 text-left text-sm">
           <b>🎓 Чи юу сурсан бэ?</b> Эрчим хүч хязгаартай тул бүгдийг зэрэг асааж чадахгүй. Юуг нь түрүүлж хийхээ сонгохыг инженерүүд <b>trade-off</b> гэдэг.
         </div>
         <button onClick={onRestart} className="rounded-2xl bg-mars py-4 font-display text-xl text-[#1b0f0a] active:scale-95">Дахин тоглох</button>
