@@ -7,3 +7,4 @@ Format: `- YYYY-MM-DD · <tool> · <what was done> · reviewed by <teammate>`
 - 2026-11-14 · Claude · Initial project setup: Vite + React + TypeScript + Tailwind + three.js structure, game engine from the team's rules, tests, README · reviewed by Munkhtuvshin
 - 2026-11-14 · Claude Code · One shared power budget (machines slow down together when power is short), balance retune (solar 15, ice 4 water, 5 ice), power line and hints in the HUD, balance bots and tests · review pending
 - 2026-11-14 · Claude Code · Failure report on the end screen: each lost heart is traced back from result to cause, with one tip for next time · review pending
+- 2026-11-14 · Claude Code · Keyboard fixes: WASD/E work on a Mongolian layout, holding Space no longer flickers a machine, keys no longer stick when the window loses focus · review pending

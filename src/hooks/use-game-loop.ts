@@ -18,22 +18,27 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     const world = createWorld(canvas);
     world.resize();
     const onResize = () => world.resize();
+    // e.code = товчны байрлал (KeyW, Space). Монгол гарын байрлал дээр ч WASD ажиллана.
     const down = (e: KeyboardEvent) => {
-      keys.current.add(e.key.toLowerCase());
-      if (e.key === " " || e.key.toLowerCase() === "e") { inputRef.current.action = true; e.preventDefault(); }
+      keys.current.add(e.code);
+      if (e.code !== "Space" && e.code !== "KeyE") return;
+      e.preventDefault();
+      if (!e.repeat) inputRef.current.action = true; // удаан дарахад дахин дахин асааж унтраахгүй
     };
-    const up = (e: KeyboardEvent) => keys.current.delete(e.key.toLowerCase());
+    const up = (e: KeyboardEvent) => keys.current.delete(e.code);
+    const blur = () => keys.current.clear(); // цонх солиход товч "гацаж" үлдэхгүй
     window.addEventListener("resize", onResize);
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
 
     let last = performance.now(), hudTimer = 0, introTime = 0, raf = 0;
     const frame = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       const k = keys.current;
-      const kx = (k.has("d") || k.has("arrowright") ? 1 : 0) - (k.has("a") || k.has("arrowleft") ? 1 : 0);
-      const kz = (k.has("s") || k.has("arrowdown") ? 1 : 0) - (k.has("w") || k.has("arrowup") ? 1 : 0);
+      const kx = (k.has("KeyD") || k.has("ArrowRight") ? 1 : 0) - (k.has("KeyA") || k.has("ArrowLeft") ? 1 : 0);
+      const kz = (k.has("KeyS") || k.has("ArrowDown") ? 1 : 0) - (k.has("KeyW") || k.has("ArrowUp") ? 1 : 0);
       const input: Input = { dx: kx || stick.current.x, dz: kz || stick.current.z, action: inputRef.current.action };
       inputRef.current.action = false;
       if (startedRef.current) stateRef.current = tick(stateRef.current, input, dt);
@@ -50,6 +55,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
       window.removeEventListener("resize", onResize);
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
       world.dispose();
     };
   }, [canvasRef]);
