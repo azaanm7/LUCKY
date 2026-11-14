@@ -68,7 +68,6 @@ export function Hud({ s, muted, onMute, onPause }: HudProps) {
           <Power s={s} />
           <p className="mt-1 text-[10px] font-extrabold tracking-widest text-white/70 uppercase">Чи</p>
           <Bar icon={<span>👩‍🚀</span>} label={inside ? "Скафандр · цэнэглэж байна" : "Скафандрын O₂"} value={s.suitO2} color="bg-cyan-300" />
-          <Bar icon={<span>💪</span>} label="Булчингийн хүч" value={s.fitness} color="bg-violet-400" />
         </div>
         <div className="grid justify-items-end gap-1 rounded-2xl bg-black/35 p-2.5 text-right backdrop-blur-sm">
           <div className="font-display text-xl whitespace-nowrap text-white">{isDay(s.time) ? "☀️" : "🌙"} Sol {sol}/{WIN_SOL}</div>

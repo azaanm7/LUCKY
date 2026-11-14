@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { GYM, SHELTER, SOLAR_FIELD, TRAINING } from "./config";
+import { SHELTER, SOLAR_FIELD, TRAINING } from "./config";
 import { damageChance, flarePower, strongest } from "./donki";
 import { createGame, tick } from "./engine";
 import { at, game, idle, press, run, step } from "./testing";
@@ -11,7 +11,6 @@ describe("эхний өдрийн сургалт", () => {
     expect(tick(at(s, s.ice[0].x, s.ice[0].z), idle, 0.05).trained).toEqual(["ice"]);
     expect(tick(at(s, -9, 2), press, 0.05).trained).toEqual(["switch"]);
     expect(run(at(game({ suitO2: 50 }), SHELTER.x, SHELTER.z), 0.2).trained).toEqual(["refill"]);
-    expect(run(at(s, GYM.x, GYM.z), 3.5).trained).toEqual(["gym"]);
     expect(run(at(game({ samples: [2] }), 0, 0), 0.1).trained).toEqual(["sample"]);
     const wiping = tick(at(game({ dust: 0.6 }), SOLAR_FIELD.x, SOLAR_FIELD.z), press, 0.05);
     expect(tick(wiping, step, 0.05).trained).toEqual(["wipe"]);

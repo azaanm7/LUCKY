@@ -38,7 +38,7 @@ src/
     tasks.ts     Hands-on work (wipe panels, fit a part): state.task advances on input.step
     science.ts   Sample sites, drilling, banking samples at the shelter, stars
     training.ts  First-sol training: compares the state before and after a tick and ticks off steps
-    crew.ts      Spacesuit oxygen and exercise
+    crew.ts      Spacesuit oxygen
     events.ts    Storm and flare timers, facts (once each), lost hearts (loseHeart), win/lose.
     report.ts    Failure report built from GameState.losses.
     bots.ts      Balance bots (idle, explorer, manager).
@@ -47,7 +47,7 @@ src/
     scene.ts     Renderer (tone mapping), camera, and the order everything updates in
     base.ts      All base buildings, labels, pads and resource tanks, plus their per-frame update
     buildings.ts Shelter, the three machines (each has run(power, night, dt, t)) and the tank gauge
-    props.ts     Depot, gym, comm dish, carried items
+    props.ts     Depot, comm dish, carried items
     power.ts     Solar field, battery rack and the cables whose moving lights show the power flow
     actors.ts    Astronaut, carried item, ice and the guide arrow
     environment.ts Sky dome, sun, stars, lights and fog for day, dusk, night, storm and flare

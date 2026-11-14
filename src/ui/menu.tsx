@@ -7,7 +7,6 @@ const SOURCES: [string, string, string][] = [
   ["NASA: Curiosity rover", "Gale тогооноос олдсон органик молекул, цацрагийн хэмжилт.", "https://science.nasa.gov/mission/msl-curiosity/"],
   ["NASA: Opportunity rover", "2018 оны шороон шуурга, салхи панелийг цэвэрлэсэн тохиолдлууд.", "https://science.nasa.gov/mission/mer-opportunity/"],
   ["NASA: Orion radiation plan", "Дэлбэрэлтийн үед ачааны цүнхээр хоргодох газар барих.", "https://www.nasa.gov/missions/artemis/orion/scientists-and-engineers-evaluate-orion-radiation-protection-plan/"],
-  ["NASA: Astronaut exercise", "Сансрын нисэгчид өдөр бүр дасгал хийдэг шалтгаан.", "https://www.nasa.gov/missions/station/iss-research/astronaut-exercise"],
   ["NASA NTRS: Communication delay", "Дэлхий, Ангарагийн хоорондох холбооны саатал.", "https://ntrs.nasa.gov/citations/20250000703"],
   ["Space.com: ISS water recycling", "Сансрын станц усныхаа 98%-ийг дахин ашигладаг.", "https://www.space.com/astronaut-pee-iss-water-recycling-98-percent-milestone"],
 ];

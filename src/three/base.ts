@@ -1,10 +1,10 @@
 import * as THREE from "three";
-import { DEPOT, GYM, MACHINES, SHELTER } from "../game/config";
+import { DEPOT, MACHINES, SHELTER } from "../game/config";
 import type { GameState, MachineId, Need } from "../game/types";
 import { inShelter, works } from "../game/world";
 import { createGreenhouse, createO2, createRecycler, createShelter, createTank } from "./buildings";
 import { createLabel, createPad } from "./models";
-import { createDepot, createDish, createGym } from "./props";
+import { createDepot, createDish } from "./props";
 
 const BUILD = { o2: createO2, recycler: createRecycler, greenhouse: createGreenhouse };
 // Барилга бүр хаана байх, нөөцийн сав нь барилгаасаа хэр зайд байх
@@ -20,18 +20,16 @@ const ON = new THREE.Color("#78c17c"), OFF = new THREE.Color("#ec5a52"), ALERT =
 export function createBase(scene: THREE.Scene) {
   const shelter = createShelter();
   const depot = createDepot(); depot.position.set(DEPOT.x + 0.5, 0, DEPOT.z - 3);
-  const gym = createGym(); gym.root.position.set(GYM.x - 0.5, 0, GYM.z - 3);
   const dish = createDish(); dish.root.position.set(13, 0, -9);
-  scene.add(shelter.root, depot, gym.root, dish.root);
+  scene.add(shelter.root, depot, dish.root);
 
   const fixed: [string, number, number, number][] = [
     ["🏠 Хоргодох байр", SHELTER.x, 5.6, SHELTER.z],
     ["📦 Агуулах", DEPOT.x, 3.4, DEPOT.z - 3],
-    ["💪 Дасгал", GYM.x, 3.4, GYM.z - 3],
     ["📡 Дэлхийтэй холбоо", 13, 5.2, -9],
   ];
   for (const [text, x, y, z] of fixed) { const l = createLabel(text); l.position.set(x, y, z); scene.add(l); }
-  for (const z of [DEPOT, GYM]) { const p = createPad(); p.position.set(z.x, 0.05, z.z); (p.material as THREE.MeshBasicMaterial).color.set("#ffd84a"); scene.add(p); }
+  for (const z of [DEPOT]) { const p = createPad(); p.position.set(z.x, 0.05, z.z); (p.material as THREE.MeshBasicMaterial).color.set("#ffd84a"); scene.add(p); }
 
   const units = MACHINES.map((m) => {
     const site = SITE[m.id];
@@ -66,7 +64,6 @@ export function createBase(scene: THREE.Scene) {
       (u.pad.material as THREE.MeshBasicMaterial).color.copy(broken ? (Math.sin(t * 8) > 0 ? ALERT : DIM) : on ? ON : OFF);
       u.pad.scale.setScalar(1 + Math.sin(t * 3) * 0.05);
     }
-    (gym.belt.material as THREE.MeshStandardMaterial).color.set(s.gymTimer > 0 ? "#4a7a52" : "#2a2d33");
     dish.head.rotation.y = Math.sin(t * 0.3) * 0.6;
     (dish.light.material as THREE.MeshStandardMaterial).emissiveIntensity = s.problem ? (Math.sin(t * 6) > 0 ? 2 : 0) : 0.6;
   };

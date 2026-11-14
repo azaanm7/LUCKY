@@ -1,9 +1,9 @@
-import { MACHINES, SHELTER, SITES, SOLAR_FIELD, GYM, TRAINING } from "./config";
+import { MACHINES, SHELTER, SITES, SOLAR_FIELD, TRAINING } from "./config";
 import { toast } from "./events";
 import type { GameState, TrainingId, Vec2 } from "./types";
 import { dist, inShelter } from "./world";
 
-// Эхний өдрийн сургалт: тоглогч үндсэн 6 үйлдлийг нэг нэг удаа хийж үзнэ. Алхам бүр хийгдмэгц тэмдэглэгдэнэ.
+// Эхний өдрийн сургалт: тоглогч үндсэн 5 үйлдлийг нэг нэг удаа хийж үзнэ. Алхам бүр хийгдмэгц тэмдэглэгдэнэ.
 export function train(prev: GameState, next: GameState): GameState {
   if (next.trained.length >= TRAINING.length) return next;
   const did: Record<TrainingId, boolean> = {
@@ -11,7 +11,6 @@ export function train(prev: GameState, next: GameState): GameState {
     switch: MACHINES.some((m) => prev.on[m.id] !== next.on[m.id]),
     wipe: prev.task?.kind === "wipe" && next.dust < prev.dust,
     refill: inShelter(next.player) && next.suitO2 > prev.suitO2,
-    gym: next.exercisedSol > prev.exercisedSol,
     sample: next.science > prev.science && next.samples.length < prev.samples.length,
   };
   const fresh = TRAINING.filter((t) => did[t.id] && !next.trained.includes(t.id)).map((t) => t.id);
@@ -32,7 +31,6 @@ export function trainingTarget(s: GameState): Vec2 | null {
     case "switch": return nearest(MACHINES.map((m) => m.pos));
     case "wipe": return SOLAR_FIELD;
     case "refill": return SHELTER;
-    case "gym": return GYM;
     case "sample": return s.samples.length ? SHELTER : nearest(SITES.filter((x) => s.siteLeft[x.id] > 0));
     default: return null;
   }

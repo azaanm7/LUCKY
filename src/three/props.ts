@@ -15,20 +15,6 @@ export function createDepot(): THREE.Group {
   return g;
 }
 
-// Спорт модуль: жижиг хагас бөмбөгөр дотор гүйлтийн зам
-export function createGym(): { root: THREE.Group; belt: THREE.Mesh } {
-  const g = new THREE.Group();
-  const dome = new THREE.Mesh(new THREE.SphereGeometry(1.9, 16, 8, 0, Math.PI, 0, Math.PI / 2),
-    new THREE.MeshStandardMaterial({ color: "#ece6dd", side: THREE.DoubleSide, flatShading: true }));
-  dome.rotation.y = Math.PI / 2; // нээлттэй тал нь суурь руу харна
-  dome.castShadow = true;
-  g.add(dome);
-  g.add(mesh(new THREE.BoxGeometry(0.9, 0.25, 1.8), mat("#59616b"), 0, 0.15, 0.6));
-  const belt = mesh(new THREE.BoxGeometry(0.7, 0.05, 1.6), mat("#2a2d33"), 0, 0.3, 0.6);
-  g.add(belt, mesh(new THREE.BoxGeometry(0.8, 0.9, 0.08), mat("#9aa3ad"), 0, 0.7, -0.25));
-  return { root: g, belt };
-}
-
 // Холбооны антен: Дэлхийтэй холбогддог
 export function createDish(): { root: THREE.Group; head: THREE.Group; light: THREE.Mesh } {
   const g = new THREE.Group();

@@ -17,7 +17,7 @@ export type TaskKind = "wipe" | ItemId;
 export type SiteId = "soil" | "delta" | "crater";
 
 // Эхний өдрийн сургалтын алхмууд
-export type TrainingId = "ice" | "switch" | "wipe" | "refill" | "gym" | "sample";
+export type TrainingId = "ice" | "switch" | "wipe" | "refill" | "sample";
 
 // Нарны дэлбэрэлтийн бодит бүртгэл (NASA DONKI)
 export interface Flare {
@@ -101,9 +101,6 @@ export interface GameState {
   dust: number; // нарны панель дээрх шороо 0-1
   player: Vec2 & { angle: number; moving: boolean };
   suitO2: number; // скафандрын хүчилтөрөгч 0-100
-  fitness: number; // булчингийн хүч 0-100
-  exercisedSol: number; // хамгийн сүүлд дасгал хийсэн sol
-  gymTimer: number;
   carrying: ItemId | null;
   task: { kind: TaskKind; done: number } | null; // гараар хийж буй ажил, done 0-1
   deck: ProblemId[]; // энэ тоглолтын асуудлуудын дараалал (seed-ээр холино)

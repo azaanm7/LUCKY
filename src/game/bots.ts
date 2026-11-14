@@ -1,8 +1,8 @@
-import { DEPOT, DRILL_O2, DRILL_SECONDS, GYM, MACHINES, MACHINE_POWER, REPAIRS, SAMPLES_MAX, SHELTER, SITES, SOLAR_FIELD, SUIT_USE } from "./config";
+import { DEPOT, DRILL_O2, DRILL_SECONDS, MACHINES, MACHINE_POWER, PLAYER_SPEED, REPAIRS, SAMPLES_MAX, SHELTER, SITES, SOLAR_FIELD, SUIT_USE } from "./config";
 import { createGame, tick } from "./engine";
 import { acknowledge, choose } from "./missions";
 import type { GameState, Input, Machine, PlanId, Vec2 } from "./types";
-import { dist, inShelter, inZone, isDay, powerDemand, solarInput, solOf, speedOf } from "./world";
+import { dist, inShelter, inZone, isDay, powerDemand, solarInput } from "./world";
 
 // Тэнцвэр шалгах ботууд. Олон тоглолтыг автоматаар тоглож, аль арга барил ялдгийг хэмжинэ.
 export type Bot = (s: GameState) => Input;
@@ -35,8 +35,7 @@ function urgent(s: GameState): Input | null {
   return null;
 }
 
-const needsGym = (s: GameState) => s.exercisedSol < solOf(s.time);
-const chores = (s: GameState): Input => (needsGym(s) ? (inZone(s.player, GYM) ? stay : go(s, GYM)) : go(s, nearestIce(s), 0));
+const chores = (s: GameState): Input => go(s, nearestIce(s), 0);
 
 // Аль машины унтраалгыг өөрчлөх ёстой вэ: эрчим хүч дутвал хамгийн дүүрэн нөөцтэйг унтраана
 function wrongSwitch(s: GameState): Machine | undefined {
@@ -53,14 +52,14 @@ function wrongSwitch(s: GameState): Machine | undefined {
 
 // Шинжлэх ухааны экспедиц: тайван үед хамгийн хол (үнэтэй) талбай руу явж, буцах O2-оо үлдээгээд дээж авна
 function expedition(s: GameState): Input | null {
-  const walk = (a: Vec2, b: Vec2) => (dist(a, b) / speedOf(s.fitness)) * SUIT_USE; // алхахад зарах O2
+  const walk = (a: Vec2, b: Vec2) => (dist(a, b) / PLAYER_SPEED) * SUIT_USE; // алхахад зарах O2
   const sample = (DRILL_SECONDS - s.drill) * (SUIT_USE + DRILL_O2); // дараагийн дээжид зарах O2
   const here = SITES.find((x) => inZone(s.player, x));
   if (s.samples.length) {
     const more = here && s.siteLeft[here.id] > 0 && s.samples.length < SAMPLES_MAX && s.suitO2 > sample + walk(here, SHELTER) + 14;
     return more ? stay : go(s, SHELTER);
   }
-  const calm = !s.problem && isDay(s.time) && !needsGym(s) && Math.min(s.res.oxygen, s.res.water, s.res.food) > 45;
+  const calm = !s.problem && isDay(s.time) && Math.min(s.res.oxygen, s.res.water, s.res.food) > 45;
   const site = [...SITES].reverse().find((x) => s.siteLeft[x.id] > 0);
   if (!calm || !site) return null;
   if (s.suitO2 > walk(s.player, site) + sample + walk(site, SHELTER) + 14) return here === site ? stay : go(s, site, 1);
@@ -70,7 +69,7 @@ function expedition(s: GameState): Input | null {
 export const idle: Bot = () => stay;
 export const shelterOnly: Bot = (s) => go(s, SHELTER); // хоргодох байрандаа л сууна
 
-// Дээд мөрний заавар бүрийг дагана (засвар, панель, дасгал, мөс). Машиныг асааж унтраахгүй, экспедицэд явахгүй.
+// Дээд мөрний заавар бүрийг дагана (засвар, панель, мөс). Машиныг асааж унтраахгүй, экспедицэд явахгүй.
 export const explorer = (effort = 1): Bot => (s) => urgent(s) ?? (resting(s, effort) ? stay : chores(s));
 
 // explorer + эрчим хүчээ удирдана. science = true бол тайван үед экспедицэд явна.

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DAY_PART, FACTS, GYM, ICE_WATER, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
+import { DAY_PART, FACTS, ICE_WATER, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
 import { createGame, tick } from "./engine";
 import { at, game, idle, press, run } from "./testing";
 
@@ -57,12 +57,6 @@ describe("сансрын нисэгчийн бие", () => {
     const s = run(at(game({ suitO2: 1 }), 20, 0), 1);
     expect(s.hearts).toBe(2);
     expect(s.losses[0].cause).toBe("suit");
-  });
-
-  test("гүйлтийн зам дээр 3 секунд зогсвол дасгал хийгдэнэ", () => {
-    const s = run(at(game({ fitness: 50 }), GYM.x, GYM.z), 3.5);
-    expect(s.fitness).toBe(100);
-    expect(s.exercisedSol).toBe(1);
   });
 });
 

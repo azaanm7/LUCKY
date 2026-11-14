@@ -56,11 +56,9 @@ A "Science and sources" page inside the game (start screen and pause menu) lists
 
 ### First-sol training
 
-Sol 1 has no emergency. Instead the prompt line walks the player through six actions, one at a time, with a green arrow pointing to each: collect ice, switch a machine, wipe the panels, refill the suit, exercise, and bring back a science sample. Each step ticks off as soon as it is done, in any order, and emergencies always take priority over the training prompt.
+Sol 1 has no emergency. Instead the prompt line walks the player through five actions, one at a time, with a green arrow pointing to each: collect ice, switch a machine, wipe the panels, refill the suit, and bring back a science sample. Each step ticks off as soon as it is done, in any order, and emergencies always take priority over the training prompt.
 
-Two needs run all game long:
-- **Spacesuit oxygen** drops whenever the astronaut is outside and refills in the shelter, so every trip outside must be planned.
-- **Exercise once per sol** on the treadmill. Skipping it weakens the astronaut's muscles and they walk slower, just like real astronauts in low gravity.
+One need runs all game long: **spacesuit oxygen** drops whenever the astronaut is outside and refills in the shelter, so every trip outside must be planned.
 
 ## How to play
 
@@ -74,7 +72,6 @@ Two needs run all game long:
 
 - 👩‍🚀 **Watch your suit oxygen** outside. Go back into the shelter to refill it.
 - 🚨 **Solve the daily emergency.** Spare parts are in the 📦 depot. A yellow arrow shows where to go.
-- 💪 **Exercise once per sol** on the treadmill.
 - 🧊 **Collect blue ice** to make water.
 - 🫧 🚰 🌱 **Machines** (oxygen maker, water recycler, greenhouse) use battery power.
 - 🧹 **Wipe the solar panels** after dust storms: walk to them, press the button and wipe each cell.
@@ -96,27 +93,26 @@ You win by surviving 6 sols. You lose if the crew's 3 hearts run out.
 | Shelter from flares | Mars has no global magnetic field and a thin atmosphere, so solar particles reach the surface. Curiosity's RAD instrument measures how much shielding astronauts will need. [2] [4] [6] |
 | Blue sunsets | Fine Martian dust lets blue light through more easily, so the sky near the setting Sun looks blue. [5] |
 | 1 sol | A Martian day is about 40 minutes longer than an Earth day. [2] |
-| Message delay to Earth | A radio signal between Mars and Earth takes about 3 to 22 minutes one way, so the crew must solve problems on their own. [9] |
-| Daily exercise | ISS astronauts exercise about 2 hours a day to protect muscles and bones; Mars gravity is about 38% of Earth's. [8] |
+| Message delay to Earth | A radio signal between Mars and Earth takes about 3 to 22 minutes one way, so the crew must solve problems on their own. [8] |
 | Spacesuit oxygen | Suit consumables are limited, so outside work is planned carefully. |
-| Solar flare strength | Real flares from NASA's DONKI database (2024), shown with their date and class. [10] |
-| Sample collecting | Perseverance collects cores of Martian rock and soil in tubes for a possible return to Earth. [11] |
-| River delta site | Jezero Crater held a lake more than 3.5 billion years ago, fed by a river delta. [11] |
-| Crater site | Curiosity found organic molecules, the chemical building blocks of life, in Gale Crater rocks. [12] |
+| Solar flare strength | Real flares from NASA's DONKI database (2024), shown with their date and class. [9] |
+| Sample collecting | Perseverance collects cores of Martian rock and soil in tubes for a possible return to Earth. [10] |
+| River delta site | Jezero Crater held a lake more than 3.5 billion years ago, fed by a river delta. [10] |
+| Crater site | Curiosity found organic molecules, the chemical building blocks of life, in Gale Crater rocks. [11] |
 
 Game numbers (consumption and production rates) are tuned for play balance and are not real mission values.
 
 ## Game balance
 
-We test balance with bots that play hundreds of games automatically (`bun run balance`, code in `src/game/bots.ts`). The bots follow the prompt line the way a child would: fix each emergency, shelter during flares, refill the suit, clean the panels, exercise, collect ice. A "slow player" only moves 40% of the time.
+We test balance with bots that play hundreds of games automatically (`bun run balance`, code in `src/game/bots.ts`). The bots follow the prompt line the way a child would: fix each emergency, shelter during flares, refill the suit, clean the panels, collect ice. A "slow player" only moves 40% of the time.
 
 | Strategy | Wins (300 games) | Hearts left | Stars |
 | --- | --- | --- | --- |
 | Stand still, or sit in the shelter all game | 0% | 0 | none |
-| Follow every prompt, but never switch a machine | 89–90% | 1.9 | 1 |
-| Follow every prompt, water recycler off all game (slow player) | 0% | 0 | none |
+| Follow every prompt, but never switch a machine | 78–82% | 1.6–1.7 | 1 |
+| Follow every prompt, water recycler off all game (slow player) | 40% | 0.8 | 1 at best |
 | Manage power; always the careful plan, always the quick plan, or Earth's advice (slow player) | 100% each | 3.0 | 1 |
-| Manage power **and go on expeditions** (fast player) | 100% | 3.0 | 2 stars in 86% of games, 3 stars in 5% |
+| Manage power **and go on expeditions** (fast player) | 100% | 3.0 | 2 stars in 85% of games, 3 stars in 10% |
 
 So a child who reacts usually wins but loses hearts, a child who manages the power budget wins every time, and only a child who takes the risk of expeditions earns more than one star. Neither card plan is the safe one: both win, with different costs. A child who ignores the base reads in the failure report why it failed. `bun test` fails if a change to the numbers breaks this order.
 
@@ -131,11 +127,10 @@ The numbers in square brackets in the tables above refer to this list.
 5. [NASA: Sunset in Mars' Gale Crater](https://science.nasa.gov/photojournal/sunset-in-mars-gale-crater)
 6. [NASA: Orion radiation protection plan (storm shelter from stowage bags)](https://www.nasa.gov/missions/artemis/orion/scientists-and-engineers-evaluate-orion-radiation-protection-plan/)
 7. [Space.com: ISS recycles 98% of crew water (2023)](https://www.space.com/astronaut-pee-iss-water-recycling-98-percent-milestone)
-8. [NASA: Astronaut exercise on the ISS](https://www.nasa.gov/missions/station/iss-research/astronaut-exercise)
-9. [NASA NTRS: Communication delay research for missions beyond low Earth orbit](https://ntrs.nasa.gov/citations/20250000703)
-10. [NASA CCMC: DONKI, the Space Weather Database Of Notifications, Knowledge, Information](https://ccmc.gsfc.nasa.gov/tools/DONKI/) (flare records from `https://ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR`)
-11. [NASA: Mars 2020 Perseverance rover](https://science.nasa.gov/mission/mars-2020-perseverance/)
-12. [NASA: Curiosity rover](https://science.nasa.gov/mission/msl-curiosity/)
+8. [NASA NTRS: Communication delay research for missions beyond low Earth orbit](https://ntrs.nasa.gov/citations/20250000703)
+9. [NASA CCMC: DONKI, the Space Weather Database Of Notifications, Knowledge, Information](https://ccmc.gsfc.nasa.gov/tools/DONKI/) (flare records from `https://ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR`)
+10. [NASA: Mars 2020 Perseverance rover](https://science.nasa.gov/mission/mars-2020-perseverance/)
+11. [NASA: Curiosity rover](https://science.nasa.gov/mission/msl-curiosity/)
 
 ## Tech stack
 
@@ -161,7 +156,7 @@ src/
     tasks.ts     Hands-on work: wiping panels, fitting parts
     science.ts   Sample sites, banking samples, stars
     training.ts  First-sol training checklist
-    crew.ts      Spacesuit oxygen and exercise
+    crew.ts      Spacesuit oxygen
     events.ts    Storm and flare timers, facts, lost hearts, win/lose
     report.ts    Failure report: why each heart was lost
     bots.ts      Bots that play the game to check balance

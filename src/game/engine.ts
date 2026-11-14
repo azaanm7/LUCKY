@@ -1,5 +1,5 @@
 import { CREW_USE, FACTS, HEARTS, ICE_COUNT, ICE_WATER, LEAK_RATE, MACHINES, MAKES, PROBLEM_IDS, SITE_SAMPLES, START, WEAK_OUTPUT } from "./config";
-import { updateFitness, updateSuit } from "./crew";
+import { updateSuit } from "./crew";
 import { FLARES } from "./donki";
 import { checkEnd, fact, weather } from "./events";
 import { progressProblem, startProblem } from "./missions";
@@ -19,7 +19,7 @@ export function createGame(seed = Math.floor(Math.random() * 1e9), live: Flare |
     res: { ...START },
     on: { o2: true, recycler: true, greenhouse: true }, load: 1, broken: null, weak: [], safeMode: 0,
     dust: 0.1, player: { x: 0, z: 6, angle: Math.PI, moving: false },
-    suitO2: 100, fitness: 100, exercisedSol: 0, gymTimer: 0,
+    suitO2: 100,
     carrying: null, task: null,
     deck, problem: null, plan: null, earthAt: 0, advice: null, solarFlare: live ?? FLARES[Math.floor(flare * FLARES.length)], solved: [], modal: null,
     science: 0, samples: [], drill: 0, siteLeft: { soil: SITE_SAMPLES, delta: SITE_SAMPLES, crater: SITE_SAMPLES },
@@ -83,8 +83,8 @@ export function tick(prev: GameState, input: Input, dt: number): GameState {
   // 6) Гараар хийдэг ажил, шинжлэх ухааны экспедиц
   s = explore(workTask(s, input), dt);
 
-  // 7) Сансрын нисэгчийн бие: скафандр, дасгал
-  s = updateFitness(updateSuit(s, dt), dt);
+  // 7) Скафандрын хүчилтөрөгч
+  s = updateSuit(s, dt);
 
   // 8) Аюул, асуудал
   s = weather(s, dt);

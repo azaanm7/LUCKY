@@ -44,21 +44,16 @@ const OBSTACLES: (Vec2 & { r: number })[] = [
   { x: 9, z: -1.2, r: 2.2 }, // ус цэвэршүүлэгч
   { x: 0, z: -11.6, r: 3.2 }, // хүлэмж
   { x: 5.5, z: -8, r: 1.6 }, // агуулах
-  { x: -5.5, z: -8, r: 1.6 }, // спорт модуль
   { x: 13, z: -9, r: 1.4 }, // холбооны антен
 ];
-
-// Дасгал хийгээгүй бол булчин сулраад удаан алхна
-export const speedOf = (fitness: number) => PLAYER_SPEED * (0.55 + 0.45 * (fitness / 100));
 
 export function movePlayer(s: GameState, input: Input, dt: number): GameState["player"] {
   const len = Math.hypot(input.dx, input.dz);
   if (len < 0.1) return { ...s.player, moving: false };
   const nx = input.dx / Math.max(1, len);
   const nz = input.dz / Math.max(1, len);
-  const speed = speedOf(s.fitness);
-  let x = s.player.x + nx * speed * dt;
-  let z = s.player.z + nz * speed * dt;
+  let x = s.player.x + nx * PLAYER_SPEED * dt;
+  let z = s.player.z + nz * PLAYER_SPEED * dt;
   for (const o of OBSTACLES) {
     const d = Math.hypot(x - o.x, z - o.z);
     if (d < o.r) { x = o.x + ((x - o.x) / d) * o.r; z = o.z + ((z - o.z) / d) * o.r; }

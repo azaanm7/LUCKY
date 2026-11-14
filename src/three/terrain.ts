@@ -55,7 +55,7 @@ export function createRocks(): THREE.Group {
   const g = new THREE.Group();
   const mats = ["#6e3320", "#58281a", "#834129"].map((color) => new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 1 }));
   // Барилга, кабелийн газарт чулуу тавихгүй: [x, z, радиус]
-  const busy = [[-13, -11, 6.5], [0, -11.6, 5], [5.5, -8, 3.5], [-5.5, -8, 3.5], [13, -9, 3], [-4, -8, 5], [0, -4, 6], [8, 11, 4], ...SITES.map((x) => [x.x, x.z, x.r + 1.5])];
+  const busy = [[-13, -11, 6.5], [0, -11.6, 5], [5.5, -8, 3.5], [13, -9, 3], [-4, -8, 5], [0, -4, 6], [8, 11, 4], ...SITES.map((x) => [x.x, x.z, x.r + 1.5])];
   let seed = 7;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   for (let i = 0; i < 130; i++) {

@@ -2,7 +2,7 @@ import { DAY_PART, DUSK_WARN, ITEMS, MACHINES, SITES, TRAINING } from "../game/c
 import { repairTarget } from "../game/missions";
 import { nextTraining } from "../game/training";
 import type { GameState, Need } from "../game/types";
-import { dayPhase, isDay, powerDemand, solarInput, solOf, works } from "../game/world";
+import { dayPhase, isDay, powerDemand, solarInput, works } from "../game/world";
 
 interface Task {
   text: string;
@@ -56,7 +56,6 @@ function nextTask(s: GameState): Task {
   }
   const lesson = nextTraining(s); // сургалтын дараагийн алхам
   if (lesson && !s.problem) return { text: `🎓 Сургалт ${s.trained.length + 1}/${TRAINING.length}: ${lesson.text}`, tone: "bg-emerald-700" };
-  if (s.exercisedSol < solOf(s.time)) return { text: "💪 Өнөөдөр дасгал хийгээгүй байна. Гүйлтийн зам дээр 3 секунд зогс", tone: "bg-violet-700" };
   if (!isDay(s.time)) {
     if (s.res.battery <= 0) return { text: "🌙 Батарей хоослоо. Нар гартал машинууд зогсоно", tone: "bg-black/60" };
     return { text: `🌙 Шөнө машинууд зөвхөн батарейгаар ажиллана. ${off}`, tone: "bg-indigo-600" };
