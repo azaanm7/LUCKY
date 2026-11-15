@@ -22,6 +22,7 @@ Instead of reading about trade-offs, the player **lives them**:
 - A dust storm cuts solar power, and afterwards the panels must be wiped clean by hand before power returns.
 - Every emergency offers **two plans and no free one**: a careful plan that takes time, or a quick plan with a lasting cost.
 - Science samples lie far from the base. The farther the site, the more a sample is worth and the more spacesuit oxygen the trip costs.
+- A 🔊 **read-aloud** button on the emergency cards, the prompt line and the start screen reads the text out loud with the device's own voice, so children who can't read well yet can still play. It only speaks when tapped, and it hides itself when the device has no voice for the chosen language.
 
 Every decision has a visible cost. The HUD shows the power budget as two numbers (what the sun gives, what the machines want), and a single line at the top of the screen always shows the most urgent task, so children can play without reading any rules.
 

@@ -57,8 +57,10 @@ src/
     sites.ts     Science sites: drill rig, beacon, samples left
     ship.ts      Supply ship that lands when the player wins
   audio/   synth.ts (Web Audio tones, no files) and cues.ts (compares two states and plays sounds).
+           speech.ts: read-aloud through the browser's speechSynthesis (only on a 🔊 tap, never auto-play).
   hooks/   use-game-loop.ts: the one place that connects logic, 3D, input and sound.
            use-space-weather.ts: the only network request in the app (live NASA DONKI flares).
+           use-speech.ts: voice available for the current language, speaking state, say/stop (used by ui/read-aloud.tsx).
   ui/      React + Tailwind HUD, joystick, overlays.
   i18n/    Every player-facing string. mn.ts (defines the Dict type) and en.ts (same shape),
            index.ts (Lang, DEFAULT_LANG = "en", loadLang/saveLang, say() for Msg, stepText() for report steps), context.ts (useT()).
