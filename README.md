@@ -114,6 +114,7 @@ You win by surviving 6 sols. You lose if the crew's 3 hearts run out.
 | Sample collecting | Perseverance collects cores of Martian rock and soil in tubes for a possible return to Earth. [10] |
 | River delta site | Jezero Crater held a lake more than 3.5 billion years ago, fed by a river delta. [10] |
 | Crater site | Curiosity found organic molecules, the chemical building blocks of life, in Gale Crater rocks. [11] |
+| Greenhouse food | Astronauts grew red romaine lettuce in the Veggie chamber on the ISS. Screening the leaves for human pathogens found none, and the crew ate part of the crop. The fact appears the first time the player reaches the greenhouse. The greenhouse's food and water rates are game rules, not OSDR numbers. [13] |
 
 Game numbers (consumption and production rates, and every dose number except the 0.64 mSv/day base rate) are tuned for play balance and are not real mission values.
 
@@ -149,6 +150,7 @@ The numbers in square brackets in the tables above refer to this list.
 10. [NASA: Mars 2020 Perseverance rover](https://science.nasa.gov/mission/mars-2020-perseverance/)
 11. [NASA: Curiosity rover](https://science.nasa.gov/mission/msl-curiosity/)
 12. Hassler, D. M. et al. (2014). *Mars' surface radiation environment measured with the Mars Science Laboratory's Curiosity rover.* Science 343(6169): 1244797. [doi:10.1126/science.1244797](https://doi.org/10.1126/science.1244797) ([PubMed 24324275](https://pubmed.ncbi.nlm.nih.gov/24324275/))
+13. [NASA OSDR (Open Science Data Repository): OSD-268, *Microbiological and nutritional analysis of lettuce crops grown on the International Space Station - VEG01B*](https://osdr.nasa.gov/bio/repo/data/studies/OSD-268) (Khodadad, C. L. M. et al., *Microbiological and Nutritional Analysis of Lettuce Crops Grown on the International Space Station*). The fact and link are embedded in the game; there is no network request.
 
 ## Tech stack
 
