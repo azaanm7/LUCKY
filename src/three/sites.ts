@@ -3,6 +3,7 @@ import { SITES, SITE_SAMPLES } from "../game/config";
 import type { GameState } from "../game/types";
 import { inZone } from "../game/world";
 import type { Dict } from "../i18n/mn";
+import { mergeStatic } from "./merge";
 import { createGlow, createLabel, glowMat, mat, mesh } from "./models";
 import { height } from "./terrain";
 
@@ -10,6 +11,7 @@ const COLOR = ["#7fe0ff", "#c9a0ff", "#ffd84a"]; // 1, 2, 3 оноотой та�
 
 // Шинжлэх ухааны талбай: өрөм, гэрэлт цамхаг, үлдсэн дээжийн тоогоор жижиг савнууд
 export function createSites(scene: THREE.Scene, t: Dict) {
+  const steel = mat("#c9ced4");
   const units = SITES.map((site) => {
     const color = COLOR[site.worth - 1];
     const g = new THREE.Group();
@@ -18,7 +20,7 @@ export function createSites(scene: THREE.Scene, t: Dict) {
     ring.rotation.x = -Math.PI / 2;
     ring.position.y = 0.1;
     for (let i = 0; i < 3; i++) { // гурван хөлтэй өрмийн тавиур
-      const leg = mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.9, 6), mat("#c9ced4"), Math.cos(i * 2.1) * 0.55, 1.35, Math.sin(i * 2.1) * 0.55);
+      const leg = mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.9, 6), steel, Math.cos(i * 2.1) * 0.55, 1.35, Math.sin(i * 2.1) * 0.55);
       leg.rotation.set(Math.sin(i * 2.1) * 0.4, 0, -Math.cos(i * 2.1) * 0.4);
       g.add(leg);
     }
@@ -32,6 +34,7 @@ export function createSites(scene: THREE.Scene, t: Dict) {
       return mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.55, 8), glowMat(color, 0.9), Math.cos(a) * 1.3, 0.3, Math.sin(a) * 1.3);
     });
     g.add(ring, bit, lamp, beam, ...tubes);
+    mergeStatic(g, [bit, ...tubes]); // гурван хөл → 1
     const label = createLabel(`${t.sites[site.id]} ×${site.worth}`, "rgba(20,45,80,.9)", "flask", 14);
     label.position.set(site.x, g.position.y + 4.4, site.z);
     scene.add(g, label);

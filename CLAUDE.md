@@ -70,7 +70,7 @@ src/
   hooks/   use-game-loop.ts: the one place that connects logic, 3D, input and sound.
            use-space-weather.ts: the only network request in the app (live NASA DONKI flares).
            use-speech.ts: voice available for the current language, speaking state, say/stop (used by ui/read-aloud.tsx).
-  ui/      React + Tailwind HUD, joystick, overlays.
+  ui/      React + Tailwind HUD, joystick, overlays. On phones the HUD folds into one bar (hud-bar.tsx; danger rules in dangers.ts).
   i18n/    Every player-facing string. mn.ts (defines the Dict type) and en.ts (same shape),
            index.ts (Lang, DEFAULT_LANG = "en", loadLang/saveLang, say() for Msg, stepText() for report steps), context.ts (useT()).
 ```
@@ -138,7 +138,10 @@ Space Apps requires teams to describe how AI was used. After any task where you 
 ## Gotchas
 
 - `three.js` objects are created once in `createWorld()`; per-frame work happens in `update()`. Do not create geometries or materials every frame.
-- Glows are additive sprites (`createGlow` in `models.ts`), not `PointLight`s. Only the greenhouse and the astronaut's headlamp are real point lights; adding more is slow on phones.
+- Glows are additive sprites (`createGlow` in `models.ts`), not `PointLight`s. Only the greenhouse and the astronaut's headlamp are real point lights; adding more is slow on phones. A glow whose opacity is 0 is skipped automatically.
+- Keep draw calls low (phones): many copies of one shape → `InstancedMesh` (rocks, storage piles); static parts of a building → share one material per colour and call `mergeStatic(group, keep)` from `merge.ts` (pass the parts that move or hide in `keep`). Create materials outside loops.
+- Shadows: the sun's shadow box (±30 m) follows the camera focus, and the shadow map refreshes every second frame. Parts smaller than ~0.35 m do not cast shadows (set in `scene.ts`).
+- Phones (`pointer: coarse`) render at up to 1.5× pixel density with a 1024 shadow map; desktop up to 2× with 2048.
 - The sky is a shader dome that follows the camera. Its horizon colour is also the fog colour, so change both together in `environment.ts`.
 - The HUD updates about 10 times per second from `stateRef`; the 3D world updates every frame. Do not put the full game state into React state on every frame.
 - Labels are canvas-texture sprites (`createLabel`) with `sizeAttenuation: false`, so their scale is in screen units, not world units.

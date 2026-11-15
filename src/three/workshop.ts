@@ -50,21 +50,22 @@ function createPrinter() {
 // Агуулах: мөс, хүдэр, үр бүрийн овоолго. Хэд байгаа нь шууд харагдана.
 function createPile(kind: Material) {
   const g = new THREE.Group();
-  const look = {
-    ice: () => mesh(new THREE.BoxGeometry(0.34, 0.34, 0.34), mat("#bfe9ff", { emissive: "#3aa6d9", emissiveIntensity: 0.6, roughness: 0.2 })),
-    ore: () => mesh(new THREE.DodecahedronGeometry(0.22, 0), mat("#8a4a30", { emissive: "#d06a20", emissiveIntensity: 0.25 })),
-    seed: () => mesh(new THREE.CapsuleGeometry(0.13, 0.18, 3, 6), mat("#38b764")),
-  }[kind];
-  const items = Array.from({ length: SHOWN }, (_, i) => {
-    const m = look();
-    m.position.set((i % 3 - 1) * 0.4, 0.2 + Math.floor(i / 3) * 0.36, (i % 2) * 0.1);
-    g.add(m);
-    return m;
-  });
+  const [geo, material] = {
+    ice: () => [new THREE.BoxGeometry(0.34, 0.34, 0.34), mat("#bfe9ff", { emissive: "#3aa6d9", emissiveIntensity: 0.6, roughness: 0.2 })] as const,
+    ore: () => [new THREE.DodecahedronGeometry(0.22, 0), mat("#8a4a30", { emissive: "#d06a20", emissiveIntensity: 0.25 })] as const,
+    seed: () => [new THREE.CapsuleGeometry(0.13, 0.18, 3, 6), mat("#38b764")] as const,
+  }[kind]();
+  // Нэг InstancedMesh: count = агуулахад хэд байгаа (6 тусдаа зурахын оронд 1)
+  const items = new THREE.InstancedMesh(geo, material, SHOWN);
+  const at = new THREE.Matrix4();
+  for (let i = 0; i < SHOWN; i++) items.setMatrixAt(i, at.makeTranslation((i % 3 - 1) * 0.4, 0.2 + Math.floor(i / 3) * 0.36, (i % 2) * 0.1));
+  items.castShadow = true;
+  items.computeBoundingSphere();
+  g.add(items);
   const marker = createMarker(MATERIAL_ICON[kind], 0.03);
   marker.position.y = 1.35;
   g.add(mesh(new THREE.BoxGeometry(1.4, 0.06, 0.8), mat("#4a5160"), 0, 0.03, 0), marker);
-  return { root: g, set: (n: number) => { items.forEach((m, i) => { m.visible = i < n; }); marker.visible = n > 0; } };
+  return { root: g, set: (n: number) => { items.count = n; marker.visible = n > 0; } };
 }
 
 export function createWorkshop(scene: THREE.Scene) {

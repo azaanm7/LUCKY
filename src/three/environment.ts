@@ -31,13 +31,15 @@ export function nightLevel(time: number): number {
   return 0.5 + Math.min(1, Math.min(k, 1 - k) * 6) * 0.5;
 }
 
-export function createEnvironment(scene: THREE.Scene) {
+const SHADOW_BOX = 30; // сүүдэр зөвхөн тоглогчийн эргэн тойронд (камерын харагдах хэсэгт) тооцогдоно
+
+export function createEnvironment(scene: THREE.Scene, phone: boolean) {
   const hemi = new THREE.HemisphereLight("#ffe3c8", "#5a2a18", 1.1);
   const sun = new THREE.DirectionalLight("#fff1dc", 2.4);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.setScalar(phone ? 1024 : 2048);
   const cam = sun.shadow.camera;
-  cam.left = -52; cam.right = 52; cam.top = 52; cam.bottom = -52; cam.near = 1; cam.far = 160;
+  cam.left = -SHADOW_BOX; cam.right = SHADOW_BOX; cam.top = SHADOW_BOX; cam.bottom = -SHADOW_BOX; cam.near = 1; cam.far = 180;
   const uniforms = { top: { value: new THREE.Color() }, horizon: { value: new THREE.Color() } };
   const dome = new THREE.Mesh(new THREE.SphereGeometry(330, 24, 12),
     new THREE.ShaderMaterial({ uniforms, vertexShader: SKY_VERT, fragmentShader: SKY_FRAG, side: THREE.BackSide, depthWrite: false, fog: false }));
@@ -49,7 +51,8 @@ export function createEnvironment(scene: THREE.Scene) {
 }
 
 // Цагаас хамаарч тэнгэр, нар, манан өөрчлөгдөнө
-export function updateEnvironment(s: GameState, scene: THREE.Scene, env: ReturnType<typeof createEnvironment>, camera: THREE.Camera) {
+// focus: камер харж буй газрын цэг. Нар (ба сүүдрийн хайрцаг) түүнийг дагана.
+export function updateEnvironment(s: GameState, scene: THREE.Scene, env: ReturnType<typeof createEnvironment>, camera: THREE.Camera, focus: THREE.Vector3) {
   const { top, horizon, sun, hemi, disc, dome, stars } = env;
   const p = dayPhase(s.time);
   let starlight = 0;
@@ -88,6 +91,8 @@ export function updateEnvironment(s: GameState, scene: THREE.Scene, env: ReturnT
 
   dome.position.copy(camera.position);
   disc.position.copy(sun.position).normalize().multiplyScalar(260).add(camera.position);
+  sun.position.add(focus); // дээрх нь чиглэл: одоо тоглогчийн дээр байрлуулна
+  sun.target.position.copy(focus);
   const fog = scene.fog as THREE.Fog;
   fog.color.copy(horizon);
   fog.near = s.storm > 0 ? 6 : 40;

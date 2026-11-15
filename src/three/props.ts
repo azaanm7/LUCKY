@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { ITEMS } from "../game/config";
 import type { ItemId } from "../game/types";
+import { mergeStatic } from "./merge";
 import { mat, mesh } from "./models";
 
 // Сэлбэгийн агуулах: хэдэн хайрцаг, тэмдэгтэй
@@ -12,6 +13,7 @@ export function createDepot(): THREE.Group {
     g.add(mesh(new THREE.BoxGeometry(s, s, s), crate, x, y, z));
     g.add(mesh(new THREE.BoxGeometry(s + 0.02, 0.12, s + 0.02), band, x, y, z));
   }
+  mergeStatic(g); // 8 хэсэг → 2
   return g;
 }
 

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeStatic } from "./merge";
 import { createGlow, glowMat, mat, mesh } from "./models";
 
 // power: 0-1 хэр хүчтэй ажиллаж байна · night: 0-1 хэр харанхуй · t: тоглоомын цаг
@@ -36,6 +37,7 @@ export function createShelter() {
   const ring = new THREE.Mesh(new THREE.RingGeometry(3.9, 4.3, 48), new THREE.MeshBasicMaterial({ color: "#ff5a4a", transparent: true, opacity: 0 }));
   ring.rotation.x = -Math.PI / 2; ring.position.y = 0.06;
   g.add(halo, ring);
+  mergeStatic(g);
   const run = (night: number, t: number) => {
     windows.emissiveIntensity = 0.25 + night * 1.3;
     halo.material.opacity = night * 0.3;
@@ -100,16 +102,20 @@ export function createGreenhouse(): Building {
     new THREE.MeshStandardMaterial({ color: "#e6fff4", transparent: true, opacity: 0.26, roughness: 0.05 }));
   glass.position.y = 0.35;
   const plants = new THREE.Group();
+  const leaf = [mat("#3f9a3c"), mat("#5fbf4a")], ripe = glowMat("#ef7d57", 0.5);
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * Math.PI * 2, r = i % 3 ? 1.75 : 0.8;
-    plants.add(mesh(new THREE.ConeGeometry(0.33, 0.9 + (i % 4) * 0.12, 6), mat(i % 2 ? "#5fbf4a" : "#3f9a3c"), Math.cos(a) * r, 0.9, Math.sin(a) * r));
+    plants.add(mesh(new THREE.ConeGeometry(0.33, 0.9 + (i % 4) * 0.12, 6), leaf[i % 2], Math.cos(a) * r, 0.9, Math.sin(a) * r));
   }
+  const spots = plants.children.filter((_, i) => i % 2 === 0).map((p) => p.position.clone());
   const light = new THREE.PointLight("#ff8fe0", 0, 9);
   light.position.y = 2;
   const halo = createGlow("#ff7ad9", 9, 0);
   halo.position.y = 1.4;
   const fruit = new THREE.Group(); // боловсорсон ургац: улаан жимс
-  plants.children.forEach((p, i) => { if (i % 2 === 0) fruit.add(mesh(new THREE.SphereGeometry(0.16, 6, 4), glowMat("#ef7d57", 0.5), p.position.x + 0.2, 1.2, p.position.z)); });
+  for (const p of spots) fruit.add(mesh(new THREE.SphereGeometry(0.16, 6, 4), ripe, p.x + 0.2, 1.2, p.z));
+  mergeStatic(plants);
+  mergeStatic(fruit);
   g.add(glass, plants, fruit, light, halo);
   let grown = 0;
   return {

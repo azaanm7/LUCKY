@@ -93,9 +93,11 @@ function Lessons({ s }: { s: GameState }) {
   );
 }
 
-export function Mission({ s }: { s: GameState }) {
+// compact: утсан дээр HUD эвхэгдсэн үед зөвхөн дүрс нь (өнгө нь яаралтай эсэхийг харуулна)
+export function Mission({ s, compact = false }: { s: GameState; compact?: boolean }) {
   const t = nextTask(s, useT());
   const training = !s.problem && s.trained.length < TRAINING.length;
+  if (compact) return <span title={plain(t.text)} className={`grid h-7 w-7 place-items-center rounded-lg ${t.tone}`}><Pix name={t.icon} size={20} /></span>;
   return (
     <div className={`flex items-center gap-2 self-center rounded-2xl px-3 py-1.5 text-center text-sm font-extrabold text-white shadow-lg ${t.tone}`}>
       <Pix name={t.icon} size={24} />

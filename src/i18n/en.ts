@@ -112,6 +112,8 @@ export const en: Dict = {
     solved: (n: number) => `🏅 ${count(n, "problem")} solved`,
     training: (n: number, total: number) => `🎓 Training ${n}/${total}`,
     pause: "Pause",
+    collapse: "Hide panels",
+    expand: "Show panels",
     mute: "Sound off",
     unmute: "Sound on",
     pack: "Backpack",

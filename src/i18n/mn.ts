@@ -114,6 +114,8 @@ export const mn = {
     solved: (n: number) => `🏅 ${n} асуудал шийдсэн`,
     training: (n: number, total: number) => `🎓 Сургалт ${n}/${total}`,
     pause: "Түр зогсоох",
+    collapse: "Самбар нуух",
+    expand: "Самбар харуулах",
     mute: "Дуу хаах",
     unmute: "Дуу асаах",
     pack: "Үүргэвч",

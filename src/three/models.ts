@@ -32,6 +32,7 @@ export function createGlow(color: string, size: number, opacity = 1, additive = 
   const blending = additive ? THREE.AdditiveBlending : THREE.NormalBlending;
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color, opacity, transparent: true, blending, depthWrite: false, fog: false }));
   s.scale.setScalar(size);
+  s.userData.glow = true; // scene.ts: бүрэн бүдэгэрсэн үед зурахгүй
   return s;
 }
 

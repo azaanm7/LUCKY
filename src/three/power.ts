@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { MACHINES, SOLAR_FIELD, SOLAR_POWER } from "../game/config";
 import type { GameState, MachineId } from "../game/types";
 import { solarInput, works } from "../game/world";
+import { mergeStatic } from "./merge";
 import { createGlow, createLabel, glowMat, mat, mesh } from "./models";
 import type { Dict } from "../i18n/mn";
 
@@ -22,15 +23,16 @@ const TO_MACHINE: Record<MachineId, Route> = {
 
 function createSolarField() {
   const g = new THREE.Group();
-  const panels = mat("#1f3d6b", { metalness: 0.5, roughness: 0.3 });
+  const panels = mat("#1f3d6b", { metalness: 0.5, roughness: 0.3 }), post = mat("#aaa"), rim = mat("#c9ced4");
   for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) {
     const x = (i - 1) * 2.6, z = (j - 0.5) * 2.8;
-    g.add(mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.1, 6), mat("#aaa"), x, 0.55, z));
+    g.add(mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.1, 6), post, x, 0.55, z));
     const p = mesh(new THREE.BoxGeometry(2.3, 0.08, 1.6), panels, x, 1.15, z);
-    const frame = mesh(new THREE.BoxGeometry(2.42, 0.05, 1.72), mat("#c9ced4"), x, 1.12, z);
+    const frame = mesh(new THREE.BoxGeometry(2.42, 0.05, 1.72), rim, x, 1.12, z);
     p.rotation.x = frame.rotation.x = -0.35;
     g.add(frame, p);
   }
+  mergeStatic(g); // 18 хэсэг → 3
   return { root: g, panels };
 }
 

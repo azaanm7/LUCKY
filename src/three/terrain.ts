@@ -30,7 +30,7 @@ export function height(x: number, z: number): number {
 }
 
 export function createTerrain(): THREE.Mesh {
-  const geo = new THREE.PlaneGeometry(150, 150, 150, 150);
+  const geo = new THREE.PlaneGeometry(150, 150, 120, 120); // 1.25 м тор: low-poly хэвээр, гурвалжин 36% цөөн
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
   const colors: number[] = [];
@@ -52,9 +52,12 @@ export function createTerrain(): THREE.Mesh {
   return mesh;
 }
 
+// Чулуунууд: өнгө бүрт нэг InstancedMesh (≈120 тусдаа зурахын оронд 3 удаа зурна)
 export function createRocks(): THREE.Group {
   const g = new THREE.Group();
   const mats = ["#6e3320", "#58281a", "#834129"].map((color) => new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 1 }));
+  const placed: THREE.Matrix4[][] = [[], [], []];
+  const euler = new THREE.Euler(), quat = new THREE.Quaternion(), at = new THREE.Vector3(), size = new THREE.Vector3();
   // Барилга, кабелийн газарт чулуу тавихгүй: [x, z, радиус]
   const busy = [[SOLAR_FIELD.x, SOLAR_FIELD.z, 7], [DEPOT.x + 1.5, DEPOT.z - 1.5, 5], [-5, -10, 5], [0, -4, 6], [0, 4, 5], [LANDING.x, LANDING.z, 4],
     ...Object.values(BUILDINGS).map((b) => [b.x, b.z, b.r + 2.5]), ...SITES.map((x) => [x.x, x.z, x.r + 1.5])];
@@ -64,13 +67,19 @@ export function createRocks(): THREE.Group {
     const angle = rnd() * Math.PI * 2, r = 9 + rnd() * 40;
     const x = Math.cos(angle) * r, z = Math.sin(angle) * r;
     const s = 0.3 + rnd() * (r > 20 ? 1.5 : 0.6);
-    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), mats[i % 3]);
-    rock.position.set(x, height(x, z) + s * 0.3, z);
-    rock.rotation.set(rnd() * 3, rnd() * 3, rnd() * 3);
-    rock.scale.y = 0.6 + rnd() * 0.6;
-    rock.castShadow = true;
-    if (!busy.some(([bx, bz, br]) => Math.hypot(x - bx, z - bz) < br)) g.add(rock);
+    at.set(x, height(x, z) + s * 0.3, z);
+    quat.setFromEuler(euler.set(rnd() * 3, rnd() * 3, rnd() * 3));
+    size.set(s, s * (0.6 + rnd() * 0.6), s);
+    if (!busy.some(([bx, bz, br]) => Math.hypot(x - bx, z - bz) < br)) placed[i % 3].push(new THREE.Matrix4().compose(at, quat, size));
   }
+  const geo = new THREE.DodecahedronGeometry(1, 0);
+  placed.forEach((list, k) => {
+    const rocks = new THREE.InstancedMesh(geo, mats[k], list.length);
+    list.forEach((m, i) => rocks.setMatrixAt(i, m));
+    rocks.castShadow = true;
+    rocks.computeBoundingSphere();
+    g.add(rocks);
+  });
   return g;
 }
 
