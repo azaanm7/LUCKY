@@ -50,6 +50,8 @@ src/
     *.test.ts
   three/   Rendering only. Reads GameState, never changes it.
     scene.ts     Renderer (tone mapping), camera, and the order everything updates in
+    camera.ts    Camera rig: two views ("top" commander view, "close" behind the astronaut), orbit angle (yaw), and screenToWorld()
+                 so walking always follows the screen. Q/R keys, dragging and the V key / eye button are wired in hooks/use-game-loop.ts
     base.ts      All base buildings, labels, pads and resource tanks, plus their per-frame update
     buildings.ts Shelter, the three machines (each has run(power, night, dt, t)) and the tank gauge
     props.ts     Depot, comm dish, carried items
@@ -145,4 +147,5 @@ Space Apps requires teams to describe how AI was used. After any task where you 
 - The sky is a shader dome that follows the camera. Its horizon colour is also the fog colour, so change both together in `environment.ts`.
 - The HUD updates about 10 times per second from `stateRef`; the 3D world updates every frame. Do not put the full game state into React state on every frame.
 - Labels are canvas-texture sprites (`createLabel`) with `sizeAttenuation: false`, so their scale is in screen units, not world units.
-- On portrait phones the camera moves higher (`moveCamera` in `scene.ts`). Test both desktop and a ~390px wide phone viewport.
+- On portrait phones the camera moves higher (the `tall` offsets in `camera.ts`). Test both views (V key), on desktop and on a ~390px wide phone viewport.
+- The look is smooth 3D: `mat()` is smooth-shaded, and round shapes use 48 segments (domes), 32 (tanks, cylinders) or 16 (pipes, lamps). Rocks and crystals stay faceted on purpose. Box edges stay sharp.

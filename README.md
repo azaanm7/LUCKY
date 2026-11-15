@@ -85,6 +85,8 @@ Swapping the old "safe mode" for the shield made the game easier for players who
 | 3D printer | Stand on the yellow workshop ring, `Space` / `E`, then `1`–`3` | Tap *Workshop*, then a picture |
 | Choose a plan on a card | `1` or `2`, `3` to ask Earth | Tap the plan |
 | Hands-on task | Mouse over or click the targets, or `Space` per step, `Esc` to stop | Swipe or tap the targets |
+| Turn the camera | `Q` / `R`, or drag the scene with the mouse | Drag the scene with a finger |
+| Change view (commander view from above, or close behind the astronaut) | `V` or the 👁 button | 👁 button |
 | Pause | `P` or the ⏸ button (also pauses when you switch tabs) | ⏸ button |
 
 - **Watch your suit oxygen and the crew's radiation dose** outside. Go back into the shelter to refill the suit. The dose only goes up, so keep trips short.
