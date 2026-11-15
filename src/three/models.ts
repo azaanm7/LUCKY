@@ -67,11 +67,32 @@ export function createPad(): THREE.Mesh {
 // Хаяг (createLabel) нь pixel-sprite.ts-д: пиксел дүрс + богино бичиг.
 export { createLabel } from "./pixel-sprite";
 
-// Тоглогчийн дээр гарч зорих газрыг заадаг сум
-export function createGuideArrow(): THREE.Mesh {
-  const geo = new THREE.ConeGeometry(0.45, 1.2, 4);
-  geo.rotateX(Math.PI / 2);
-  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: "#ffd84a", toneMapped: false }));
-  m.visible = false;
-  return m;
+// Зорих газрыг заах сум: газар дээр хэвтсэн хавтгай сум (иш + хошуу), бараан хүрээтэй тул улаан хөрсөн дээр тод.
+// Дээрээс харахад аль тийш заасан нь шууд ойлгогдоно. +Z тал руу заана (lookAt-д тохирно).
+function arrowShape(w: number): THREE.ShapeGeometry {
+  const s = new THREE.Shape();
+  s.moveTo(-0.3 * w, 0); s.lineTo(0.3 * w, 0); s.lineTo(0.3 * w, 1.1); s.lineTo(0.8 * w, 1.1);
+  s.lineTo(0, 1.1 + 1.0 * w); s.lineTo(-0.8 * w, 1.1); s.lineTo(-0.3 * w, 1.1); s.closePath();
+  const g = new THREE.ShapeGeometry(s);
+  g.rotateX(Math.PI / 2); // хавтгай хэвтүүлнэ: хошуу нь +Z
+  return g;
+}
+
+export function createGuideArrow() {
+  const root = new THREE.Group();
+  const flat = (geo: THREE.BufferGeometry, color: string, order: number, y: number) => {
+    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, depthTest: false, transparent: true, toneMapped: false }));
+    m.renderOrder = order; m.position.y = y;
+    root.add(m);
+    return m;
+  };
+  const outline = flat(arrowShape(1.35), "#1a1c2c", 8, 0);
+  outline.position.z = -0.2;
+  const fill = flat(arrowShape(1), "#ffd84a", 9, 0.01);
+  // Очих газар дээрх гэрлийн багана: холоос харагдана
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 14, 10, 1, true),
+    new THREE.MeshBasicMaterial({ color: "#ffd84a", transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+  root.scale.setScalar(1.35);
+  root.visible = beam.visible = false;
+  return { root, fill: fill.material as THREE.MeshBasicMaterial, beam };
 }

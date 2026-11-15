@@ -23,7 +23,7 @@ export function createActors(scene: THREE.Scene) {
     mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), bitMats.sample, (i % 3 - 1) * 0.23, 1.0 + Math.floor(i / 3) * 0.26, -0.68));
   astro.root.add(headlamp, ...bits);
   const arrow = createGuideArrow();
-  scene.add(astro.root, arrow);
+  scene.add(astro.root, arrow.root, arrow.beam);
   const updateDeposits = createDeposits(scene);
 
   return function update(s: GameState, night: number) {
@@ -43,11 +43,19 @@ export function createActors(scene: THREE.Scene) {
 
     updateDeposits(s, t);
 
+    // Сум астронавтын хажууд газар дээр хэвтэж, очих зүг рүү урагш хойш гулсана. Очих газар дээр гэрлийн багана.
     const target = guideTarget(s);
-    arrow.visible = !!target;
+    const far = !!target && Math.hypot(target.to.x - p.x, target.to.z - p.z) > 2.5; // ирчихсэн бол сум хэрэггүй
+    arrow.root.visible = far;
+    arrow.beam.visible = !!target;
     if (!target) return;
-    arrow.position.set(p.x, ground + 3.6 + Math.sin(t * 5) * 0.15, p.z);
-    arrow.lookAt(target.to.x, arrow.position.y, target.to.z);
-    (arrow.material as THREE.MeshBasicMaterial).color.set(target.color);
+    arrow.fill.color.set(target.color);
+    (arrow.beam.material as THREE.MeshBasicMaterial).color.set(target.color);
+    arrow.beam.position.set(target.to.x, height(target.to.x, target.to.z) + 7, target.to.z);
+    if (!far) return;
+    const dx = target.to.x - p.x, dz = target.to.z - p.z, len = Math.hypot(dx, dz);
+    const ahead = 1.7 + (Math.sin(t * 5) + 1) * 0.25;
+    arrow.root.position.set(p.x + (dx / len) * ahead, ground + 0.35, p.z + (dz / len) * ahead);
+    arrow.root.lookAt(target.to.x, arrow.root.position.y, target.to.z);
   };
 }
