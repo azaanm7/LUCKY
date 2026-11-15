@@ -1,5 +1,6 @@
 import { SITES } from "../game/config";
-import type { Msg, Step } from "../game/types";
+import type { Flare, Msg, Step } from "../game/types";
+import type { WeatherStatus } from "../hooks/use-space-weather";
 import { en } from "./en";
 import { mn } from "./mn";
 import type { Dict } from "./mn";
@@ -45,6 +46,13 @@ export function say(t: Dict, m: Msg): string {
     }
     default: return t.msg[m.kind];
   }
+}
+
+// Эхлэх дэлгэцийн сансрын цаг агаарын мөр (ui/space-weather.tsx-тэй ижил) чангаар уншуулахад
+export function weatherLine(t: Dict, w: { flare: Flare | null; status: WeatherStatus }): string {
+  if (w.status === "loading") return t.start.weatherLoading;
+  if (!w.flare) return t.start.weatherFailed;
+  return `${t.start.weatherLabel} ${t.start.weatherLive(w.flare.cls, w.flare.date)}`;
 }
 
 // Төгсгөлийн тайлангийн алхмыг (game/types.ts: Step) бичвэр болгоно

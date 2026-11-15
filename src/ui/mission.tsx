@@ -5,6 +5,7 @@ import type { GameState, Need } from "../game/types";
 import { dayPhase, isDay, powerDemand, solarInput, works } from "../game/world";
 import { useT } from "../i18n/context";
 import type { Dict } from "../i18n/mn";
+import { ReadAloud } from "./read-aloud";
 
 interface Task {
   text: string;
@@ -70,8 +71,9 @@ function nextTask(s: GameState, t: Dict): Task {
 export function Mission({ s }: { s: GameState }) {
   const t = nextTask(s, useT());
   return (
-    <div className={`self-center rounded-3xl px-4 py-2 text-center text-sm font-extrabold text-white shadow-lg ${t.tone}`}>
-      {t.text}
+    <div className={`flex items-center gap-2 self-center rounded-3xl px-4 py-2 text-center text-sm font-extrabold text-white shadow-lg ${t.tone}`}>
+      <span>{t.text}</span>
+      <ReadAloud texts={[t.text]} small className="-my-1 -mr-2" />
     </div>
   );
 }

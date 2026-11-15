@@ -4,6 +4,8 @@ import type { Dict } from "./mn";
 // English text for players aged 7–12: short sentences, everyday words.
 // Same structure as mn.ts (the Dict type checks it). Facts must stay true.
 export const en: Dict = {
+  speech: { lang: "en", read: "Read aloud", stop: "Stop" },
+
   start: {
     title: "Junior Astronaut",
     subtitle: (sols: number) => `We are almost at Mars. Keep the base safe for ${sols} days!`,
@@ -156,7 +158,7 @@ export const en: Dict = {
     earthSays: (text: string) => `📡 Earth: "${text}"`,
     late: "But the answer came too late. The flare started while you were waiting. On Mars, astronauts must make urgent choices themselves.",
     gotIt: "Got it 💪",
-    adviceHint: "⭐ marks Earth's advice. The final choice is yours!",
+    adviceHint: "Earth advises the plan with a star ⭐. The final choice is yours!",
     realLife: (title: string) => `In real life · ${title}`,
     next: "Continue 🚀",
   },

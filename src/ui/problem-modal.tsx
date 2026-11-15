@@ -4,6 +4,7 @@ import { PROBLEMS } from "../game/problems";
 import { shelteredFlareDose } from "../game/radiation";
 import type { GameState, PlanId } from "../game/types";
 import { useT } from "../i18n/context";
+import { ReadAloud } from "./read-aloud";
 
 interface ProblemModalProps {
   s: GameState;
@@ -13,11 +14,13 @@ interface ProblemModalProps {
 }
 
 const BIG = "rounded-2xl bg-mars py-3.5 font-display text-lg text-[#1b0f0a] active:scale-95";
+// B төлөвлөгөөний машин гэмтэх магадлал (зөвхөн дэлбэрэлтийн картад)
+const flareRisk = (s: GameState) => (s.problem === "flare" ? ` (${Math.round(damageChance(s.solarFlare) * 100)}%)` : "");
 
 // Хоёр төлөвлөгөө: аль аль нь үнэтэй. advice = Дэлхийн зөвлөсөн нь.
 function Plans({ s, advice, onChoose }: { s: GameState; advice: PlanId | null; onChoose: (plan: PlanId) => void }) {
   const p = useT().problems[s.problem!];
-  const risk = s.problem === "flare" ? ` (${Math.round(damageChance(s.solarFlare) * 100)}%)` : "";
+  const risk = flareRisk(s);
   return (
     <div className="grid gap-2">
       {(["a", "b"] as const).map((id, i) => (
@@ -38,15 +41,25 @@ export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps)
   const p = all.problems[modal.id], icon = PROBLEMS[modal.id].icon, delay = PROBLEMS[modal.id].delay;
   const flare = s.solarFlare;
   const title = { brief: [t.emergency, p.title, icon], answer: [t.earthReplied, p.title, "📡"], debrief: [t.solved, p.badge, "🏅"] }[modal.kind];
+  // 🔊 дарахад дэлгэц дээрх дарааллаар уншина
+  const plan = (id: PlanId) => `${p.plans[id].label}. ${p.plans[id].cost}`; // "(90%)" дангаараа уншихад утгагүй тул орхино
+  const speech = {
+    brief: [p.title, p.what, ...(modal.id === "flare" ? [`${t.donkiLabel(!!flare.live)} ${t.donki(flare.date, flare.cls, !!flare.live)}`] : []),
+      plan("a"), plan("b"), `${t.ask}. ${t.askText(delay, Math.round(delay * EARTH_SECONDS_PER_MINUTE))}`],
+    answer: [t.earthSays(p.why[s.advice ?? "a"]), s.plan ? t.late : t.adviceHint],
+    debrief: [t.realLife(p.realTitle), p.real],
+  }[modal.kind];
   return (
     <div className="absolute inset-0 grid place-items-center overflow-y-auto bg-black/45 p-4">
       <div className="grid w-full max-w-md gap-3 rounded-3xl bg-space/95 p-5 shadow-2xl">
         <div className="flex items-center gap-3">
           <span className="text-5xl">{title[2]}</span>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-extrabold tracking-widest text-orange-200/70 uppercase">{title[0]}</p>
             <h2 className="font-display text-xl leading-tight">{title[1]}</h2>
           </div>
+          {/* key: карт солигдох (төлөвлөгөө сонгох, Дэлхийгээс асуух, хаах) бүрд шинээр үүсч, өмнөх уншлага зогсоно */}
+          <ReadAloud key={`${modal.kind}-${modal.id}`} texts={speech} className="self-start" />
         </div>
 
         {modal.kind === "brief" && (
