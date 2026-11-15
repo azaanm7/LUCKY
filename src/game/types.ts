@@ -134,7 +134,7 @@ export interface GameState {
 }
 
 // Тоглогчид харагдах бүх бичвэр src/i18n/-д байна. Engine зөвхөн кодыг нь буцаана.
-export type FactId = "trip" | "red" | "landing" | "start" | "ice" | "night" | "moxie" | "suit" | "rad" | "soil" | "delta" | "crater";
+export type FactId = "trip" | "red" | "landing" | "start" | "ice" | "night" | "moxie" | "veggie" | "suit" | "rad" | "soil" | "delta" | "crater";
 
 // Дэлгэцийн доод хэсэгт түр гарах мэдэгдэл
 export type Msg =

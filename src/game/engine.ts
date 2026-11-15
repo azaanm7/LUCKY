@@ -50,6 +50,7 @@ export function tick(prev: GameState, input: Input, dt: number): GameState {
   const near = nearMachine(s.player);
   if (input.action && near && !busy) s = { ...s, on: { ...s.on, [near]: !s.on[near] } };
   if (near === "o2") s = fact(s, "moxie");
+  if (near === "greenhouse") s = fact(s, "veggie", 10); // NASA OSDR OSD-268: ОУСС дээр ургуулсан салат
 
   // 2) Нэг эрчим хүчний төсөв: нар + батарей. Хүрэхгүй бол ажиллаж буй бүх машин ижил хувиар удааширна.
   const demand = powerDemand(s) * dt;

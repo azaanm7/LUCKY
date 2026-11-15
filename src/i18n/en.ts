@@ -35,6 +35,7 @@ export const en: Dict = {
     night: "At night there is no sun, so the solar panels stop. Save your battery!",
     moxie: "In 2021, a machine called MOXIE on the Perseverance rover made oxygen from the air of Mars. Its best was 12 grams in one hour.",
     suit: "A spacesuit holds only a little oxygen. Astronauts plan their time outside very carefully.",
+    veggie: "On the space station, astronauts grew red lettuce in a small garden called Veggie. Scientists tested the leaves for germs that make people sick. They found none, so the crew could eat it! Data: NASA OSDR.",
     rad: "The RAD instrument on the Curiosity rover measured about 0.64 millisieverts of radiation per day on Mars. The crew dose in this game is scaled from that. It never goes down.",
     soil: "The Perseverance rover keeps rock and soil samples in small tubes. Scientists want to bring them to Earth one day.",
     delta: "Jezero Crater, where Perseverance landed, was a lake billions of years ago. You can still see the river delta that flowed into it.",
@@ -313,6 +314,7 @@ export const en: Dict = {
       delay: "The time it takes messages to travel between Earth and Mars.",
       water: "The space station reuses 98% of its water.",
       rad: "Radiation on the surface of Mars: 0.64 mSv per day. The crew dose in the game starts from this.",
+      osdr: "NASA's open library of experiments about living things in space. Our greenhouse fact comes from lettuce grown on the space station.",
     },
   },
 };

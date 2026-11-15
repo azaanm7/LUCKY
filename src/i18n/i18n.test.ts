@@ -4,7 +4,7 @@ import type { FactId, Msg, Step, TipId } from "../game/types";
 import { DICTS, LANGS, loadLang, saveLang, say, stepText } from "./index";
 import type { Dict } from "./index";
 
-const FACT_IDS: FactId[] = ["trip", "red", "landing", "start", "ice", "night", "moxie", "suit", "rad", "soil", "delta", "crater"];
+const FACT_IDS: FactId[] = ["trip", "red", "landing", "start", "ice", "night", "moxie", "veggie", "suit", "rad", "soil", "delta", "crater"];
 const TIPS: TipId[] = ["shelter", "returnEarly", "refill", "fetchPart", "fullFix", "turnBackOn", "patch", "dusk", "stormOff", "wipe", "spare", "ice", "early", "shield", "shortTrips"];
 
 // Engine-ийн гаргаж болох бүх мэдэгдэл ба тайлангийн алхам

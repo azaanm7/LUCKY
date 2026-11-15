@@ -127,4 +127,8 @@ describe("баримт ба тэмдэглэл", () => {
   test("агаар үйлдвэр дээр очиход MOXIE-ийн баримт гарна", () => {
     expect(tick(at(createGame(1), -9, 2), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "moxie" });
   });
+
+  test("хүлэмж дээр очиход NASA OSDR-ийн Veggie салатын баримт гарна", () => {
+    expect(tick(at(createGame(1), 0, -8), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "veggie" });
+  });
 });
