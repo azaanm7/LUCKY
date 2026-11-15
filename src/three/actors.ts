@@ -25,13 +25,18 @@ export function createActors(scene: THREE.Scene) {
   const arrow = createGuideArrow();
   scene.add(astro.root, arrow.root, arrow.beam);
   const updateDeposits = createDeposits(scene);
+  let facing = 0, lastT = -1; // дэлгэц дээрх эргэлт: тоглогчийн чиглэл рүү зөөлөн эргэнэ
 
   return function update(s: GameState, night: number) {
     const t = s.time, p = s.player, ground = height(p.x, p.z);
     // Алхахдаа хөл гараа савчина, сэлбэгээ толгой дээрээ барина
     const swing = p.moving ? Math.sin(t * 12) * 0.6 : 0;
     astro.root.position.set(p.x, ground + (p.moving ? Math.abs(Math.sin(t * 12)) * 0.12 : 0), p.z);
-    astro.root.rotation.y = p.angle;
+    // Огцом биш, хамгийн богино нумаар зөөлөн эргэнэ (шинэ тоглоом эхлэхэд шууд тавина)
+    const turn = t >= lastT && t - lastT < 0.2 ? Math.min(1, (t - lastT) * 14) : 1;
+    lastT = t;
+    facing += Math.atan2(Math.sin(p.angle - facing), Math.cos(p.angle - facing)) * turn;
+    astro.root.rotation.y = facing;
     astro.legL.rotation.x = swing; astro.legR.rotation.x = -swing;
     astro.armL.rotation.x = s.carrying ? -2.6 : -swing * 0.8;
     astro.armR.rotation.x = s.carrying ? -2.6 : swing * 0.8;

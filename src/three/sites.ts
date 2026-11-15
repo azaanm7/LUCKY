@@ -24,14 +24,14 @@ export function createSites(scene: THREE.Scene, t: Dict) {
       leg.rotation.set(Math.sin(i * 2.1) * 0.4, 0, -Math.cos(i * 2.1) * 0.4);
       g.add(leg);
     }
-    const bit = mesh(new THREE.ConeGeometry(0.26, 1.1, 6), mat("#59616b"), 0, 0.6, 0);
+    const bit = mesh(new THREE.ConeGeometry(0.26, 1.1, 12), mat("#59616b"), 0, 0.6, 0);
     bit.rotation.x = Math.PI;
-    const lamp = mesh(new THREE.SphereGeometry(0.22, 8, 6), glowMat(color, 2), 0, 2.85, 0);
+    const lamp = mesh(new THREE.SphereGeometry(0.22, 16, 12), glowMat(color, 2), 0, 2.85, 0);
     const beam = createGlow(color, 6, 0.4);
     beam.position.y = 2.85;
     const tubes = Array.from({ length: SITE_SAMPLES }, (_, i) => {
       const a = (i / SITE_SAMPLES) * Math.PI * 2 + 0.5;
-      return mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.55, 8), glowMat(color, 0.9), Math.cos(a) * 1.3, 0.3, Math.sin(a) * 1.3);
+      return mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.55, 12), glowMat(color, 0.9), Math.cos(a) * 1.3, 0.3, Math.sin(a) * 1.3);
     });
     g.add(ring, bit, lamp, beam, ...tubes);
     mergeStatic(g, [bit, ...tubes]); // гурван хөл → 1

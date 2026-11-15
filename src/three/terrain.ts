@@ -30,7 +30,7 @@ export function height(x: number, z: number): number {
 }
 
 export function createTerrain(): THREE.Mesh {
-  const geo = new THREE.PlaneGeometry(150, 150, 120, 120); // 1.25 м тор: low-poly хэвээр, гурвалжин 36% цөөн
+  const geo = new THREE.PlaneGeometry(150, 150, 120, 120); // 1.25 м тор. Гөлгөр гэрэлтүүлэгтэй тул манхан зөөлөн харагдана
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
   const colors: number[] = [];
@@ -47,7 +47,7 @@ export function createTerrain(): THREE.Mesh {
   }
   geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
-  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1 }));
+  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
   mesh.receiveShadow = true;
   return mesh;
 }

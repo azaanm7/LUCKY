@@ -26,7 +26,7 @@ function createSolarField() {
   const panels = mat("#1f3d6b", { metalness: 0.5, roughness: 0.3 }), post = mat("#aaa"), rim = mat("#c9ced4");
   for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) {
     const x = (i - 1) * 2.6, z = (j - 0.5) * 2.8;
-    g.add(mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.1, 6), post, x, 0.55, z));
+    g.add(mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.1, 10), post, x, 0.55, z));
     const p = mesh(new THREE.BoxGeometry(2.3, 0.08, 1.6), panels, x, 1.15, z);
     const frame = mesh(new THREE.BoxGeometry(2.42, 0.05, 1.72), rim, x, 1.12, z);
     p.rotation.x = frame.rotation.x = -0.35;
@@ -60,7 +60,7 @@ function createBattery() {
 
 function createCable(scene: THREE.Scene, route: Route) {
   const curve = new THREE.CatmullRomCurve3(route.map(([x, z]) => new THREE.Vector3(x, 0.09, z)));
-  const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.1, 5), mat("#232833"));
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.1, 8), mat("#232833"));
   tube.receiveShadow = true;
   const pulses = [0, 1, 2, 3].map(() => createGlow("#19d3ff", 1.1, 0, false));
   scene.add(tube, ...pulses);

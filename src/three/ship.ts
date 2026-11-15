@@ -9,10 +9,10 @@ const DESCENT = 3.6; // буух хугацаа (секунд)
 export function createShip(scene: THREE.Scene) {
   const g = new THREE.Group();
   const hull = mat("#f1ece4");
-  g.add(mesh(new THREE.CylinderGeometry(1.1, 1.3, 5, 14), hull, 0, 3.6, 0));
-  g.add(mesh(new THREE.ConeGeometry(1.1, 2.2, 14), mat("#e2693b"), 0, 7.2, 0));
-  g.add(mesh(new THREE.CylinderGeometry(1.32, 1.32, 0.3, 14), mat("#e2693b"), 0, 2.2, 0));
-  g.add(mesh(new THREE.SphereGeometry(0.42, 10, 8), glowMat("#7fe0ff", 1.2), 0, 5, 1.05));
+  g.add(mesh(new THREE.CylinderGeometry(1.1, 1.3, 5, 32), hull, 0, 3.6, 0));
+  g.add(mesh(new THREE.ConeGeometry(1.1, 2.2, 32), mat("#e2693b"), 0, 7.2, 0));
+  g.add(mesh(new THREE.CylinderGeometry(1.32, 1.32, 0.3, 32), mat("#e2693b"), 0, 2.2, 0));
+  g.add(mesh(new THREE.SphereGeometry(0.42, 20, 14), glowMat("#7fe0ff", 1.2), 0, 5, 1.05));
   for (let i = 0; i < 3; i++) {
     const a = (i / 3) * Math.PI * 2;
     const leg = mesh(new THREE.BoxGeometry(0.22, 2.6, 0.22), mat("#59616b"), Math.cos(a) * 1.6, 1.1, Math.sin(a) * 1.6);

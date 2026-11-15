@@ -20,13 +20,13 @@ export function createDepot(): THREE.Group {
 // Холбооны антен: Дэлхийтэй холбогддог
 export function createDish(): { root: THREE.Group; head: THREE.Group; light: THREE.Mesh } {
   const g = new THREE.Group();
-  g.add(mesh(new THREE.CylinderGeometry(0.15, 0.25, 3, 8), mat("#c9ced4"), 0, 1.5, 0));
+  g.add(mesh(new THREE.CylinderGeometry(0.15, 0.25, 3, 16), mat("#c9ced4"), 0, 1.5, 0));
   const head = new THREE.Group();
   head.position.y = 3.1;
-  const bowl = mesh(new THREE.SphereGeometry(1.3, 16, 8, 0, Math.PI * 2, 0, Math.PI / 3), mat("#f1ece4", { side: THREE.DoubleSide }));
+  const bowl = mesh(new THREE.SphereGeometry(1.3, 32, 12, 0, Math.PI * 2, 0, Math.PI / 3), mat("#f1ece4", { side: THREE.DoubleSide }));
   bowl.rotation.x = Math.PI * 0.7;
-  head.add(bowl, mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6), mat("#888"), 0, 0.2, 0.45).rotateX(0.9));
-  const light = mesh(new THREE.SphereGeometry(0.12, 8, 6), mat("#7fe0ff", { emissive: "#7fe0ff" }), 0, 0.8, 0.9);
+  head.add(bowl, mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8), mat("#888"), 0, 0.2, 0.45).rotateX(0.9));
+  const light = mesh(new THREE.SphereGeometry(0.12, 16, 12), mat("#7fe0ff", { emissive: "#7fe0ff" }), 0, 0.8, 0.9);
   head.add(light);
   g.add(head);
   return { root: g, head, light };

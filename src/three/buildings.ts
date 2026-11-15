@@ -17,9 +17,9 @@ export function createShelter() {
   const g = new THREE.Group();
   const windows = glowMat("#ffd27a", 0.2), beacon = glowMat("#ff5a4a", 1);
   const dome = mat("#ece6dd", { transparent: true });
-  g.add(mesh(new THREE.SphereGeometry(3.2, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), dome, 0, 0, 0));
-  g.add(mesh(new THREE.TorusGeometry(3.2, 0.14, 6, 32), mat("#e2693b"), 0, 0.15, 0).rotateX(Math.PI / 2));
-  g.add(mesh(new THREE.TorusGeometry(2.3, 0.07, 6, 28), mat(STEEL), 0, 2.25, 0).rotateX(Math.PI / 2));
+  g.add(mesh(new THREE.SphereGeometry(3.2, 48, 16, 0, Math.PI * 2, 0, Math.PI / 2), dome, 0, 0, 0));
+  g.add(mesh(new THREE.TorusGeometry(3.2, 0.14, 10, 64), mat("#e2693b"), 0, 0.15, 0).rotateX(Math.PI / 2));
+  g.add(mesh(new THREE.TorusGeometry(2.3, 0.07, 8, 64), mat(STEEL), 0, 2.25, 0).rotateX(Math.PI / 2));
   for (let i = 0; i < 7; i++) {
     const a = (i / 7) * Math.PI * 2 + 0.45;
     const w = mesh(new THREE.BoxGeometry(0.7, 0.42, 0.12), windows, Math.sin(a) * 2.95, 1.25, Math.cos(a) * 2.95);
@@ -30,8 +30,8 @@ export function createShelter() {
   g.add(mesh(new THREE.BoxGeometry(1.5, 1.9, 1.3), mat("#d8d0c4"), 0, 0.95, 3));
   g.add(mesh(new THREE.BoxGeometry(0.9, 1.4, 0.1), mat("#2d3340"), 0, 0.75, 3.67));
   g.add(mesh(new THREE.BoxGeometry(1.0, 0.1, 0.1), windows, 0, 1.6, 3.68));
-  g.add(mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.4, 6), mat("#999"), 1.6, 3.6, 0));
-  g.add(mesh(new THREE.SphereGeometry(0.15, 8, 6), beacon, 1.6, 4.85, 0));
+  g.add(mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.4, 8), mat("#999"), 1.6, 3.6, 0));
+  g.add(mesh(new THREE.SphereGeometry(0.15, 16, 12), beacon, 1.6, 4.85, 0));
   const halo = createGlow("#ffcf80", 11, 0);
   halo.position.y = 1.6;
   const ring = new THREE.Mesh(new THREE.RingGeometry(3.9, 4.3, 48), new THREE.MeshBasicMaterial({ color: "#ff5a4a", transparent: true, opacity: 0 }));
@@ -52,9 +52,9 @@ export function createO2(): Building {
   const strip = glowMat("#7fe0ff");
   g.add(mesh(new THREE.BoxGeometry(3, 1.5, 2.4), mat(HULL), 0, 0.75, 0));
   g.add(mesh(new THREE.BoxGeometry(3.08, 0.14, 2.48), strip, 0, 1.1, 0));
-  g.add(mesh(new THREE.CylinderGeometry(0.95, 1.15, 1.3, 10), mat(STEEL), 0, 2.15, 0));
-  g.add(mesh(new THREE.CylinderGeometry(0.16, 0.16, 2.3, 8), mat(DARK), 1.2, 2.2, -0.85));
-  g.add(mesh(new THREE.CylinderGeometry(0.16, 0.16, 1.7, 8), mat(DARK), 0.85, 1.9, -0.95));
+  g.add(mesh(new THREE.CylinderGeometry(0.95, 1.15, 1.3, 32), mat(STEEL), 0, 2.15, 0));
+  g.add(mesh(new THREE.CylinderGeometry(0.16, 0.16, 2.3, 16), mat(DARK), 1.2, 2.2, -0.85));
+  g.add(mesh(new THREE.CylinderGeometry(0.16, 0.16, 1.7, 16), mat(DARK), 0.85, 1.9, -0.95));
   const fan = new THREE.Group();
   fan.position.set(0, 2.92, 0);
   for (let i = 0; i < 3; i++) fan.add(mesh(new THREE.BoxGeometry(1.7, 0.06, 0.3), mat(DARK)).rotateY((i * Math.PI) / 3));
@@ -75,12 +75,12 @@ export function createRecycler(): Building {
   const g = new THREE.Group();
   const tank = mat("#3d7fb0", { metalness: 0.3 }), strip = glowMat("#4aa8ff");
   g.add(mesh(new THREE.BoxGeometry(3.4, 0.3, 2.4), mat(DARK), 0, 0.15, 0));
-  g.add(mesh(new THREE.CylinderGeometry(0.9, 0.9, 2.6, 12), tank, -0.9, 1.6, 0));
-  g.add(mesh(new THREE.SphereGeometry(0.9, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), tank, -0.9, 2.9, 0));
-  g.add(mesh(new THREE.CylinderGeometry(0.75, 0.75, 2.0, 12), tank, 0.95, 1.3, 0.2));
-  g.add(mesh(new THREE.TorusGeometry(0.92, 0.07, 6, 16), strip, -0.9, 1.3, 0).rotateX(Math.PI / 2));
-  g.add(mesh(new THREE.TorusGeometry(0.77, 0.07, 6, 16), strip, 0.95, 1.3, 0.2).rotateX(Math.PI / 2));
-  g.add(mesh(new THREE.TorusGeometry(0.9, 0.12, 6, 12, Math.PI), mat("#c9ced4"), 0, 2.4, 0.1));
+  g.add(mesh(new THREE.CylinderGeometry(0.9, 0.9, 2.6, 32), tank, -0.9, 1.6, 0));
+  g.add(mesh(new THREE.SphereGeometry(0.9, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), tank, -0.9, 2.9, 0));
+  g.add(mesh(new THREE.CylinderGeometry(0.75, 0.75, 2.0, 32), tank, 0.95, 1.3, 0.2));
+  g.add(mesh(new THREE.TorusGeometry(0.92, 0.07, 8, 48), strip, -0.9, 1.3, 0).rotateX(Math.PI / 2));
+  g.add(mesh(new THREE.TorusGeometry(0.77, 0.07, 8, 48), strip, 0.95, 1.3, 0.2).rotateX(Math.PI / 2));
+  g.add(mesh(new THREE.TorusGeometry(0.9, 0.12, 10, 24, Math.PI), mat("#c9ced4"), 0, 2.4, 0.1));
   const halo = createGlow("#4aa8ff", 6, 0);
   halo.position.y = 1.4;
   const ice = mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), glowMat("#bfe9ff", 0.7), 0.95, 2.7, 0.2); // хайлж буй мөс
@@ -96,16 +96,16 @@ export function createRecycler(): Building {
 export function createGreenhouse(): Building {
   const g = new THREE.Group();
   const strip = glowMat("#ff7ad9");
-  g.add(mesh(new THREE.CylinderGeometry(3, 3.1, 0.4, 20), mat("#cfc6ba"), 0, 0.2, 0));
-  g.add(mesh(new THREE.TorusGeometry(2.92, 0.08, 6, 32), strip, 0, 0.45, 0).rotateX(Math.PI / 2));
-  const glass = new THREE.Mesh(new THREE.SphereGeometry(2.9, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+  g.add(mesh(new THREE.CylinderGeometry(3, 3.1, 0.4, 48), mat("#cfc6ba"), 0, 0.2, 0));
+  g.add(mesh(new THREE.TorusGeometry(2.92, 0.08, 8, 64), strip, 0, 0.45, 0).rotateX(Math.PI / 2));
+  const glass = new THREE.Mesh(new THREE.SphereGeometry(2.9, 48, 16, 0, Math.PI * 2, 0, Math.PI / 2),
     new THREE.MeshStandardMaterial({ color: "#e6fff4", transparent: true, opacity: 0.26, roughness: 0.05 }));
   glass.position.y = 0.35;
   const plants = new THREE.Group();
   const leaf = [mat("#3f9a3c"), mat("#5fbf4a")], ripe = glowMat("#ef7d57", 0.5);
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * Math.PI * 2, r = i % 3 ? 1.75 : 0.8;
-    plants.add(mesh(new THREE.ConeGeometry(0.33, 0.9 + (i % 4) * 0.12, 6), leaf[i % 2], Math.cos(a) * r, 0.9, Math.sin(a) * r));
+    plants.add(mesh(new THREE.ConeGeometry(0.33, 0.9 + (i % 4) * 0.12, 10), leaf[i % 2], Math.cos(a) * r, 0.9, Math.sin(a) * r));
   }
   const spots = plants.children.filter((_, i) => i % 2 === 0).map((p) => p.position.clone());
   const light = new THREE.PointLight("#ff8fe0", 0, 9);
@@ -113,7 +113,7 @@ export function createGreenhouse(): Building {
   const halo = createGlow("#ff7ad9", 9, 0);
   halo.position.y = 1.4;
   const fruit = new THREE.Group(); // боловсорсон ургац: улаан жимс
-  for (const p of spots) fruit.add(mesh(new THREE.SphereGeometry(0.16, 6, 4), ripe, p.x + 0.2, 1.2, p.z));
+  for (const p of spots) fruit.add(mesh(new THREE.SphereGeometry(0.16, 12, 8), ripe, p.x + 0.2, 1.2, p.z));
   mergeStatic(plants);
   mergeStatic(fruit);
   g.add(glass, plants, fruit, light, halo);
@@ -140,10 +140,10 @@ export function createGreenhouse(): Building {
 export function createTank(color: string) {
   const root = new THREE.Group();
   const liquid = glowMat(color, 0.8);
-  root.add(mesh(new THREE.CylinderGeometry(0.64, 0.72, 0.3, 10), mat(DARK), 0, 0.15, 0));
-  root.add(mesh(new THREE.CylinderGeometry(0.64, 0.64, 0.14, 10), mat(DARK), 0, 2.77, 0));
-  const fill = mesh(new THREE.CylinderGeometry(0.46, 0.46, 2.4, 10), liquid, 0, 1.5, 0);
-  const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.56, 2.4, 10), new THREE.MeshStandardMaterial({ color: "#dff4ff", transparent: true, opacity: 0.2, roughness: 0.1 }));
+  root.add(mesh(new THREE.CylinderGeometry(0.64, 0.72, 0.3, 24), mat(DARK), 0, 0.15, 0));
+  root.add(mesh(new THREE.CylinderGeometry(0.64, 0.64, 0.14, 24), mat(DARK), 0, 2.77, 0));
+  const fill = mesh(new THREE.CylinderGeometry(0.46, 0.46, 2.4, 24), liquid, 0, 1.5, 0);
+  const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.56, 2.4, 24), new THREE.MeshStandardMaterial({ color: "#dff4ff", transparent: true, opacity: 0.2, roughness: 0.1 }));
   glass.position.y = 1.5;
   root.add(fill, glass);
   const set = (level: number) => {

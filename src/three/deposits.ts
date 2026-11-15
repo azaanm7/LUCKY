@@ -21,7 +21,7 @@ const MATS = {
 // Хэлбэрүүдийг мөн нэг удаа үүсгэнэ: орд цуглуулагдаж шинээр гарах бүрд санах ой нэмэгдэхгүй
 const GEO = {
   crystal: new THREE.OctahedronGeometry(1, 0), rock: new THREE.DodecahedronGeometry(1, 0), box: new THREE.BoxGeometry(1, 1, 1),
-  chute: new THREE.SphereGeometry(0.4, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2),
+  chute: new THREE.SphereGeometry(0.4, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
 };
 const part = (geo: THREE.BufferGeometry, material: THREE.Material, size: number | [number, number, number], x: number, y: number, z: number) => {
   const m = mesh(geo, material, x, y, z);

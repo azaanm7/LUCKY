@@ -18,10 +18,10 @@ function createPrinter() {
   g.add(mesh(new THREE.BoxGeometry(2, 0.12, 1.6), frame, 0, 2.35, 0));
   const head = mesh(new THREE.BoxGeometry(0.35, 0.3, 0.35), mat("#ef7d57"), 0, 2.1, 0);
   const nozzle = glowMat("#a0522d", 0);
-  head.add(mesh(new THREE.ConeGeometry(0.08, 0.2, 6), nozzle, 0, -0.22, 0).rotateX(Math.PI));
+  head.add(mesh(new THREE.ConeGeometry(0.08, 0.2, 10), nozzle, 0, -0.22, 0).rotateX(Math.PI));
   const product = mesh(new THREE.BoxGeometry(0.7, 1, 0.7), glowMat("#ffcd75", 0.6), 0, 0.5, 0);
   const lamp = glowMat("#38b764", 1.2);
-  g.add(head, product, mesh(new THREE.SphereGeometry(0.12, 8, 6), lamp, 0.85, 2.55, 0.65));
+  g.add(head, product, mesh(new THREE.SphereGeometry(0.12, 16, 12), lamp, 0.85, 2.55, 0.65));
   const halo = createGlow("#a07cff", 4, 0);
   halo.position.y = 1.2;
   g.add(halo);
@@ -53,7 +53,7 @@ function createPile(kind: Material) {
   const [geo, material] = {
     ice: () => [new THREE.BoxGeometry(0.34, 0.34, 0.34), mat("#bfe9ff", { emissive: "#3aa6d9", emissiveIntensity: 0.6, roughness: 0.2 })] as const,
     ore: () => [new THREE.DodecahedronGeometry(0.22, 0), mat("#8a4a30", { emissive: "#d06a20", emissiveIntensity: 0.25 })] as const,
-    seed: () => [new THREE.CapsuleGeometry(0.13, 0.18, 3, 6), mat("#38b764")] as const,
+    seed: () => [new THREE.CapsuleGeometry(0.13, 0.18, 4, 12), mat("#38b764")] as const,
   }[kind]();
   // Нэг InstancedMesh: count = агуулахад хэд байгаа (6 тусдаа зурахын оронд 1)
   const items = new THREE.InstancedMesh(geo, material, SHOWN);

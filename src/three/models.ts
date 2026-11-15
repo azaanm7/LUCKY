@@ -1,7 +1,9 @@
 import * as THREE from "three";
 
+// Гөлгөр гэрэлтүүлэг (smooth shading): дугуй хэлбэрүүд талгүй, зөөлөн харагдана. Хайрцгийн ирмэг хурц хэвээр.
+// Дугуй хэлбэрийн талын тоо: том (бөмбөгөр) 48, дунд (сав, цилиндр) 32, жижиг (хоолой, чийдэн) 16.
 export const mat = (color: string, extra: THREE.MeshStandardMaterialParameters = {}) =>
-  new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 0.7, ...extra });
+  new THREE.MeshStandardMaterial({ color, roughness: 0.7, ...extra });
 
 // Өөрөө гэрэлтдэг материал (гэрлийн зурвас, чийдэн)
 export const glowMat = (color: string, intensity = 1.5) => mat(color, { emissive: color, emissiveIntensity: intensity });
@@ -40,17 +42,17 @@ export function createGlow(color: string, size: number, opacity = 1, additive = 
 export function createAstronaut(accent = "#e2693b") {
   const root = new THREE.Group();
   const suit = mat("#f4f1ec"), dark = mat("#3d4350"), color = mat(accent);
-  const body = mesh(new THREE.CapsuleGeometry(0.42, 0.55, 4, 10), suit, 0, 1.05, 0);
-  const belt = mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.12, 12), color, 0, 0.82, 0);
-  const collar = mesh(new THREE.CylinderGeometry(0.3, 0.42, 0.14, 12), color, 0, 1.5, 0);
-  const head = mesh(new THREE.SphereGeometry(0.42, 16, 12), suit, 0, 1.82, 0);
-  const visor = mesh(new THREE.SphereGeometry(0.36, 16, 12, -Math.PI / 2.6, Math.PI / 1.3, Math.PI / 4, Math.PI / 2.4),
+  const body = mesh(new THREE.CapsuleGeometry(0.42, 0.55, 8, 24), suit, 0, 1.05, 0);
+  const belt = mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.12, 24), color, 0, 0.82, 0);
+  const collar = mesh(new THREE.CylinderGeometry(0.3, 0.42, 0.14, 24), color, 0, 1.5, 0);
+  const head = mesh(new THREE.SphereGeometry(0.42, 32, 24), suit, 0, 1.82, 0);
+  const visor = mesh(new THREE.SphereGeometry(0.36, 24, 16, -Math.PI / 2.6, Math.PI / 1.3, Math.PI / 4, Math.PI / 2.4),
     mat("#f2b632", { metalness: 0.8, roughness: 0.15, emissive: "#5a3a00" }), 0, 1.84, 0.1);
   const pack = mesh(new THREE.BoxGeometry(0.62, 0.7, 0.32), dark, 0, 1.15, -0.42);
-  const tank = mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.6, 8), color, 0, 1.2, -0.62);
-  const legL = mesh(new THREE.CapsuleGeometry(0.16, 0.35, 3, 8), suit, -0.18, 0.38, 0);
+  const tank = mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.6, 16), color, 0, 1.2, -0.62);
+  const legL = mesh(new THREE.CapsuleGeometry(0.16, 0.35, 6, 16), suit, -0.18, 0.38, 0);
   const legR = legL.clone(); legR.position.x = 0.18;
-  const armL = mesh(new THREE.CapsuleGeometry(0.12, 0.42, 3, 8), suit, -0.55, 1.15, 0);
+  const armL = mesh(new THREE.CapsuleGeometry(0.12, 0.42, 6, 16), suit, -0.55, 1.15, 0);
   const armR = armL.clone(); armR.position.x = 0.55;
   const lamp = createGlow("#d7ecff", 0.8, 0); // дуулганы гэрэл: шөнө асна
   lamp.position.set(0, 2.05, 0.38);
@@ -91,7 +93,7 @@ export function createGuideArrow() {
   outline.position.z = -0.2;
   const fill = flat(arrowShape(1), "#ffd84a", 9, 0.01);
   // Очих газар дээрх гэрлийн багана: холоос харагдана
-  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 14, 10, 1, true),
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 14, 16, 1, true),
     new THREE.MeshBasicMaterial({ color: "#ffd84a", transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
   root.scale.setScalar(1.35);
   root.visible = beam.visible = false;
