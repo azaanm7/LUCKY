@@ -8,6 +8,7 @@ import { createEnvironment, nightLevel, updateEnvironment } from "./environment"
 import { createPowerGrid } from "./power";
 import { createShip, LANDING } from "./ship";
 import { createSites } from "./sites";
+import { fadeLabels } from "./pixel-sprite";
 import { createRocks, createTerrain, height } from "./terrain";
 
 // t: 3D хаягууд ямар хэлээр байх. Хэл солигдвол ертөнцийг дахин үүсгэнэ (use-game-loop.ts).
@@ -29,6 +30,8 @@ export function createWorld(canvas: HTMLCanvasElement, t: Dict) {
   const updateDust = createDust(scene);
   const updateSites = createSites(scene, t);
   const updateShip = createShip(scene);
+  const labels: THREE.Sprite[] = []; // createLabel-ээр үүссэн бүх хаяг
+  scene.traverse((o) => { if (o instanceof THREE.Sprite && o.userData.near !== undefined) labels.push(o); });
   const camTarget = new THREE.Vector3(), focus = new THREE.Vector3();
   let shake = 0, hearts = 3, shipY = 0;
 
@@ -45,6 +48,7 @@ export function createWorld(canvas: HTMLCanvasElement, t: Dict) {
     updateActors(s, night);
     updateDust(s, dt, focus);
     updateSites(s, s.time);
+    fadeLabels(labels, intro ? { x: 1e3, z: 1e3 } : s.player); // эхлэлийн дүр зураг дээр хаяг харуулахгүй
     renderer.render(scene, camera);
   }
 
@@ -66,7 +70,7 @@ export function createWorld(canvas: HTMLCanvasElement, t: Dict) {
     }
     const p = s.player, ground = height(p.x, p.z);
     focus.set(p.x, ground, p.z);
-    camTarget.set(p.x, ground + (portrait ? 18 : 11), p.z + (portrait ? 16 : 15));
+    camTarget.set(p.x, ground + (portrait ? 20 : 13), p.z + (portrait ? 17 : 17));
     camera.position.lerp(camTarget, Math.min(1, dt * 4));
     camera.position.x += (Math.random() - 0.5) * shake;
     camera.position.y += (Math.random() - 0.5) * shake;

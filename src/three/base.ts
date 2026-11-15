@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { DEPOT, MACHINES, SHELTER } from "../game/config";
+import { BUILDINGS, DEPOT, MACHINES, SHELTER } from "../game/config";
 import type { GameState, MachineId, Need } from "../game/types";
 import { inShelter, works } from "../game/world";
 import type { Dict } from "../i18n/mn";
@@ -10,12 +10,8 @@ import { createDepot, createDish } from "./props";
 import { createWorkshop } from "./workshop";
 
 const BUILD = { o2: createO2, recycler: createRecycler, greenhouse: createGreenhouse };
-// Барилга бүр хаана байх, нөөцийн сав нь барилгаасаа хэр зайд байх
-const SITE: Record<MachineId, { x: number; z: number; tank: [number, number] }> = {
-  o2: { x: -9, z: -1.2, tank: [-2.2, 0.2] },
-  recycler: { x: 9, z: -1.2, tank: [2.3, 0.2] },
-  greenhouse: { x: 0, z: -11.6, tank: [-3.4, 0.5] },
-};
+// Барилга бүр хаана байх (config.ts BUILDINGS), нөөцийн сав нь барилгаасаа хэр зайд байх
+const TANK: Record<MachineId, [number, number]> = { o2: [-2.2, 0.2], recycler: [2.3, 0.2], greenhouse: [-3.4, 0.5] };
 const TANK_COLOR: Record<Need, string> = { oxygen: "#7fe0ff", water: "#3f8cff", food: "#ffa23f" };
 const ICON: Record<MachineId, SpriteName> = { o2: "oxygen", recycler: "water", greenhouse: "crop" };
 // Машины материалын түвшин 3D дээр: шүүлтүүр, хайлж буй мөс, ургац
@@ -25,21 +21,21 @@ const ON = new THREE.Color("#78c17c"), OFF = new THREE.Color("#ec5a52"), ALERT =
 // Суурийн бүх барилга, хаяг, дэвсгэрийг нэг удаа үүсгээд frame бүр шинэчилнэ
 export function createBase(scene: THREE.Scene, t: Dict) {
   const shelter = createShelter();
-  const depot = createDepot(); depot.position.set(DEPOT.x + 0.5, 0, DEPOT.z - 3);
-  const dish = createDish(); dish.root.position.set(13, 0, -9);
+  const depot = createDepot(); depot.position.set(BUILDINGS.crates.x, 0, BUILDINGS.crates.z);
+  const dish = createDish(); dish.root.position.set(BUILDINGS.dish.x, 0, BUILDINGS.dish.z);
   scene.add(shelter.root, depot, dish.root);
   const updateWorkshop = createWorkshop(scene);
 
   const fixed: [string, SpriteName, number, number, number][] = [
     [t.world.shelter, "shelter", SHELTER.x, 5.6, SHELTER.z],
     [t.world.depot, "printer", DEPOT.x + 1.5, 4.2, DEPOT.z - 1.5],
-    [t.world.comms, "antenna", 13, 5.2, -9],
+    [t.world.comms, "antenna", BUILDINGS.dish.x, 5.2, BUILDINGS.dish.z],
   ];
   for (const [text, icon, x, y, z] of fixed) { const l = createLabel(text, undefined, icon); l.position.set(x, y, z); scene.add(l); }
   for (const z of [DEPOT]) { const p = createPad(); p.position.set(z.x, 0.05, z.z); (p.material as THREE.MeshBasicMaterial).color.set("#ffd84a"); scene.add(p); }
 
   const units = MACHINES.map((m) => {
-    const site = SITE[m.id];
+    const site = { ...BUILDINGS[m.id], tank: TANK[m.id] };
     const building = BUILD[m.id]();
     building.root.position.set(site.x, 0, site.z);
     const pad = createPad();
@@ -50,7 +46,7 @@ export function createBase(scene: THREE.Scene, t: Dict) {
     const labels = {
       on: createLabel(name, "rgba(30,90,45,.88)", ICON[m.id]),
       off: createLabel(name, "rgba(110,30,25,.88)", "power"),
-      broken: createLabel(t.world.broken(name), "rgba(170,95,10,.92)", "warn"),
+      broken: createLabel(t.world.broken(name), "rgba(170,95,10,.92)", "warn", 0),
     };
     for (const l of Object.values(labels)) { l.position.set(site.x, m.id === "greenhouse" ? 6.2 : 5, site.z); scene.add(l); }
     scene.add(building.root, pad, tank.root);

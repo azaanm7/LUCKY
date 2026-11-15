@@ -1,4 +1,4 @@
-import { CRAFT_POWER, DAY_PART, DEPOSITS, DUST_BLOCK, MACHINES, MACHINE_POWER, PANEL_BOOST, PLAYER_SPEED, SHELTER, SOLAR_POWER, SOL_SECONDS, STORM_SUN, WORLD_RADIUS } from "./config";
+import { BUILDINGS, CRAFT_POWER, DAY_PART, DEPOSITS, DEPOT, SOLAR_FIELD, DUST_BLOCK, MACHINES, MACHINE_POWER, PANEL_BOOST, PLAYER_SPEED, SHELTER, SOLAR_POWER, SOL_SECONDS, STORM_SUN, WORLD_RADIUS } from "./config";
 import type { Deposit, GameState, Input, MachineId, Material, Vec2 } from "./types";
 
 // Seed-тэй санамсаргүй тоо: ижил seed → ижил тоглолт
@@ -42,13 +42,9 @@ export const idle = (s: GameState, id: MachineId) => id === "greenhouse" && (s.c
 export const powerDemand = (s: GameState) => MACHINES.filter((m) => works(s, m.id) && !idle(s, m.id)).length * MACHINE_POWER + (s.job ? CRAFT_POWER : 0);
 
 // Барилгууд нь тойрог хэлбэрийн саад. Тоглогчийг түлхэж гаргана.
-const OBSTACLES: (Vec2 & { r: number })[] = [
-  { x: -9, z: -1.2, r: 2.2 }, // агаар үйлдвэр
-  { x: 9, z: -1.2, r: 2.2 }, // ус цэвэршүүлэгч
-  { x: 0, z: -11.6, r: 3.2 }, // хүлэмж
-  { x: 5.5, z: -8, r: 1.6 }, // агуулах
-  { x: 13, z: -9, r: 1.4 }, // холбооны антен
-];
+const OBSTACLES = Object.values(BUILDINGS);
+// Материал барилга, панель, урлангийн дээр гарч ирэхгүй
+const BUSY = [...OBSTACLES, SOLAR_FIELD, DEPOT, SHELTER].map((b) => ({ ...b, r: b.r + 3 }));
 
 export function movePlayer(s: GameState, input: Input, dt: number): GameState["player"] {
   const len = Math.hypot(input.dx, input.dz);
@@ -74,10 +70,15 @@ export function nearMachine(p: Vec2): MachineId | null {
 
 // Материалыг суурингаас хол, санамсаргүй газар гаргана. Төрөл бүр өөрийн зайтай (config.ts: DEPOSITS).
 export function spawnDeposit(s: GameState, kind: Material): { deposit: Deposit; seed: number } {
-  let [a, seed] = random(s.seed);
-  let b;
-  [b, seed] = random(seed);
-  const angle = a * Math.PI * 2;
-  const r = DEPOSITS[kind].near + b * (DEPOSITS[kind].far - DEPOSITS[kind].near);
-  return { deposit: { id: s.nextDepositId, kind, x: Math.cos(angle) * r, z: Math.sin(angle) * r }, seed };
+  let seed = s.seed, x = 0, z = 0;
+  for (let tries = 0; tries < 6; tries++) { // барилгын дээр таарвал өөр газар сонгоно
+    let a, b;
+    [a, seed] = random(seed);
+    [b, seed] = random(seed);
+    const angle = a * Math.PI * 2;
+    const r = DEPOSITS[kind].near + b * (DEPOSITS[kind].far - DEPOSITS[kind].near);
+    x = Math.cos(angle) * r; z = Math.sin(angle) * r;
+    if (!BUSY.some((o) => Math.hypot(x - o.x, z - o.z) < o.r)) break;
+  }
+  return { deposit: { id: s.nextDepositId, kind, x, z }, seed };
 }

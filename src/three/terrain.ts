@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { SITES, WORLD_RADIUS } from "../game/config";
+import { BUILDINGS, DEPOT, SITES, SOLAR_FIELD, WORLD_RADIUS } from "../game/config";
+import { LANDING } from "./ship";
 
 // Тогоонууд (суурингаас хол). r = радиус. Эхнийх нь "Том тогоо" шинжлэх ухааны талбай.
 const CRATERS = [
@@ -23,7 +24,7 @@ function crater(x: number, z: number): number {
 export function height(x: number, z: number): number {
   const r = Math.hypot(x, z);
   const hills = Math.sin(x * 0.15) * 1.2 + Math.cos(z * 0.13) * 1.0 + Math.sin((x + z) * 0.07) * 1.5;
-  const flat = Math.min(1, Math.max(0, (r - 19) / 10));
+  const flat = Math.min(1, Math.max(0, (r - 25) / 10)); // суурийн орчим (25 хүртэл) тэгш
   const rim = r > RIM ? (r - RIM) * 1.1 + Math.sin(x * 0.4) * Math.cos(z * 0.35) * (r - RIM) * 0.35 : 0;
   return hills * flat + rim + crater(x, z);
 }
@@ -55,7 +56,8 @@ export function createRocks(): THREE.Group {
   const g = new THREE.Group();
   const mats = ["#6e3320", "#58281a", "#834129"].map((color) => new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 1 }));
   // Барилга, кабелийн газарт чулуу тавихгүй: [x, z, радиус]
-  const busy = [[-13, -11, 6.5], [0, -11.6, 5], [5.5, -8, 3.5], [13, -9, 3], [-4, -8, 5], [0, -4, 6], [8, 11, 4], ...SITES.map((x) => [x.x, x.z, x.r + 1.5])];
+  const busy = [[SOLAR_FIELD.x, SOLAR_FIELD.z, 7], [DEPOT.x + 1.5, DEPOT.z - 1.5, 5], [-5, -10, 5], [0, -4, 6], [0, 4, 5], [LANDING.x, LANDING.z, 4],
+    ...Object.values(BUILDINGS).map((b) => [b.x, b.z, b.r + 2.5]), ...SITES.map((x) => [x.x, x.z, x.r + 1.5])];
   let seed = 7;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   for (let i = 0; i < 130; i++) {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DEPOT, SOLAR_FIELD, TRAINING } from "./config";
+import { DEPOT, MACHINES, SOLAR_FIELD, TRAINING } from "./config";
 import { damageChance, flarePower, strongest } from "./donki";
 import { createGame, tick } from "./engine";
 import { at, game, idle, press, run, step } from "./testing";
@@ -11,7 +11,8 @@ describe("эхний өдрийн сургалт", () => {
     expect(tick(at(s, s.deposits[0].x, s.deposits[0].z), idle, 0.05).trained).toEqual(["collect"]);
     expect(tick(at(game({ pack: ["ice"] }), 0, 0), idle, 0.05).trained).toEqual(["store"]);
     expect(tick(at(game({ store: { ice: 0, ore: 2, seed: 0 } }), DEPOT.x, DEPOT.z), { ...idle, craft: "part" }, 0.05).trained).toEqual(["craft"]);
-    expect(tick(at(s, -9, 2), press, 0.05).trained).toEqual(["switch"]);
+    const o2 = MACHINES[0].pos;
+    expect(tick(at(s, o2.x, o2.z), press, 0.05).trained).toEqual(["switch"]);
     expect(run(at(game({ samples: [2] }), 0, 0), 0.1).trained).toEqual(["sample"]);
     const wiping = tick(at(game({ dust: 0.6 }), SOLAR_FIELD.x, SOLAR_FIELD.z), press, 0.05);
     expect(tick(wiping, step, 0.05).trained).toEqual(["wipe"]);

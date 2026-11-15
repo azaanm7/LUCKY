@@ -133,12 +133,12 @@ We test balance with bots that play hundreds of games automatically (`bun run ba
 | Strategy | Wins (300 games) | Hearts left | Stars |
 | --- | --- | --- | --- |
 | Stand still, or sit in the shelter all game | 0% | 0 | none |
-| Follow every prompt and collect, but never switch a machine | 63% (fast) / 79% (slow) | 1.2 / 1.9 | 1 |
+| Follow every prompt and collect, but never switch a machine | 64% (fast) / 68% (slow) | 1.2 / 1.7 | 1 |
 | Follow every prompt, water recycler off all game (slow player) | 0% | 0 | none |
-| Manage power, always the careful plan (shield on every flare) (slow player) | 82% | 2.1 | 1 |
-| Manage power, always the quick plan (never the shield) (slow player) | 67% | 1.6 | 1 |
-| Manage power, follow Earth's advice (slow player) | 82% | 2.1 | 1 |
-| Manage power **and go on expeditions** (fast player) | 89% | 2.4 | 2 stars in 51% of games |
+| Manage power, always the careful plan (shield on every flare) (slow player) | 81% | 2.2 | 1 |
+| Manage power, always the quick plan (never the shield) (slow player) | 77% | 1.8 | 1 |
+| Manage power, follow Earth's advice (slow player) | 81% | 2.2 | 1 |
+| Manage power **and go on expeditions** (fast player) | 94% | 2.6 | 2 stars in 54% of games, 3 stars in 1% |
 
 So a child who reacts usually wins but loses hearts, a child who manages the power budget and keeps the machines supplied wins more often and keeps more hearts, and only a child who takes the risk of expeditions earns more than one star (the third star is left for skilled players). Neither card plan is the safe one, but skipping the shield every time costs hearts, because a strong flare pushes the crew's radiation dose to the limit; using it costs battery at night. A child who ignores the base reads in the failure report why it failed. `bun test` fails if a change to the numbers breaks this order.
 

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import type { GameState } from "../game/types";
 import { createGlow, glowMat, mat, mesh } from "./models";
 
-export const LANDING = { x: 8, z: 11 }; // нөөцийн хөлөг буух газар
+export const LANDING = { x: 10, z: 13 }; // нөөцийн хөлөг буух газар
 const DESCENT = 3.6; // буух хугацаа (секунд)
 
 // Нөөцийн хөлөг: тоглогч ялахад тэнгэрээс бууж ирнэ

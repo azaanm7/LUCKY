@@ -1,11 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { DEPOT, EARTH_SECONDS_PER_MINUTE, PROBLEM_TIMES, SHIELD_POWER, SOLAR_FIELD, STUDY_POWER, STUDY_SCIENCE, TASK_STEPS, WIPE_DUST } from "./config";
+import { DEPOT, EARTH_SECONDS_PER_MINUTE, MACHINES, PROBLEM_TIMES, SHIELD_POWER, SOLAR_FIELD, STUDY_POWER, STUDY_SCIENCE, TASK_STEPS, WIPE_DUST } from "./config";
 import { createGame, tick } from "./engine";
 import { askEarth, choose } from "./missions";
 import { PROBLEMS } from "./problems";
 import { at, game, idle, press, run, step, untilModal } from "./testing";
 import type { GameState, ProblemId } from "./types";
 import { powerDemand } from "./world";
+
+const pad = (id: string) => MACHINES.find((m) => m.id === id)!.pos;
 
 // Тодорхой асуудал дөнгөж эхэлсэн тоглоом (цонх нээлттэй). Тоглогч хоргодох байранд.
 const facing = (id: ProblemId, over: Partial<GameState> = {}): GameState =>
@@ -24,9 +26,9 @@ describe("асуудлын цонх: хоёр төлөвлөгөө", () => {
     expect(s.modal).toBeNull();
     s = tick(at(s, DEPOT.x, DEPOT.z), idle, 0.05);
     expect(s.carrying).toBe("filter");
-    s = tick(at(s, -9, 2), idle, 0.05);
+    s = tick(at(s, pad("o2").x, pad("o2").z), idle, 0.05);
     expect(s.task).toEqual({ kind: "filter", done: 0 });
-    expect(tick(s, { dx: 1, dz: 0, action: false }, 0.5).player.x).toBe(-9); // ажиллаж байхдаа алхахгүй
+    expect(tick(s, { dx: 1, dz: 0, action: false }, 0.5).player.x).toBe(pad("o2").x); // ажиллаж байхдаа алхахгүй
     s = steps(s, TASK_STEPS.filter);
     expect(s).toMatchObject({ solved: ["filter"], broken: null, carrying: null, task: null, weak: [], modal: { kind: "debrief" } });
   });
@@ -39,7 +41,7 @@ describe("асуудлын цонх: хоёр төлөвлөгөө", () => {
   test("түр зассан машинаа тайван үед сэлбэгээр бүрэн засаж болно", () => {
     let s = tick(at(game({ weak: ["greenhouse"] }), DEPOT.x, DEPOT.z), idle, 0.05);
     expect(s.carrying).toBe("patch");
-    s = steps(tick(at(s, 0, -8), idle, 0.05), TASK_STEPS.patch);
+    s = steps(tick(at(s, pad("greenhouse").x, pad("greenhouse").z), idle, 0.05), TASK_STEPS.patch);
     expect(s).toMatchObject({ weak: [], carrying: null, task: null });
   });
 

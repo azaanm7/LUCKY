@@ -13,11 +13,11 @@ const LEVELS = ["#ff5a4a", "#ff5a4a", "#ffc94a", "#7be07f", "#7be07f"]; // ба�
 type Route = [number, number][]; // газраар явах цэгүүд [x, z]
 const BATTERY: [number, number] = [0, -3.7]; // хоргодох байрны урд хананд
 // Кабель бүр барилга, дэвсгэрийг тойрч гарна
-const FROM_SUN: Route = [[SOLAR_FIELD.x + 2, SOLAR_FIELD.z], [-8, -11], [-4.6, -11.3], [-2.8, -7.8], BATTERY];
+const FROM_SUN: Route = [[SOLAR_FIELD.x + 2, SOLAR_FIELD.z], [-12, -14.5], [-6, -12], [-2.8, -7.8], BATTERY];
 const TO_MACHINE: Record<MachineId, Route> = {
-  o2: [BATTERY, [-4, -2.6], [-7, -1.4], [-9, -1.2]],
-  recycler: [BATTERY, [4, -2.6], [7, -1.4], [9, -1.2]],
-  greenhouse: [BATTERY, [2.6, -6.2], [2.7, -9.4], [0, -11.6]],
+  o2: [BATTERY, [-4, -2.8], [-9, -2], [-13, -1.5]],
+  recycler: [BATTERY, [4, -2.8], [9, -2], [13, -1.5]],
+  greenhouse: [BATTERY, [2.4, -6.5], [3.4, -11], [3.6, -14.5], [0, -16.6]],
 };
 
 function createSolarField() {

@@ -1,10 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { CLOGGED_OUTPUT, CROP_SECONDS, DEPOT, FILTER_SECONDS, HARVEST_FOOD, MELT_SECONDS, O2_RATE, PACK_MAX, RECIPES, SOL_SECONDS, TASK_STEPS } from "./config";
+import { CLOGGED_OUTPUT, CROP_SECONDS, DEPOT, MACHINES, FILTER_SECONDS, HARVEST_FOOD, MELT_SECONDS, O2_RATE, PACK_MAX, RECIPES, SOL_SECONDS, TASK_STEPS } from "./config";
 import { createGame, tick } from "./engine";
 import { canCraft, packRoom } from "./gather";
 import { at, game, idle, press, run, step } from "./testing";
 import type { GameState, Material } from "./types";
 import { powerDemand, solarInput } from "./world";
+const GREEN = MACHINES[2].pos; // хүлэмжийн дэвсгэр
 
 const NIGHT = SOL_SECONDS * 0.8;
 const full = { oxygen: 50, water: 50, food: 50, battery: 100 };
@@ -60,7 +61,7 @@ describe("машин бүр материал шаардана", () => {
   });
 
   test("хүнс: үр тарьж, ургаж гүйцэхэд гараар хураана", () => {
-    let s = tick(at(game({ time: NIGHT, res: full, crop: null, store: { ...none, seed: 1 } }), 0, -8), idle, 0.05);
+    let s = tick(at(game({ time: NIGHT, res: full, crop: null, store: { ...none, seed: 1 } }), GREEN.x, GREEN.z), idle, 0.05);
     expect(s.crop).not.toBeNull();
     expect(s.store.seed).toBe(0);
     s = run({ ...s, res: full, time: NIGHT }, 0.1);

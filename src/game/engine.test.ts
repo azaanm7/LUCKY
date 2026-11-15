@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { DAY_PART, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
+import { DAY_PART, MACHINES, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
 import { createGame, tick } from "./engine";
 import { at, game, idle, press, run } from "./testing";
+const O2 = MACHINES[0].pos, GREEN = MACHINES[2].pos; // машины дэвсгэрүүд
 
 const NIGHT = SOL_SECONDS * 0.8; // шөнийн цаг
 const NOON = SOL_SECONDS * 0.35; // үд дунд
@@ -30,7 +31,7 @@ describe("tick", () => {
   });
 
   test("машины дэвсгэр дээр товч дарвал асаана / унтраана", () => {
-    expect(tick(at(createGame(1), -9, 2), press, 0.05).on.o2).toBe(false);
+    expect(tick(at(createGame(1), O2.x, O2.z), press, 0.05).on.o2).toBe(false);
   });
 
   test("юу ч хийхгүй бол ялахгүй", () => {
@@ -126,10 +127,10 @@ describe("баримт ба тэмдэглэл", () => {
   });
 
   test("агаар үйлдвэр дээр очиход MOXIE-ийн баримт гарна", () => {
-    expect(tick(at(createGame(1), -9, 2), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "moxie" });
+    expect(tick(at(createGame(1), O2.x, O2.z), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "moxie" });
   });
 
   test("хүлэмж дээр очиход NASA OSDR-ийн Veggie салатын баримт гарна", () => {
-    expect(tick(at(createGame(1), 0, -8), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "veggie" });
+    expect(tick(at(createGame(1), GREEN.x, GREEN.z), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "veggie" });
   });
 });

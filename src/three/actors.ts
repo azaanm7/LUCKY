@@ -47,7 +47,7 @@ export function createActors(scene: THREE.Scene) {
     const target = guideTarget(s);
     const far = !!target && Math.hypot(target.to.x - p.x, target.to.z - p.z) > 2.5; // ирчихсэн бол сум хэрэггүй
     arrow.root.visible = far;
-    arrow.beam.visible = !!target;
+    arrow.beam.visible = far;
     if (!target) return;
     arrow.fill.color.set(target.color);
     (arrow.beam.material as THREE.MeshBasicMaterial).color.set(target.color);

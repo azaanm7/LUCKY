@@ -8,7 +8,7 @@ export const DUSK_WARN = 0.12; // шөнө болохоос өмнөх sol-ын 
 export const WIN_SOL = 6;
 export const HEARTS = 3;
 export const WORLD_RADIUS = 46;
-export const PLAYER_SPEED = 8;
+export const PLAYER_SPEED = 10; // суурь өргөн болсон тул алхах хурд нэмэгдсэн (8 → 10)
 
 export const START = { oxygen: 70, water: 60, food: 60, battery: 60 };
 export const SOLAR_POWER = 13.5; // нар бүтэн тусахад секундэд (аюулгүй горимыг бамбайгаар солиход 14-өөс буулгаж, тэнцвэрийг хэвээр барьсан)
@@ -26,9 +26,9 @@ export const SUIT_REFILL = 30; // байранд орвол хурдан цэн�
 // ===== Материал цуглуулах =====
 // Газар дээр зэрэг байх тоо ба сууриас хэр хол гарах (хамгийн ойр, хамгийн хол). Үр нь урьдчилж буулгасан ачааны хайрцагт байна.
 export const DEPOSITS: Record<Material, { count: number; near: number; far: number }> = {
-  ice: { count: 4, near: 15, far: 27 },
-  ore: { count: 4, near: 16, far: 34 },
-  seed: { count: 2, near: 20, far: 38 },
+  ice: { count: 4, near: 18, far: 29 },
+  ore: { count: 4, near: 19, far: 35 },
+  seed: { count: 2, near: 23, far: 39 },
 };
 export const PACK_MAX = 6; // үүргэвчинд багтах зүйл (материал + дээж)
 export const START_STORE: Record<Material, number> = { ice: 2, ore: 0, seed: 1 };
@@ -94,17 +94,27 @@ export const O2_RATE = 2.0; // агаар үйлдвэр секундэд гар
 
 type Zone = Vec2 & { r: number };
 export const SHELTER: Zone = { x: 0, z: 0, r: 4.2 };
-export const SOLAR_FIELD: Zone = { x: -13, z: -11, r: 4.5 };
-export const DEPOT: Zone = { x: 5, z: -5, r: 1.8 }; // урлан ба агуулах: материал буулгана, 3D принтер ажиллуулна
+export const SOLAR_FIELD: Zone = { x: -18, z: -15, r: 4.5 };
+export const DEPOT: Zone = { x: 8, z: -8, r: 1.8 }; // урлан ба агуулах: материал буулгана, 3D принтер ажиллуулна
 
 export const MACHINES: Machine[] = [
-  { id: "o2", icon: "🫧", pos: { x: -9, z: 2 }, makes: "oxygen", item: "filter" },
-  { id: "recycler", icon: "🚰", pos: { x: 9, z: 2 }, makes: "water", item: "pump" },
-  { id: "greenhouse", icon: "🌱", pos: { x: 0, z: -8 }, makes: "food", item: "patch" },
+  { id: "o2", icon: "🫧", pos: { x: -13, z: 2.2 }, makes: "oxygen", item: "filter" },
+  { id: "recycler", icon: "🚰", pos: { x: 13, z: 2.2 }, makes: "water", item: "pump" },
+  { id: "greenhouse", icon: "🌱", pos: { x: 0, z: -13 }, makes: "food", item: "patch" },
 ];
 
+// Барилгуудын байршил ба хэмжээ (r = тоглогч нэвтэрч чадахгүй тойрог). Логик (мөргөлдөөн) ба 3D хоёулаа эндээс авна.
+// Машин бүрийн барилга нь дэвсгэрийнхээ (MACHINES.pos) ард байна.
+export const BUILDINGS: Record<MachineId | "crates" | "dish", Vec2 & { r: number }> = {
+  o2: { x: -13, z: -1.5, r: 2.2 },
+  recycler: { x: 13, z: -1.5, r: 2.2 },
+  greenhouse: { x: 0, z: -16.6, r: 3.2 },
+  crates: { x: 8.5, z: -11, r: 1.6 }, // урлангийн ачааны хайрцгууд
+  dish: { x: 18, z: -13, r: 1.4 }, // Дэлхийтэй холбогдох антен
+};
+
 export const SITES: Site[] = [
-  { id: "soil", icon: "🧪", x: 13, z: 14, r: 2.6, worth: 1 },
+  { id: "soil", icon: "🧪", x: 15, z: 17, r: 2.6, worth: 1 },
   { id: "delta", icon: "🏞️", x: -25, z: 17, r: 2.8, worth: 2 },
   { id: "crater", icon: "🌋", x: 30, z: -30, r: 3.2, worth: 3 },
 ];
