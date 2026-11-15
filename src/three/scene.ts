@@ -3,6 +3,7 @@ import type { GameState } from "../game/types";
 import type { Dict } from "../i18n/mn";
 import { createActors } from "./actors";
 import { createBase } from "./base";
+import { createCameraRig } from "./camera";
 import { createDust } from "./effects";
 import { createEnvironment, nightLevel, updateEnvironment } from "./environment";
 import { createPowerGrid } from "./power";
@@ -45,6 +46,7 @@ export function createWorld(canvas: HTMLCanvasElement, t: Dict) {
     if (o.userData.near !== undefined) labels.push(o);
     if (o.userData.glow && o.visible) glows.push(o);
   });
+  const rig = createCameraRig();
   const camTarget = new THREE.Vector3(), focus = new THREE.Vector3();
   let shake = 0, hearts = 3, shipY = 0, frame = 0;
 
@@ -85,11 +87,12 @@ export function createWorld(canvas: HTMLCanvasElement, t: Dict) {
     }
     const p = s.player, ground = height(p.x, p.z);
     focus.set(p.x, ground, p.z);
-    camTarget.set(p.x, ground + (portrait ? 20 : 13), p.z + (portrait ? 17 : 17));
+    const c = rig.step(dt, portrait); // харагдац (дээрээс / ойроос) ба тойрч эргэх өнцөг: camera.ts
+    camTarget.set(p.x + c.sin * c.back, ground + c.up, p.z + c.cos * c.back);
     camera.position.lerp(camTarget, Math.min(1, dt * 4));
     camera.position.x += (Math.random() - 0.5) * shake;
     camera.position.y += (Math.random() - 0.5) * shake;
-    camera.lookAt(p.x, ground + 1, p.z - (portrait ? 1 : 3));
+    camera.lookAt(p.x - c.sin * c.ahead, ground + 1, p.z - c.cos * c.ahead);
   }
 
   function resize() {
@@ -100,5 +103,5 @@ export function createWorld(canvas: HTMLCanvasElement, t: Dict) {
     camera.updateProjectionMatrix();
   }
 
-  return { update, resize, dispose: () => renderer.dispose() };
+  return { update, resize, rig, dispose: () => renderer.dispose() };
 }

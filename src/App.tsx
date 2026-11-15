@@ -79,10 +79,10 @@ export default function App() {
   return (
     <LangContext value={t}>
       <main className="relative h-full w-full overflow-hidden select-none">
-        <canvas ref={canvasRef} className="block h-full w-full" />
+        <canvas ref={canvasRef} className="block h-full w-full touch-none" />
         {playing && (
           <>
-            <Hud s={s} muted={muted} onMute={mute} onPause={() => setPaused(true)} />
+            <Hud s={s} muted={muted} onMute={mute} onPause={() => setPaused(true)} onView={game.toggleView} />
             {s.task ? <TaskOverlay s={s} onStep={game.step} onCancel={game.cancel} />
               : showCraft ? <CraftPanel s={s} onCraft={game.craft} onClose={() => setCrafting(false)} />
               : <Controls s={s} onPress={game.press} onCraft={() => setCrafting(true)} onStick={game.setStick} />}

@@ -16,6 +16,7 @@ interface HudProps {
   muted: boolean;
   onMute: () => void;
   onPause: () => void;
+  onView: () => void; // камерын харагдац солих (дээрээс / ойроос)
 }
 
 // Нэг жижиг заагч: пиксел дүрс + нарийн зураас. Аюултай үед улаан болж анивчина.
@@ -47,7 +48,7 @@ const FOLD_KEY = "hud-folded";
 const loadFolded = () => { try { return localStorage.getItem(FOLD_KEY) === "1"; } catch { return false; } };
 const saveFolded = (v: boolean) => { try { localStorage.setItem(FOLD_KEY, v ? "1" : "0"); } catch { /* хадгалахгүй */ } };
 
-export function Hud({ s, muted, onMute, onPause }: HudProps) {
+export function Hud({ s, muted, onMute, onPause, onView }: HudProps) {
   const all = useT(), t = all.hud;
   const sol = Math.min(WIN_SOL, solOf(s.time));
   const progress = Math.min(100, (s.time / (WIN_SOL * SOL_SECONDS)) * 100);
@@ -81,6 +82,7 @@ export function Hud({ s, muted, onMute, onPause }: HudProps) {
           <div className="flex gap-1.5">
             <button onClick={onPause} aria-label={t.pause} className={ROUND}><Pix name="pause" size={20} /></button>
             <button onClick={onMute} aria-label={muted ? t.unmute : t.mute} className={ROUND}><Pix name={muted ? "mute" : "sound"} size={20} /></button>
+            <button onClick={onView} aria-label={t.view} title={t.view} className={ROUND}><Pix name="eye" size={20} /></button>
             <button onClick={() => fold(true)} aria-label={t.collapse} className={`${ROUND} sm:hidden`}><Pix name="fold" size={20} /></button>
           </div>
           {s.carrying && (

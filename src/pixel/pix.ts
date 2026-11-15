@@ -2,6 +2,7 @@ import { SPRITES_A } from "./sprites-a";
 import { SPRITES_B } from "./sprites-b";
 import { SPRITES_C } from "./sprites-c";
 import { SPRITES_D } from "./sprites-d";
+import { SPRITES_E } from "./sprites-e";
 
 // Тоглоомын бүх дүрс нэг хязгаарлагдмал өнгөний самбартай (16 өнгө), 12×12 цэгтэй. Ингэснээр бүгд нэг тоглоомынх шиг харагдана.
 export const SIZE = 12;
@@ -12,7 +13,7 @@ export const PALETTE: Record<string, string> = {
   a: "#73eff7", p: "#5d275d", m: "#a0522d",
 };
 
-export const SPRITES = { ...SPRITES_A, ...SPRITES_B, ...SPRITES_C, ...SPRITES_D };
+export const SPRITES = { ...SPRITES_A, ...SPRITES_B, ...SPRITES_C, ...SPRITES_D, ...SPRITES_E };
 export type SpriteName = keyof typeof SPRITES;
 
 // Дүрсний цэг бүрийг (x, y, өнгө) болгож өгнө

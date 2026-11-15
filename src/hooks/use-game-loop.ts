@@ -6,6 +6,7 @@ import { createGame, tick } from "../game/engine";
 import { acknowledge, askEarth, choose } from "../game/missions";
 import type { Flare, GameState, Input, PlanId, RecipeId } from "../game/types";
 import type { Dict } from "../i18n/mn";
+import { DRAG_TURN, screenToWorld, TURN_SPEED } from "../three/camera";
 import { createWorld } from "../three/scene";
 
 // three.js-ийн дэлгэц, тоглоомын давталт, гарын товчлуур, дууг нэг дор холбоно
@@ -16,6 +17,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
   const once = useRef<{ action: boolean; step: boolean; cancel: boolean; craft?: RecipeId }>({ action: false, step: false, cancel: false }); // нэг frame-д л хүчинтэй товчнууд
   const keys = useRef(new Set<string>());
   const stick = useRef({ x: 0, z: 0 });
+  const rigRef = useRef<ReturnType<typeof createWorld>["rig"] | null>(null); // камер: харагдац солих, эргүүлэх
   const startedRef = useRef(started), pausedRef = useRef(paused);
   useEffect(() => { startedRef.current = started; pausedRef.current = paused; }, [started, paused]);
 
@@ -31,6 +33,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     const canvas = canvasRef.current!;
     const world = createWorld(canvas, t);
     world.resize();
+    rigRef.current = world.rig;
     const onResize = () => world.resize();
     // e.code = товчны байрлал (KeyW, Space). Монгол гарын байрлал дээр ч WASD ажиллана.
     const down = (e: KeyboardEvent) => {
@@ -49,6 +52,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
       }
       keys.current.add(e.code);
       if (e.code === "Escape") once.current.cancel = true;
+      if (e.code === "KeyV" && !e.repeat) world.rig.toggle(); // харагдац солих
       if (e.code !== "Space" && e.code !== "KeyE") return;
       e.preventDefault();
       if (e.repeat) return; // удаан дарахад дахин дахин асааж унтраахгүй
@@ -57,6 +61,16 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     };
     const up = (e: KeyboardEvent) => keys.current.delete(e.code);
     const blur = () => keys.current.clear(); // цонх солиход товч "гацаж" үлдэхгүй
+    // Дэлгэцийг чирэхэд камер тоглогчийг тойрч эргэнэ (хурууны чиглэлийг дагана)
+    let dragId = -1, dragX = 0; // movementX нь iPhone дээр 0 байдаг тул байрлалыг өөрсдөө санана
+    const grab = (e: PointerEvent) => { dragId = e.pointerId; dragX = e.clientX; };
+    const drag = (e: PointerEvent) => {
+      if (e.pointerId !== dragId || !e.buttons || !startedRef.current || pausedRef.current) return;
+      world.rig.turn((dragX - e.clientX) * DRAG_TURN);
+      dragX = e.clientX;
+    };
+    canvas.addEventListener("pointerdown", grab);
+    canvas.addEventListener("pointermove", drag);
     window.addEventListener("resize", onResize);
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
@@ -69,7 +83,10 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
       const k = keys.current;
       const kx = (k.has("KeyD") || k.has("ArrowRight") ? 1 : 0) - (k.has("KeyA") || k.has("ArrowLeft") ? 1 : 0);
       const kz = (k.has("KeyS") || k.has("ArrowDown") ? 1 : 0) - (k.has("KeyW") || k.has("ArrowUp") ? 1 : 0);
-      const input: Input = { dx: kx || stick.current.x, dz: kz || stick.current.z, ...once.current };
+      const turn = (k.has("KeyQ") ? 1 : 0) - (k.has("KeyR") ? 1 : 0);
+      if (turn && startedRef.current && !pausedRef.current) world.rig.turn(turn * TURN_SPEED * dt);
+      // Алхах чиглэл дэлгэцтэй тохирно: камер эргэсэн бол оролтыг мөн эргүүлнэ
+      const input: Input = { ...screenToWorld(kx || stick.current.x, kz || stick.current.z, world.rig.yaw), ...once.current };
       once.current = { action: false, step: false, cancel: false };
       if (startedRef.current && !pausedRef.current) {
         const before = stateRef.current;
@@ -89,6 +106,8 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", blur);
+      canvas.removeEventListener("pointerdown", grab);
+      canvas.removeEventListener("pointermove", drag);
       world.dispose();
     };
   }, [canvasRef, apply, t]);
@@ -100,6 +119,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     cancel: () => { once.current.cancel = true; },
     craft: (id: RecipeId) => { once.current.craft = id; },
     setStick: (x: number, z: number) => { stick.current = { x, z }; },
+    toggleView: () => rigRef.current?.toggle(),
     restart: (live: Flare | null = null) => { startAudio(); startMusic(); apply(() => createGame(undefined, live)); },
     ack: () => apply(acknowledge),
     choose: (plan: PlanId) => apply((s) => choose(s, plan)),
