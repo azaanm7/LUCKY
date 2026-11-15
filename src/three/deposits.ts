@@ -16,28 +16,36 @@ const MATS = {
   vein: mat("#e8a04a", { emissive: "#d06a20", emissiveIntensity: 0.8, metalness: 0.6, roughness: 0.3 }),
   crate: mat("#d8d0c4"),
   band: mat("#38b764", { emissive: "#38b764", emissiveIntensity: 0.4 }),
+  chute: mat("#ef7d57", { side: THREE.DoubleSide }),
+};
+// Хэлбэрүүдийг мөн нэг удаа үүсгэнэ: орд цуглуулагдаж шинээр гарах бүрд санах ой нэмэгдэхгүй
+const GEO = {
+  crystal: new THREE.OctahedronGeometry(1, 0), rock: new THREE.DodecahedronGeometry(1, 0), box: new THREE.BoxGeometry(1, 1, 1),
+  chute: new THREE.SphereGeometry(0.4, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2),
+};
+const part = (geo: THREE.BufferGeometry, material: THREE.Material, size: number | [number, number, number], x: number, y: number, z: number) => {
+  const m = mesh(geo, material, x, y, z);
+  if (typeof size === "number") m.scale.setScalar(size); else m.scale.set(...size);
+  return m;
 };
 
 function iceModel(g: THREE.Group) {
-  g.add(mesh(new THREE.OctahedronGeometry(0.55, 0), MATS.ice, 0, 0.9, 0));
-  g.add(mesh(new THREE.OctahedronGeometry(0.32, 0), MATS.ice, 0.45, 0.55, 0.2));
-  g.add(mesh(new THREE.OctahedronGeometry(0.28, 0), MATS.ice, -0.35, 0.5, -0.25));
+  g.add(part(GEO.crystal, MATS.ice, 0.55, 0, 0.9, 0), part(GEO.crystal, MATS.ice, 0.32, 0.45, 0.55, 0.2), part(GEO.crystal, MATS.ice, 0.28, -0.35, 0.5, -0.25));
 }
 
 // Хүдэр: бараан чулуу, дундуур нь гялалзсан металл судал
 function oreModel(g: THREE.Group) {
-  g.add(mesh(new THREE.DodecahedronGeometry(0.6, 0), MATS.rock, 0, 0.45, 0));
-  g.add(mesh(new THREE.DodecahedronGeometry(0.35, 0), MATS.rock, 0.55, 0.25, 0.25));
-  for (const [x, y, z] of [[0.2, 0.75, 0.35], [-0.35, 0.55, 0.3], [0.5, 0.45, -0.1]]) g.add(mesh(new THREE.OctahedronGeometry(0.16, 0), MATS.vein, x, y, z));
+  g.add(part(GEO.rock, MATS.rock, 0.6, 0, 0.45, 0), part(GEO.rock, MATS.rock, 0.35, 0.55, 0.25, 0.25));
+  for (const [x, y, z] of [[0.2, 0.75, 0.35], [-0.35, 0.55, 0.3], [0.5, 0.45, -0.1]]) g.add(part(GEO.crystal, MATS.vein, 0.16, x, y, z));
 }
 
 // Үр: Дэлхийгээс урьдчилж буулгасан жижиг ачааны хайрцаг (Ангараг дээр үр ургадаггүй)
 function seedModel(g: THREE.Group) {
-  const box = mesh(new THREE.BoxGeometry(0.9, 0.7, 0.9), MATS.crate, 0, 0.35, 0);
+  const box = part(GEO.box, MATS.crate, [0.9, 0.7, 0.9], 0, 0.35, 0);
   box.rotation.y = 0.4;
-  const band = mesh(new THREE.BoxGeometry(0.94, 0.14, 0.94), MATS.band, 0, 0.45, 0);
+  const band = part(GEO.box, MATS.band, [0.94, 0.14, 0.94], 0, 0.45, 0);
   band.rotation.y = 0.4;
-  const chute = mesh(new THREE.SphereGeometry(0.4, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), mat("#ef7d57", { side: THREE.DoubleSide }), 0.6, 0.05, -0.4);
+  const chute = mesh(GEO.chute, MATS.chute, 0.6, 0.05, -0.4);
   chute.rotation.z = 1.4; // газар унасан шүхэр
   g.add(box, band, chute);
 }
@@ -60,7 +68,7 @@ export function createDeposits(scene: THREE.Scene) {
   return function update(s: GameState, t: number) {
     // state-д байгаа ордууд л дэлгэц дээр байна (цуглуулсан нь алга болно, шинэ нь гарч ирнэ)
     const ids = new Set(s.deposits.map((d) => d.id));
-    for (const [id, d] of shown) if (!ids.has(id)) { scene.remove(d.root); shown.delete(id); }
+    for (const [id, d] of shown) if (!ids.has(id)) { scene.remove(d.root); d.glow.material.dispose(); d.marker.material.dispose(); shown.delete(id); }
     for (const dep of s.deposits) {
       let d = shown.get(dep.id);
       if (!d) { d = createDeposit(dep.kind); scene.add(d.root); shown.set(dep.id, d); }

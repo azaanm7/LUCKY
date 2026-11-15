@@ -1,6 +1,9 @@
 import { DOSE, SHIELD_POWER, STUDY_POWER, STUDY_SCIENCE } from "../game/config";
 import type { Dict } from "./mn";
 
+// "1 point", "2 points"
+const count = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
 // English text for players aged 7–12: short sentences, everyday words.
 // Same structure as mn.ts (the Dict type checks it). Facts must stay true.
 export const en: Dict = {
@@ -76,8 +79,8 @@ export const en: Dict = {
     doseLimit: "☢️ The crew's radiation dose hit the limit! −1 ❤️",
     shieldOn: "🛡️ Shield on! Stay in the shelter during the flare.",
     needOut: (need: string) => `We ran out of ${need.toLowerCase()}, so the crew got sick. −1 ❤️`,
-    banked: (points: number) => `🔬 Your samples reached the lab! +${points} points`,
-    sampled: (icon: string, points: number) => `${icon} Got a sample! Bring it to the shelter for ${points} points.`,
+    banked: (points: number) => `🔬 Your samples reached the lab! +${count(points, "point")}`,
+    sampled: (icon: string, points: number) => `${icon} Got a sample! Bring it to the shelter for ${count(points, "point")}.`,
     suitOut: "Your suit ran out of oxygen! The crew saved you, but −1 ❤️. Come back sooner next time.",
     trained: "🎓 Training complete! Now you are a real junior astronaut.",
     stormStudy: (points: number) => `🔬 Storm data sent to Earth! +${points} points`,
@@ -105,8 +108,8 @@ export const en: Dict = {
     power: (sun: number, use: number) => `⚡ Sun +${sun} · Machines −${use}`,
     slow: (pct: number) => `🐢 Machines at ${pct}% power`,
     points: "points",
-    samples: (n: number) => `🧪 ${n} samples in hand`,
-    solved: (n: number) => `🏅 ${n} problems solved`,
+    samples: (n: number) => `🧪 ${count(n, "sample")} in hand`,
+    solved: (n: number) => `🏅 ${count(n, "problem")} solved`,
     training: (n: number, total: number) => `🎓 Training ${n}/${total}`,
     pause: "Pause",
     mute: "Sound off",
@@ -120,20 +123,20 @@ export const en: Dict = {
     low: { oxygen: "💨 Air", water: "💧 Water", food: "🥕 Food" },
     spare: (icon: string, m: string) => `Turn off the ${icon} ${m} for now`,
     flareNow: "☢️ Solar flare! Stay in the shelter!",
-    flareSoon: (sec: number) => `☢️ Solar flare in ${sec} seconds! Run to the shelter!`,
+    flareSoon: (sec: number) => `☢️ Solar flare in ${count(sec, "second")}! Run to the shelter!`,
     suitLow: "👩‍🚀 Your suit O₂ is running out! Go back to the shelter!",
     drilling: "⛏️ Drilling a sample… Hard work uses suit O₂ fast!",
     waitEarth: (sec: number) => `📡 Waiting for Earth… ${sec} s. The problem is still going!`,
     install: (item: string, icon: string, m: string) => `${item} Take it to the ${icon} ${m} and fit it`,
-    getPart: (item: string) => `📦 Get the ${item} from the storeroom`,
+    getPart: (item: string) => `📦 Get the ${item} at the workshop`,
     storm: (spare: string) => `🌪️ Dust storm! The Sun is weak, power is low. ${spare}`,
     dusty: "🧹 The solar panels are dusty! Follow the yellow arrow and wipe them",
     turnOn: (low: string, icon: string, m: string) => `${low} is getting low! Turn on the ${icon} ${m}`,
     getIce: "💧 Water is getting low! Collect blue ice",
     noPower: (low: string, spare: string) => `${low} is getting low, and there's not enough power! ${spare}`,
     keepOn: (low: string, icon: string, m: string) => `${low} is low. Don't turn off the ${icon} ${m}`,
-    samples: (n: number) => `🧪 ${n} samples in hand. Bring them to the shelter for points!`,
-    weak: (m: string, carrying: boolean) => `🩹 The ${m} is at half power. ${carrying ? "Take the part and fit it" : "Get a part from the storeroom and fix it fully"}`,
+    samples: (n: number) => `🧪 ${count(n, "sample")} in hand. Bring ${n === 1 ? "it" : "them"} to the shelter for points!`,
+    weak: (m: string, carrying: boolean) => `🩹 The ${m} is at half power. ${carrying ? "Take the part and fit it" : "Get a part at the workshop and fix it fully"}`,
     dusk: (spare: string) => `🌙 Night is coming! Save your battery: ${spare}`,
     draining: (spare: string) => `🔋 The Sun can't power every machine. The battery isn't charging! ${spare}`,
     lesson: (n: number, total: number, step: string) => `🎓 Training ${n}/${total}: ${step}`,
@@ -293,7 +296,7 @@ export const en: Dict = {
       shelter: "When the sky turns red, run to the shelter right away.",
       returnEarly: "Keep enough O₂ to get back. At far sites, take fewer samples and return.",
       refill: "When your suit O₂ drops below 30%, go into the shelter to refill.",
-      fetchPart: "When something breaks, get the part from the storeroom and take it to the machine.",
+      fetchPart: "When something breaks, get a part at the workshop and take it to the machine.",
       fullFix: "When things are calm, bring a part and fix it fully.",
       turnBackOn: "Turn a machine back on before its supply runs low.",
       patch: "When air starts leaking, get a patch and take it to the greenhouse.",

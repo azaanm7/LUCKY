@@ -51,8 +51,14 @@ export default function App() {
   }, [playing]);
 
   // Урлан: Space / E-ээр нээнэ, 1-3-аар хэвлэнэ, Esc-ээр хаана. Урлангаас холдвол өөрөө хаагдана.
-  const atWorkshop = playing && !s.task && !s.modal && inZone(s.player, DEPOT);
+  const atWorkshop = playing && !paused && !s.task && !s.modal && inZone(s.player, DEPOT);
   const showCraft = crafting && atWorkshop;
+  // Урлангаас холдвол цонх хаагдана: дахин ирэхэд өөрөө нээгдэхгүй (render-ийн үед state засах React-ийн арга)
+  const [wasAtWorkshop, setWasAtWorkshop] = useState(atWorkshop);
+  if (wasAtWorkshop !== atWorkshop) {
+    setWasAtWorkshop(atWorkshop);
+    if (!atWorkshop) setCrafting(false);
+  }
   useEffect(() => {
     if (!atWorkshop) return;
     const key = (e: KeyboardEvent) => {
