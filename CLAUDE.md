@@ -35,7 +35,11 @@ src/
     missions.ts  Emergency cards: start (state.deck), choose a plan, ask Earth, repairs, acknowledge
     problems.ts  Emergency texts, the two plans and the real astronaut story behind each one
     donki.ts     Real NASA DONKI solar flare records. Never edit the numbers.
-    tasks.ts     Hands-on work (wipe panels, fit a part): state.task advances on input.step
+    gather.ts    Picking up deposits (ice, ore, seed) into state.pack, unloading at shelter/workshop, starting a print job
+    machines.ts  produce(): the shared power budget and each machine's material (filter, melting ice, crop) plus the 3D printer job
+    radiation.ts irradiate(): dose outside and during flares; a full meter costs a heart through loseHeart()
+    messages.ts  Msg, FactId, Step, TipId codes (re-exported from types.ts)
+    tasks.ts     Hands-on work (wipe panels, fit a part, harvest): state.task advances on input.step
     science.ts   Sample sites, drilling, banking samples at the shelter, stars
     training.ts  First-sol training: compares the state before and after a tick and ticks off steps
     crew.ts      Spacesuit oxygen
@@ -49,11 +53,16 @@ src/
     buildings.ts Shelter, the three machines (each has run(power, night, dt, t)) and the tank gauge
     props.ts     Depot, comm dish, carried items
     power.ts     Solar field, battery rack and the cables whose moving lights show the power flow
-    actors.ts    Astronaut, carried item, ice and the guide arrow
+    actors.ts    Astronaut, carried item, backpack contents
+    guide.ts     Where the guide arrow points (same priority order as ui/mission.tsx)
+    deposits.ts  Ice, ore and seed crates on the ground with pixel markers
+    workshop.ts  3D printer and the storage piles at the workshop
+    pixel-sprite.ts Pixel icons as textures, createMarker() and createLabel() (icon + short text)
     environment.ts Sky dome, sun, stars, lights and fog for day, dusk, night, storm and flare
     effects.ts   Dust storm particles
     sites.ts     Science sites: drill rig, beacon, samples left
     ship.ts      Supply ship that lands when the player wins
+  pixel/   pix.ts + sprites-*.ts: every icon as a 12×12 text grid with one shared palette. UI uses <Pix> (ui/pix.tsx), 3D uses pixelTexture().
   audio/   synth.ts (Web Audio tones, no files) and cues.ts (compares two states and plays sounds).
   hooks/   use-game-loop.ts: the one place that connects logic, 3D, input and sound.
            use-space-weather.ts: the only network request in the app (live NASA DONKI flares).
@@ -75,7 +84,7 @@ Power is one shared budget: when sun plus battery cannot cover the machines that
 
 Every emergency is a card with two plans, `a` (careful, slow) and `b` (quick, with a lasting cost), and **neither may be free**. `choose()` applies a plan, `askEarth()` delays the answer by the card's light time while the problem keeps running, and `advise()` decides what Earth recommends from the current state. The order of the cards is shuffled per game (`state.deck`).
 
-Adding a new emergency: add its id to `ProblemId` and `PROBLEM_IDS`, its text, both plans, Earth's reasons and the real story to `PROBLEMS` (`problems.ts`), what each plan does to `choose()` and `advise()` (`missions.ts`), and, if it needs a spare part, an entry in `REPAIRS` and `ITEMS` (`config.ts`). Then update the mission line (`ui/mission.tsx`) and guide arrow (`three/actors.ts`), which follow the same priority order, and add a test.
+Adding a new emergency: add its id to `ProblemId` and `PROBLEM_IDS`, its text, both plans, Earth's reasons and the real story to `PROBLEMS` (`problems.ts`), what each plan does to `choose()` and `advise()` (`missions.ts`), and, if it needs a spare part, an entry in `REPAIRS` and `ITEMS` (`config.ts`). Then update the mission line (`ui/mission.tsx`) and guide arrow (`three/guide.ts`), which follow the same priority order, and add a test.
 
 The game must work with no internet. `createGame(seed, live)` takes the live flare if the fetch succeeded and otherwise picks one from the embedded archive; never label archived data as live.
 
@@ -90,6 +99,7 @@ Sound never comes from the engine: `audio/cues.ts` compares the state before and
 - Keep every file **under ~150 lines**. Split by responsibility when a file grows.
 - Components: function components, props typed with an `interface`. Pass icons as rendered JSX (`icon={<span>💧</span>}`).
 - Use plain HTML elements styled with Tailwind. No UI component library.
+- Icons are pixel sprites, not emoji: `<Pix name="ore" />` in React, `createMarker`/`createLabel(text, bg, icon)` in three.js. New icon → add a 12×12 grid to `src/pixel/sprites-*.ts` using only `PALETTE` letters. Strings in i18n may still contain emoji; screens pass them through `plain()` to strip them.
 - Comments may be in Mongolian; identifiers in English.
 - Player-facing text: short, friendly sentences a child (7–12) understands. **Never write it in game/, three/ or ui/ code**: add it to both `src/i18n/mn.ts` and `src/i18n/en.ts` (TypeScript fails if en.ts is missing a key) and read it with `useT()`. The engine returns codes, not text: toasts are a `Msg`, the failure report returns `Step` and `TipId`. `i18n.test.ts` checks both languages have the same shape and that English sentences stay short.
 

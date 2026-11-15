@@ -4,20 +4,22 @@ import type { FactId, Msg, Step, TipId } from "../game/types";
 import { DICTS, LANGS, loadLang, saveLang, say, stepText } from "./index";
 import type { Dict } from "./index";
 
-const FACT_IDS: FactId[] = ["trip", "red", "landing", "start", "ice", "night", "moxie", "suit", "soil", "delta", "crater"];
-const TIPS: TipId[] = ["shelter", "returnEarly", "refill", "fetchPart", "fullFix", "turnBackOn", "patch", "dusk", "stormOff", "wipe", "spare", "ice", "early"];
+const FACT_IDS: FactId[] = ["trip", "red", "landing", "start", "ice", "night", "moxie", "suit", "soil", "delta", "crater", "rad", "print", "veggie", "dustFilter"];
+const TIPS: TipId[] = ["shelter", "returnEarly", "refill", "fetchPart", "fullFix", "turnBackOn", "patch", "dusk", "stormOff", "wipe", "spare", "ice", "early", "lessOutside", "seed", "craftPart"];
 
 // Engine-ийн гаргаж болох бүх мэдэгдэл ба тайлангийн алхам
 const MSGS: Msg[] = [
   ...FACT_IDS.map((id): Msg => ({ kind: "fact", id })),
   { kind: "luckyFlare" }, { kind: "radiation" }, { kind: "suitOut" }, { kind: "trained" },
+  { kind: "doseRising" }, { kind: "packFull" }, { kind: "newFilter" }, { kind: "noFilter" }, { kind: "planted" }, { kind: "cropReady" },
+  { kind: "stored", n: 3 }, { kind: "crafted", recipe: "part" }, { kind: "crafted", recipe: "tank" }, { kind: "harvested", food: 45 },
   ...MACHINES.flatMap((m): Msg[] => [{ kind: "flareHit", machine: m.id }, { kind: "fixed", machine: m.id }]),
   { kind: "needOut", need: "oxygen" }, { kind: "needOut", need: "water" }, { kind: "needOut", need: "food" },
   { kind: "banked", points: 3 }, { kind: "stormStudy", points: 4 },
   ...SITES.map((x): Msg => ({ kind: "sampled", site: x.id })),
 ];
 const STEPS: Step[] = [
-  ...(["outsideFlare", "radiationHit", "drillO2", "oneMore", "suitEmpty", "tooLong", "noPart", "halfPower", "leak", "slowPatch", "noPower", "night", "storm", "allOn", "fewIce"] as const).map((id) => ({ id })),
+  ...(["outsideFlare", "radiationHit", "drillO2", "oneMore", "suitEmpty", "tooLong", "noPart", "halfPower", "leak", "slowPatch", "noPower", "night", "storm", "allOn", "fewIce", "doseSlow", "noIce", "noSeed", "noFilter"] as const).map((id) => ({ id })),
   { id: "out", need: "food" }, { id: "dusty", pct: 90 }, { id: "stormSol", sol: 2 },
   ...(["broken", "weakFix", "off", "slowed", "late"] as const).map((id) => ({ id, machine: "o2" as const })),
 ];

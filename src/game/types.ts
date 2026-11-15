@@ -11,13 +11,19 @@ export type PlanId = "a" | "b";
 // Агуулахаас авч очих сэлбэг
 export type ItemId = "filter" | "patch" | "pump";
 
-// Гараараа хийдэг ажил (ui/task-overlay.tsx): панель арчих, сэлбэг суулгах
-export type TaskKind = "wipe" | ItemId;
+// Гараараа хийдэг ажил (ui/task-overlay.tsx): панель арчих, сэлбэг суулгах, ургац хураах
+export type TaskKind = "wipe" | "harvest" | ItemId;
+
+// Ангарагаас цуглуулдаг материал: мөс → ус, хүдэр → сэлбэг, үр → хүнс
+export type Material = "ice" | "ore" | "seed";
+
+// Урлангийн 3D принтерээр хийдэг зүйлс
+export type RecipeId = "part" | "panel" | "tank";
 
 export type SiteId = "soil" | "delta" | "crater";
 
 // Эхний өдрийн сургалтын алхмууд
-export type TrainingId = "ice" | "switch" | "wipe" | "refill" | "sample";
+export type TrainingId = "collect" | "store" | "craft" | "switch" | "wipe" | "sample";
 
 // Нарны дэлбэрэлтийн бодит бүртгэл (NASA DONKI)
 export interface Flare {
@@ -63,6 +69,8 @@ export interface HeartLoss {
   weak: boolean; // тэр машин түр засвартай, хагас хүчээр ажиллаж байсан уу
   leak: boolean; // хүлэмжээс агаар гоожиж байсан уу
   drilling: boolean; // дээж өрөмдөж байсан уу (скафандрын O2 хурдан буурдаг)
+  starved: boolean; // тэр машинд материал дутсан уу (мөсгүй, үргүй, шүүлтүүр бөглөрсөн)
+  flare: boolean; // нарны дэлбэрэлт болж байсан уу
   load: number; // машинууд хүссэн эрчим хүчнийхээ хэдэн хувийг авч байсан 0-1
   dust: number;
   storm: boolean;
@@ -70,8 +78,17 @@ export interface HeartLoss {
   stormSol: number; // сүүлийн шуурга хэддүгээр sol-д болсон (0 = болоогүй)
 }
 
-export interface Ice extends Vec2 {
+// Газар дээрх цуглуулах зүйл: мөс, хүдэртэй чулуу, үртэй ачааны хайрцаг
+export interface Deposit extends Vec2 {
   id: number;
+  kind: Material;
+}
+
+export interface Recipe {
+  id: RecipeId;
+  cost: Partial<Record<Material, number>>; // ямар материал хэдийг зарах
+  seconds: number; // хэвлэх хугацаа
+  max: number; // хэдийг хийж болох (0 = хязгааргүй)
 }
 
 export interface Resources {
@@ -99,6 +116,15 @@ export interface GameState {
   dust: number; // нарны панель дээрх шороо 0-1
   player: Vec2 & { angle: number; moving: boolean };
   suitO2: number; // скафандрын хүчилтөрөгч 0-100
+  dose: number; // хуримтлагдсан цацрагийн тун 0-100 (буурдаггүй, 100 хүрвэл 1 зүрх алдана)
+  pack: Material[]; // үүргэвчинд яваа материал (суурьт хүргээгүй)
+  store: Record<Material, number>; // суурийн агуулахад байгаа материал
+  parts: number; // бэлэн сэлбэг: шүүлтүүр солих, эвдрэл засахад зарна
+  built: RecipeId[]; // хийсэн сайжруулалтууд (нэмэлт панель, том сав)
+  job: { recipe: RecipeId; done: number } | null; // 3D принтер одоо юу хэвлэж байна, done 0-1
+  melt: number; // ус цэвэршүүлэгчид хайлж буй мөсний үлдэгдэл 0-1
+  filter: number; // агаар үйлдвэрийн тоосны шүүлтүүр 0-1 (0 = бөглөрсөн)
+  crop: number | null; // хүлэмжийн ургац: null = тариагүй, 0-1 = ургаж байна, 1 = хураахад бэлэн
   carrying: ItemId | null;
   task: { kind: TaskKind; done: number } | null; // гараар хийж буй ажил, done 0-1
   deck: ProblemId[]; // энэ тоглолтын асуудлуудын дараалал (seed-ээр холино)
@@ -113,13 +139,13 @@ export interface GameState {
   samples: number[]; // гартаа яваа, хүргээгүй дээжүүдийн оноо
   drill: number; // одоогийн дээжийг хэдэн секунд өрөмдсөн
   siteLeft: Record<SiteId, number>; // талбай бүрт үлдсэн дээж
-  ice: Ice[];
-  nextIceId: number;
+  deposits: Deposit[];
+  nextDepositId: number;
   storm: number; // шуурга дуусах хүртэлх секунд
   stormSol: number; // сүүлийн шуурга эхэлсэн sol (0 = болоогүй)
   flareWarn: number; // дэлбэрэлт эхлэх хүртэлх секунд
   flare: number; // дэлбэрэлт дуусах хүртэлх секунд
-  flareHit: boolean; // энэ дэлбэрэлтэд өртсөн үү
+  flareHit: boolean; // энэ дэлбэрэлтийн үеэр "тун өсөж байна" гэж сануулсан уу
   emptyTimer: number; // нөөц дууссанаас хойш хэдэн секунд
   collected: number;
   trained: TrainingId[]; // сургалтын хийсэн алхмууд
@@ -129,28 +155,9 @@ export interface GameState {
   seed: number;
 }
 
-// Тоглогчид харагдах бүх бичвэр src/i18n/-д байна. Engine зөвхөн кодыг нь буцаана.
-export type FactId = "trip" | "red" | "landing" | "start" | "ice" | "night" | "moxie" | "suit" | "soil" | "delta" | "crater";
-
-// Дэлгэцийн доод хэсэгт түр гарах мэдэгдэл
-export type Msg =
-  | { kind: "fact"; id: FactId }
-  | { kind: "luckyFlare" | "radiation" | "suitOut" | "trained" }
-  | { kind: "flareHit" | "fixed"; machine: MachineId }
-  | { kind: "needOut"; need: Need }
-  | { kind: "banked" | "stormStudy"; points: number }
-  | { kind: "sampled"; site: SiteId };
-
-// Төгсгөлийн тайлангийн нэг алхам (шалтгаан → ... → үр дагавар)
-export type Step =
-  | { id: "outsideFlare" | "radiationHit" | "drillO2" | "oneMore" | "suitEmpty" | "tooLong" | "noPart" | "halfPower" | "leak" | "slowPatch" | "noPower" | "night" | "storm" | "allOn" | "fewIce" }
-  | { id: "out"; need: Need }
-  | { id: "broken" | "weakFix" | "off" | "slowed" | "late"; machine: MachineId }
-  | { id: "dusty"; pct: number }
-  | { id: "stormSol"; sol: number };
-
-// Тайлангийн "дараагийн удаа юу хийх вэ" зөвлөгөө
-export type TipId = "shelter" | "returnEarly" | "refill" | "fetchPart" | "fullFix" | "turnBackOn" | "patch" | "dusk" | "stormOff" | "wipe" | "spare" | "ice" | "early";
+// Мэдэгдэл, баримт, тайлангийн кодууд messages.ts-д
+export type { FactId, Msg, Step, TipId } from "./messages";
+import type { Msg } from "./messages";
 
 export interface Input {
   dx: number; // -1..1
@@ -158,4 +165,5 @@ export interface Input {
   action: boolean; // энэ frame-д товч дарсан уу
   step?: boolean; // гараар хийдэг ажлын нэг алхам хийсэн үү
   cancel?: boolean; // гараар хийдэг ажлаа орхисон уу
+  craft?: RecipeId; // урлан дээр энэ зүйлийг хэвлэж эхлэх
 }

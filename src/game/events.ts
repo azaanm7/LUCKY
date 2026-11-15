@@ -1,7 +1,7 @@
 import { EMPTY_SECONDS, FLARE_SECONDS, MACHINES, SOL_SECONDS, WIN_SOL } from "./config";
 import { damageChance } from "./donki";
-import type { Cause, FactId, GameState, HeartLoss, Msg, Need } from "./types";
-import { inShelter, isDay, random, solOf } from "./world";
+import type { Cause, FactId, GameState, HeartLoss, MachineId, Msg, Need } from "./types";
+import { isDay, random, solOf } from "./world";
 
 // Мэдэгдлийн кодыг хадгална. Бичвэрийг нь UI сонгосон хэлээр гаргана (i18n/index.ts: say).
 export const toast = (s: GameState, msg: Msg, sec = 6): GameState => ({ ...s, toast: { msg, until: s.time + sec } });
@@ -11,6 +11,10 @@ export function fact(s: GameState, id: FactId, sec = 7): GameState {
   if (s.seen.includes(id)) return s;
   return toast({ ...s, seen: [...s.seen, id] }, { kind: "fact", id }, sec);
 }
+
+// Машинд материал нь дутсан уу: шүүлтүүр бөглөрсөн, хайлуулах мөсгүй, тарих үргүй
+const starved = (s: GameState, id: MachineId) =>
+  id === "o2" ? s.filter <= 0 : id === "recycler" ? s.melt <= 0 && s.store.ice <= 0 : s.crop === null;
 
 // Зүрх алдахдаа тухайн үеийн нөхцөлийг тэмдэглэнэ (төгсгөлийн тайланд хэрэгтэй)
 export function loseHeart(s: GameState, cause: Cause, msg: Msg): GameState {
@@ -22,6 +26,8 @@ export function loseHeart(s: GameState, cause: Cause, msg: Msg): GameState {
     weak: machine ? s.weak.includes(machine.id) : false,
     leak: s.problem === "leak",
     drilling: s.drill > 0,
+    starved: machine ? starved(s, machine.id) : false,
+    flare: s.flare > 0,
     load: s.load, dust: s.dust, storm: s.storm > 0, night: !isDay(s.time), stormSol: s.stormSol,
   };
   return toast({ ...s, hearts: s.hearts - 1, losses: [...s.losses, loss] }, msg);
@@ -48,13 +54,7 @@ export function weather(s: GameState, dt: number): GameState {
     flareWarn -= dt;
     if (flareWarn <= 0) { flareWarn = 0; flare = FLARE_SECONDS; flareHit = false; s = flareStarts(s); }
   }
-  if (flare > 0) {
-    flare = Math.max(0, flare - dt);
-    if (!inShelter(s.player) && !flareHit) {
-      flareHit = true;
-      s = loseHeart(s, "radiation", { kind: "radiation" });
-    }
-  }
+  if (flare > 0) flare = Math.max(0, flare - dt); // гадаа байвал цацрагийн тун хурдан өснө: radiation.ts
   return { ...s, storm, safeMode, flareWarn, flare, flareHit };
 }
 

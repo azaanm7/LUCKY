@@ -1,5 +1,7 @@
 import { useT } from "../i18n/context";
 import type { Dict } from "../i18n/mn";
+import { plain } from "../i18n/plain";
+import { Pix } from "./pix";
 
 // Түр зогсоох цэс ба эх сурвалжийн жагсаалт.
 // Нэр нь эх сурвалжийн өөрийнх нь гарчиг (англиар), тайлбар нь i18n-ийн menu.about-д.
@@ -13,6 +15,9 @@ const SOURCES: { id: keyof Dict["menu"]["about"]; name: string; url: string }[] 
   { id: "orion", name: "NASA: Orion radiation plan", url: "https://www.nasa.gov/missions/artemis/orion/scientists-and-engineers-evaluate-orion-radiation-protection-plan/" },
   { id: "delay", name: "NASA NTRS: Communication delay", url: "https://ntrs.nasa.gov/citations/20250000703" },
   { id: "water", name: "Space.com: ISS water recycling", url: "https://www.space.com/astronaut-pee-iss-water-recycling-98-percent-milestone" },
+  { id: "rad", name: "NASA: Curiosity radiation results", url: "https://www.nasa.gov/news-release/nasa-rover-results-include-first-age-measurement-on-mars-and-help-for-human-exploration/" },
+  { id: "veggie", name: "NASA: Veggie fact sheet", url: "https://www.nasa.gov/wp-content/uploads/2023/03/veggie-fact-sheet-508.pdf" },
+  { id: "print", name: "NASA: 3D printing on the space station", url: "https://www.nasa.gov/missions/station/iss-research/3d-printing-saving-weight-and-space-at-launch/" },
 ];
 
 const CARD = "grid w-full max-w-md gap-3 rounded-3xl bg-space/95 p-5 shadow-2xl";
@@ -25,7 +30,7 @@ export function Sources({ onClose }: { onClose: () => void }) {
   return (
     <div className="absolute inset-0 z-30 grid place-items-center overflow-y-auto bg-black/60 p-4">
       <div className={CARD}>
-        <h2 className="font-display text-xl">{t.sourcesTitle}</h2>
+        <h2 className="font-display text-xl">{plain(t.sourcesTitle)}</h2>
         <p className="text-sm text-orange-100/80">{t.sourcesIntro}</p>
         <ul className="grid gap-2">
           {SOURCES.map(({ id, name, url }) => (
@@ -35,6 +40,7 @@ export function Sources({ onClose }: { onClose: () => void }) {
             </li>
           ))}
         </ul>
+        <p className="text-xs text-orange-100/60">{t.credits}</p>
         <button onClick={onClose} className={BIG}>{t.close}</button>
       </div>
     </div>
@@ -52,10 +58,10 @@ export function PauseMenu({ onResume, onRestart, onSources }: PauseMenuProps) {
   return (
     <div className="absolute inset-0 grid place-items-center bg-black/55 p-4">
       <div className={`${CARD} text-center`}>
-        <div className="text-5xl">⏸️</div>
+        <Pix name="pause" size={56} className="mx-auto" />
         <h2 className="font-display text-2xl">{t.paused}</h2>
         <button onClick={onResume} className={BIG}>{t.resume} <span className="text-sm opacity-60">[P]</span></button>
-        <button onClick={onSources} className={SMALL}>{t.sourcesTitle}</button>
+        <button onClick={onSources} className={SMALL}>{plain(t.sourcesTitle)}</button>
         <button onClick={onRestart} className={SMALL}>{t.restart}</button>
       </div>
     </div>

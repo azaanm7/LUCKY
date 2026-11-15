@@ -1,4 +1,4 @@
-import { DRILL_O2, DRILL_SECONDS, SAMPLES_MAX, SITES, STARS } from "./config";
+import { DRILL_O2, DRILL_SECONDS, PACK_MAX, SAMPLES_MAX, SITES, STARS } from "./config";
 import { fact, toast } from "./events";
 import type { GameState } from "./types";
 import { inShelter, inZone } from "./world";
@@ -11,7 +11,8 @@ export function explore(s: GameState, dt: number): GameState {
     return toast({ ...s, science: s.science + points, samples: [], drill: 0 }, { kind: "banked", points });
   }
   const site = SITES.find((x) => inZone(s.player, x));
-  if (!site || s.task || s.siteLeft[site.id] <= 0 || s.samples.length >= SAMPLES_MAX) return s.drill ? { ...s, drill: 0 } : s;
+  const full = s.samples.length >= SAMPLES_MAX || s.samples.length + s.pack.length >= PACK_MAX; // дээж, материал нэг үүргэвчинд явна
+  if (!site || s.task || s.siteLeft[site.id] <= 0 || full) return s.drill ? { ...s, drill: 0 } : s;
   s = { ...s, drill: s.drill + dt, suitO2: Math.max(0, s.suitO2 - DRILL_O2 * dt) };
   if (s.drill < DRILL_SECONDS) return s;
   s = { ...s, drill: 0, samples: [...s.samples, site.worth], siteLeft: { ...s.siteLeft, [site.id]: s.siteLeft[site.id] - 1 } };

@@ -1,5 +1,5 @@
-import { DAY_PART, DUST_BLOCK, MACHINES, MACHINE_POWER, PLAYER_SPEED, SHELTER, SOLAR_POWER, SOL_SECONDS, STORM_SUN, WORLD_RADIUS } from "./config";
-import type { GameState, Ice, Input, MachineId, Vec2 } from "./types";
+import { CRAFT_POWER, DAY_PART, DEPOSITS, DUST_BLOCK, MACHINES, MACHINE_POWER, PANEL_BOOST, PLAYER_SPEED, SHELTER, SOLAR_POWER, SOL_SECONDS, STORM_SUN, WORLD_RADIUS } from "./config";
+import type { Deposit, GameState, Input, MachineId, Material, Vec2 } from "./types";
 
 // Seed-тэй санамсаргүй тоо: ижил seed → ижил тоглолт
 export function random(seed: number): [number, number] {
@@ -34,9 +34,12 @@ export function sunlight(t: number): number {
 }
 
 // Нэг эрчим хүчний төсөв: нарнаас орж ирэх ба ажиллаж буй (асаалттай, эвдрээгүй) машинуудын хүсэх хэмжээ (секундэд)
-export const solarInput = (s: GameState) => SOLAR_POWER * sunlight(s.time) * (s.storm > 0 ? STORM_SUN : 1) * (1 - s.dust * DUST_BLOCK);
+const panels = (s: GameState) => 1 + PANEL_BOOST * s.built.filter((id) => id === "panel").length; // хэвлэсэн нэмэлт панелиуд
+export const solarInput = (s: GameState) => SOLAR_POWER * panels(s) * sunlight(s.time) * (s.storm > 0 ? STORM_SUN : 1) * (1 - s.dust * DUST_BLOCK);
 export const works = (s: GameState, id: MachineId) => s.on[id] && s.broken !== id && s.safeMode <= 0;
-export const powerDemand = (s: GameState) => MACHINES.filter((m) => works(s, m.id)).length * MACHINE_POWER;
+// Хүлэмжид ургаж буй ургац байхгүй бол (тариагүй эсвэл хураахад бэлэн) эрчим хүч авахгүй
+export const idle = (s: GameState, id: MachineId) => id === "greenhouse" && (s.crop === null || s.crop >= 1);
+export const powerDemand = (s: GameState) => MACHINES.filter((m) => works(s, m.id) && !idle(s, m.id)).length * MACHINE_POWER + (s.job ? CRAFT_POWER : 0);
 
 // Барилгууд нь тойрог хэлбэрийн саад. Тоглогчийг түлхэж гаргана.
 const OBSTACLES: (Vec2 & { r: number })[] = [
@@ -69,12 +72,12 @@ export function nearMachine(p: Vec2): MachineId | null {
   return m ? m.id : null;
 }
 
-// Мөсийг суурингаас хол, санамсаргүй газар гаргана
-export function spawnIce(s: GameState): { ice: Ice; seed: number } {
+// Материалыг суурингаас хол, санамсаргүй газар гаргана. Төрөл бүр өөрийн зайтай (config.ts: DEPOSITS).
+export function spawnDeposit(s: GameState, kind: Material): { deposit: Deposit; seed: number } {
   let [a, seed] = random(s.seed);
   let b;
   [b, seed] = random(seed);
   const angle = a * Math.PI * 2;
-  const r = 15 + b * 12;
-  return { ice: { id: s.nextIceId, x: Math.cos(angle) * r, z: Math.sin(angle) * r }, seed };
+  const r = DEPOSITS[kind].near + b * (DEPOSITS[kind].far - DEPOSITS[kind].near);
+  return { deposit: { id: s.nextDepositId, kind, x: Math.cos(angle) * r, z: Math.sin(angle) * r }, seed };
 }

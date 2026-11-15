@@ -5,7 +5,10 @@ import { useSpaceWeather } from "./hooks/use-space-weather";
 import { LangContext } from "./i18n/context";
 import { DICTS, loadLang, saveLang } from "./i18n/index";
 import type { Lang } from "./i18n/index";
+import { DEPOT, RECIPES } from "./game/config";
+import { inZone } from "./game/world";
 import { Controls } from "./ui/controls";
+import { CraftPanel } from "./ui/craft-panel";
 import { Hud } from "./ui/hud";
 import { Landing } from "./ui/landing";
 import { PauseMenu, Sources } from "./ui/menu";
@@ -25,6 +28,7 @@ export default function App() {
   const [sources, setSources] = useState(false);
   const [muted, setMute] = useState(false);
   const [landed, setLanded] = useState(false);
+  const [crafting, setCrafting] = useState(false); // урлангийн цонх нээлттэй юу
   const weather = useSpaceWeather(); // NASA DONKI-оос шууд татсан нарны дэлбэрэлт (байвал)
   const game = useGameLoop(canvasRef, started, paused, t);
   const s = game.hud;
@@ -46,6 +50,21 @@ export default function App() {
     return () => { window.removeEventListener("keydown", key); document.removeEventListener("visibilitychange", hide); };
   }, [playing]);
 
+  // Урлан: Space / E-ээр нээнэ, 1-3-аар хэвлэнэ, Esc-ээр хаана. Урлангаас холдвол өөрөө хаагдана.
+  const atWorkshop = playing && !s.task && !s.modal && inZone(s.player, DEPOT);
+  const showCraft = crafting && atWorkshop;
+  useEffect(() => {
+    if (!atWorkshop) return;
+    const key = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      if (e.code === "Space" || e.code === "KeyE") setCrafting(true);
+      else if (e.code === "Escape") setCrafting(false);
+      else if (crafting && /^Digit[1-9]$/.test(e.code)) { const r = RECIPES[+e.code.slice(5) - 1]; if (r) game.craft(r.id); }
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [atWorkshop, crafting, game]);
+
   const mute = () => { setMuted(!muted); setMute(!muted); };
   const start = () => { game.restart(weather.flare); setStarted(true); setPaused(false); };
   const changeLang = (next: Lang) => { setLang(next); saveLang(next); };
@@ -58,7 +77,9 @@ export default function App() {
         {playing && (
           <>
             <Hud s={s} muted={muted} onMute={mute} onPause={() => setPaused(true)} />
-            {s.task ? <TaskOverlay s={s} onStep={game.step} onCancel={game.cancel} /> : <Controls s={s} onPress={game.press} onStick={game.setStick} />}
+            {s.task ? <TaskOverlay s={s} onStep={game.step} onCancel={game.cancel} />
+              : showCraft ? <CraftPanel s={s} onCraft={game.craft} onClose={() => setCrafting(false)} />
+              : <Controls s={s} onPress={game.press} onCraft={() => setCrafting(true)} onStick={game.setStick} />}
             {s.modal && <ProblemModal s={s} onChoose={game.choose} onAsk={game.ask} onClose={game.ack} />}
             {paused && !s.modal && <PauseMenu onResume={() => setPaused(false)} onRestart={start} onSources={() => setSources(true)} />}
           </>

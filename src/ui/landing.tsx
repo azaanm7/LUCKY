@@ -5,6 +5,8 @@ import { LANGS } from "../i18n/index";
 import type { Lang } from "../i18n/index";
 import { Cockpit } from "./cockpit";
 import type { LandingPhase } from "./cockpit";
+import { START_ICONS } from "./icons";
+import { Pix } from "./pix";
 import { SpaceWeather } from "./space-weather";
 import type { Weather } from "./space-weather";
 
@@ -80,11 +82,11 @@ export function Landing({ lang, onLang, weather, onSources, onLand, onDone }: La
           </div>
           <div className="grid w-full max-w-sm gap-3 rounded-3xl bg-space/85 p-4 shadow-2xl backdrop-blur">
             <LangSwitch lang={lang} onLang={onLang} />
-            <ul className="grid gap-1.5 text-left text-sm font-bold">
-              {t.steps.map(([icon, text]) => (
-                <li key={text} className="flex items-center gap-3 rounded-xl bg-panel p-2"><span className="text-xl">{icon}</span>{text}</li>
+            <ol className="grid grid-cols-2 gap-1.5 text-center text-xs font-bold">
+              {t.steps.map(([n, text], i) => (
+                <li key={n} className="grid justify-items-center gap-1 rounded-xl bg-panel p-2"><Pix name={START_ICONS[i]} size={36} />{text}</li>
               ))}
-            </ul>
+            </ol>
             <SpaceWeather {...weather} />
             <button autoFocus onClick={() => run(0)} className="rounded-2xl bg-mars py-4 font-display text-xl text-[#1b0f0a] active:scale-95">{t.land}</button>
             <button onClick={onSources} className="text-sm font-bold text-sky-300 underline">{t.sources}</button>

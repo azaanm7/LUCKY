@@ -78,7 +78,7 @@ export function createPowerGrid(scene: THREE.Scene, t: Dict) {
   solar.root.position.set(SOLAR_FIELD.x, 0, SOLAR_FIELD.z);
   const battery = createBattery();
   battery.root.position.set(BATTERY[0], 0, BATTERY[1]);
-  const label = createLabel(t.world.solar);
+  const label = createLabel(t.world.solar, undefined, "panel");
   label.position.set(SOLAR_FIELD.x, 3.4, SOLAR_FIELD.z - 2.6);
   scene.add(solar.root, battery.root, label);
 

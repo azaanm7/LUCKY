@@ -14,7 +14,10 @@ const SHORT = 0.5; // машинууд хэрэгцээнийхээ 50%-аас �
 
 export function explain(l: HeartLoss): Omit<Finding, "count"> {
   const sol = l.sol;
-  if (l.cause === "radiation") return { sol, steps: [{ id: "outsideFlare" }, { id: "radiationHit" }], tip: "shelter" };
+  if (l.cause === "radiation") {
+    if (l.flare) return { sol, steps: [{ id: "outsideFlare" }, { id: "radiationHit" }], tip: "shelter" };
+    return { sol, steps: [{ id: "doseSlow" }, { id: "radiationHit" }], tip: "lessOutside" }; // тун бага багаар хуримтлагдсан
+  }
   if (l.cause === "suit" && l.drilling) return { sol, steps: [{ id: "drillO2" }, { id: "oneMore" }, { id: "suitEmpty" }], tip: "returnEarly" };
   if (l.cause === "suit") return { sol, steps: [{ id: "tooLong" }, { id: "suitEmpty" }], tip: "refill" };
 
@@ -23,6 +26,10 @@ export function explain(l: HeartLoss): Omit<Finding, "count"> {
   if (l.broken) return { sol, steps: [{ id: "broken", machine }, { id: "noPart" }, end], tip: "fetchPart" };
   if (l.weak) return { sol, steps: [{ id: "weakFix", machine }, { id: "halfPower" }, end], tip: "fullFix" };
   if (!l.machineOn) return { sol, steps: [{ id: "off", machine }, end], tip: "turnBackOn" };
+  // Машинд материал нь дутсан: мөс, үр, шүүлтүүрийн сэлбэг
+  if (l.starved && l.cause === "water") return { sol, steps: [{ id: "noIce" }, end], tip: "ice" };
+  if (l.starved && l.cause === "food") return { sol, steps: [{ id: "noSeed" }, end], tip: "seed" };
+  if (l.starved) return { sol, steps: [{ id: "noFilter" }, { id: "halfPower" }, end], tip: "craftPart" };
   if (l.cause === "oxygen" && l.leak) return { sol, steps: [{ id: "leak" }, { id: "slowPatch" }, end], tip: "patch" };
   if (l.load < SHORT) {
     const chain: Step[] = [{ id: "noPower" }, { id: "slowed", machine }, end];

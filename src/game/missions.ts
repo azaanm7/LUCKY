@@ -49,7 +49,8 @@ export function advise(s: GameState): PlanId {
   if (s.problem === "flare") return damageChance(s.solarFlare) >= ADVISE.strongFlare ? "a" : "b";
   if (s.problem === "storm") return s.res.battery >= ADVISE.studyBattery ? "b" : "a";
   const need = s.problem === "pump" ? "water" : "oxygen"; // шүүлтүүр, нүх хоёул агаарт нөлөөлнө
-  return s.res[need] < ADVISE.lowNeed ? "b" : "a";
+  const noPart = s.parts < 1 && !s.job && s.store.ore < 2; // бүрэн засах сэлбэг ч, хэвлэх хүдэр ч алга
+  return s.res[need] < ADVISE.lowNeed || noPart ? "b" : "a";
 }
 
 export const weaken = (s: GameState, id: MachineId): MachineId[] => [...s.weak.filter((m) => m !== id), id];
@@ -76,9 +77,9 @@ export function progressProblem(s: GameState): GameState {
   return s;
 }
 
-// Агуулахад очвол сэлбэгээ авна. Сэлбэгтэйгээ машины дугуй дээр очвол гараараа суулгаж эхэлнэ (tasks.ts).
+// Урлан дээр бэлэн сэлбэг байвал авна (сэлбэгийг хүдрээр хэвлэдэг). Сэлбэгтэйгээ машины дугуй дээр очвол гараараа суулгаж эхэлнэ (tasks.ts).
 function fetchPart(s: GameState, item: ItemId, target: MachineId): GameState {
-  if (!s.carrying && inZone(s.player, DEPOT)) return { ...s, carrying: item };
+  if (!s.carrying && s.parts > 0 && inZone(s.player, DEPOT)) return { ...s, carrying: item, parts: s.parts - 1 };
   const pad = MACHINES.find((m) => m.id === target)!.pos;
   if (s.carrying === item && dist(s.player, pad) < 2.2) return { ...s, task: { kind: item, done: 0 } };
   return s;

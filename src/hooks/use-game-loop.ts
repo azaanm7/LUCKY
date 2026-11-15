@@ -3,7 +3,7 @@ import { playCues, playModalCue } from "../audio/cues";
 import { startAudio } from "../audio/synth";
 import { createGame, tick } from "../game/engine";
 import { acknowledge, askEarth, choose } from "../game/missions";
-import type { Flare, GameState, Input, PlanId } from "../game/types";
+import type { Flare, GameState, Input, PlanId, RecipeId } from "../game/types";
 import type { Dict } from "../i18n/mn";
 import { createWorld } from "../three/scene";
 
@@ -12,7 +12,7 @@ import { createWorld } from "../three/scene";
 export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>, started: boolean, paused: boolean, t: Dict) {
   const [hud, setHud] = useState<GameState>(() => createGame()); // React-д 10 удаа/сек шинэчилнэ
   const stateRef = useRef<GameState>(hud); // бодит цагийн state (60 удаа/сек)
-  const once = useRef({ action: false, step: false, cancel: false }); // нэг frame-д л хүчинтэй товчнууд
+  const once = useRef<{ action: boolean; step: boolean; cancel: boolean; craft?: RecipeId }>({ action: false, step: false, cancel: false }); // нэг frame-д л хүчинтэй товчнууд
   const keys = useRef(new Set<string>());
   const stick = useRef({ x: 0, z: 0 });
   const startedRef = useRef(started), pausedRef = useRef(paused);
@@ -97,6 +97,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     press: () => { once.current.action = true; },
     step: () => { once.current.step = true; },
     cancel: () => { once.current.cancel = true; },
+    craft: (id: RecipeId) => { once.current.craft = id; },
     setStick: (x: number, z: number) => { stick.current = { x, z }; },
     restart: (live: Flare | null = null) => { startAudio(); apply(() => createGame(undefined, live)); },
     ack: () => apply(acknowledge),

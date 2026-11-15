@@ -8,7 +8,12 @@ const notes = (list: number[], gap = 0.11, type: OscillatorType = "triangle") =>
 // Өмнөх ба шинэ state-ийг харьцуулж, юу болсныг дуугаар мэдэгдэнэ. Тоглоомын логик дуу гаргадаггүй.
 export function playCues(a: GameState, b: GameState) {
   if (b.hearts < a.hearts) tone(240, 0.5, "sawtooth", 0.25, 90); // зүрх алдлаа
-  if (b.collected > a.collected) tone(880, 0.12, "triangle", 0.15, 1320); // мөс
+  if (b.collected > a.collected) tone(880, 0.12, "triangle", 0.15, 1320); // мөс, хүдэр, үр цуглууллаа
+  if (b.pack.length < a.pack.length && b.hearts === a.hearts) notes([440, 554, 659], 0.07); // агуулахад буулгалаа
+  if (!a.job && b.job) tone(300, 0.3, "square", 0.08, 600); // принтер асав
+  if (a.job && !b.job) notes([784, 988, 1175], 0.09, "square"); // хэвлэж дууслаа
+  if (a.crop !== null && a.crop < 1 && b.crop !== null && b.crop >= 1) notes([660, 880], 0.12); // ургац боловсров
+  if (b.res.food - a.res.food > 10) notes([523, 659, 784], 0.1); // ургац хураалаа
   if (b.samples.length > a.samples.length) notes([520, 780]); // дээж авлаа
   if (b.science > a.science) notes([660, 880, 1100, 1320], 0.08); // оноо
   if (MACHINES.some((m) => a.on[m.id] !== b.on[m.id])) tone(420, 0.07, "square", 0.1);

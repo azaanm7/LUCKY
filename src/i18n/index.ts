@@ -37,6 +37,9 @@ export function say(t: Dict, m: Msg): string {
     case "flareHit": case "fixed": return t.msg[m.kind](t.machines[m.machine]);
     case "needOut": return t.msg.needOut(t.needs[m.need]);
     case "banked": case "stormStudy": return t.msg[m.kind](m.points);
+    case "stored": return t.msg.stored(m.n);
+    case "crafted": return t.msg.crafted(t.recipes[m.recipe]);
+    case "harvested": return t.msg.harvested(m.food);
     case "sampled": {
       const site = SITES.find((x) => x.id === m.site)!;
       return t.msg.sampled(site.icon, site.worth);

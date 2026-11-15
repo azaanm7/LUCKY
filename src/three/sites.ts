@@ -32,7 +32,7 @@ export function createSites(scene: THREE.Scene, t: Dict) {
       return mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.55, 8), glowMat(color, 0.9), Math.cos(a) * 1.3, 0.3, Math.sin(a) * 1.3);
     });
     g.add(ring, bit, lamp, beam, ...tubes);
-    const label = createLabel(`${site.icon} ${t.sites[site.id]} ×${site.worth}`, "rgba(20,45,80,.9)");
+    const label = createLabel(`${t.sites[site.id]} ×${site.worth}`, "rgba(20,45,80,.9)", "flask");
     label.position.set(site.x, g.position.y + 4.4, site.z);
     scene.add(g, label);
     return { site, ring, bit, beam, tubes, label };

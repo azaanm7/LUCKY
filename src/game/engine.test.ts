@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DAY_PART, ICE_WATER, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
+import { DAY_PART, PROBLEM_IDS, SHELTER, SOL_SECONDS, WEAK_OUTPUT, WIN_SOL } from "./config";
 import { createGame, tick } from "./engine";
 import { at, game, idle, press, run } from "./testing";
 
@@ -21,12 +21,12 @@ describe("tick", () => {
     expect(firsts.size).toBeGreaterThan(2);
   });
 
-  test("мөс түүвэл ус нэмэгдэнэ", () => {
-    const s = createGame(1);
-    const next = tick(at(s, s.ice[0].x, s.ice[0].z), idle, 0.05);
+  test("материал цуглуулбал үүргэвчинд орно", () => {
+    const s = createGame(1), d = s.deposits[0];
+    const next = tick(at(s, d.x, d.z), idle, 0.05);
     expect(next.collected).toBe(1);
-    expect(next.res.water).toBeGreaterThan(s.res.water + ICE_WATER - 1);
-    expect(next.ice.length).toBe(s.ice.length); // шинэ мөс гарч ирнэ
+    expect(next.pack).toEqual([d.kind]);
+    expect(next.deposits.length).toBe(s.deposits.length); // өөр газар шинээр гарч ирнэ
   });
 
   test("машины дэвсгэр дээр товч дарвал асаана / унтраана", () => {
@@ -41,10 +41,10 @@ describe("tick", () => {
 describe("сансрын нисэгчийн бие", () => {
   test("дэлбэрэлтийн үед гадаа байвал 1 зүрх алдана, байранд бол үгүй", () => {
     const base = game({ flare: 3 });
-    const hit = run(at(base, 20, 0), 1);
+    const hit = run(at({ ...base, dose: 99 }, 20, 0), 1); // тун бараг дүүрсэн үед гадаа байвал
     expect(hit.hearts).toBe(2);
     expect(hit.losses.map((l) => l.cause)).toEqual(["radiation"]);
-    expect(run(at(base, SHELTER.x, SHELTER.z), 1).hearts).toBe(3);
+    expect(run(at({ ...base, dose: 99 }, SHELTER.x, SHELTER.z), 1).hearts).toBe(3);
   });
 
   test("скафандрын O2 гадаа буурч, байранд цэнэглэгдэнэ", () => {
@@ -116,10 +116,11 @@ describe("баримт ба тэмдэглэл", () => {
 
   test("баримт бүрийг ганц удаа үзүүлнэ", () => {
     const s = createGame(1);
-    const first = tick(at(s, s.ice[0].x, s.ice[0].z), idle, 0.05);
+    const ice = (st: typeof s) => st.deposits.find((d) => d.kind === "ice")!;
+    const first = tick(at(s, ice(s).x, ice(s).z), idle, 0.05);
     expect(first.seen).toContain("ice");
     const quiet = { ...first, toast: null };
-    const second = tick(at(quiet, quiet.ice[0].x, quiet.ice[0].z), idle, 0.05);
+    const second = tick(at(quiet, ice(quiet).x, ice(quiet).z), idle, 0.05);
     expect(second.collected).toBe(2);
     expect(second.toast).toBeNull();
   });

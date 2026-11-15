@@ -12,12 +12,20 @@ const say = (l: HeartLoss) => {
 };
 
 const loss = (over: Partial<HeartLoss>): HeartLoss => ({
-  sol: 3, cause: "oxygen", machineOn: true, broken: false, weak: false, leak: false, drilling: false, load: 1, dust: 0.1, storm: false, night: false, stormSol: 0, ...over,
+  sol: 3, cause: "oxygen", machineOn: true, broken: false, weak: false, leak: false, drilling: false, starved: false, flare: false, load: 1, dust: 0.1, storm: false, night: false, stormSol: 0, ...over,
 });
 
 describe("төгсгөлийн тайлан", () => {
-  test("цацраг: гадаа байсан гэж тайлбарлана", () => {
-    expect(explain(loss({ cause: "radiation" })).steps).toHaveLength(2);
+  test("цацраг: дэлбэрэлтийн үеэр гадаа байсан уу, тун аажим хуримтлагдсан уу", () => {
+    expect(say(loss({ cause: "radiation", flare: true })).steps[0]).toContain("дэлбэрэлтийн үеэр");
+    expect(explain(loss({ cause: "radiation" })).steps[0]).toEqual({ id: "doseSlow" });
+    expect(explain(loss({ cause: "radiation" })).tip).toBe("lessOutside");
+  });
+
+  test("материал дутсан: мөс, үр, шүүлтүүр тус бүр өөрийн тайлбартай", () => {
+    expect(explain(loss({ cause: "water", starved: true })).steps[0]).toEqual({ id: "noIce" });
+    expect(explain(loss({ cause: "food", starved: true })).tip).toBe("seed");
+    expect(explain(loss({ cause: "oxygen", starved: true })).tip).toBe("craftPart");
   });
 
   test("машин унтраалттай байсан бол түүнийг шалтгаан гэнэ", () => {

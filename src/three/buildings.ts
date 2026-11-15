@@ -2,9 +2,11 @@ import * as THREE from "three";
 import { createGlow, glowMat, mat, mesh } from "./models";
 
 // power: 0-1 хэр хүчтэй ажиллаж байна · night: 0-1 хэр харанхуй · t: тоглоомын цаг
+// level: машины материал (шүүлтүүр 0-1 · хайлж буй мөс 0-1 · ургац 0-1, null = тариагүй)
 export interface Building {
   root: THREE.Group;
   run: (power: number, night: number, dt: number, t: number) => void;
+  level: (k: number | null, t: number) => void;
 }
 
 const HULL = "#e4ded3", STEEL = "#8f99a6", DARK = "#4a5160";
@@ -56,8 +58,14 @@ export function createO2(): Building {
   for (let i = 0; i < 3; i++) fan.add(mesh(new THREE.BoxGeometry(1.7, 0.06, 0.3), mat(DARK)).rotateY((i * Math.PI) / 3));
   const halo = createGlow("#7fe0ff", 6, 0);
   halo.position.y = 1.3;
-  g.add(fan, halo);
-  return { root: g, run(power, night, dt) { fan.rotation.y += dt * 8 * power; strip.emissiveIntensity = 0.1 + power * 2; halo.material.opacity = power * (0.1 + night * 0.35); } };
+  const filter = glowMat("#38b764", 1.2); // шүүлтүүрийн гэрэл: ногоон = цэвэр, улаан = бөглөрсөн
+  g.add(fan, halo, mesh(new THREE.BoxGeometry(0.9, 0.5, 0.1), filter, 0, 0.75, 1.22));
+  const clean = new THREE.Color("#38b764"), dirty = new THREE.Color("#b13e53");
+  return {
+    root: g,
+    run(power, night, dt) { fan.rotation.y += dt * 8 * power; strip.emissiveIntensity = 0.1 + power * 2; halo.material.opacity = power * (0.1 + night * 0.35); },
+    level(k, t) { filter.color.copy(dirty).lerp(clean, k ?? 0); filter.emissive.copy(filter.color); filter.emissiveIntensity = !k && Math.sin(t * 8) > 0 ? 0.1 : 1.2; },
+  };
 }
 
 // Ус цэвэршүүлэгч: хоёр цэнхэр сав, хоолой
@@ -73,8 +81,13 @@ export function createRecycler(): Building {
   g.add(mesh(new THREE.TorusGeometry(0.9, 0.12, 6, 12, Math.PI), mat("#c9ced4"), 0, 2.4, 0.1));
   const halo = createGlow("#4aa8ff", 6, 0);
   halo.position.y = 1.4;
-  g.add(halo);
-  return { root: g, run(power, night) { strip.emissiveIntensity = 0.1 + power * 2; halo.material.opacity = power * (0.1 + night * 0.35); } };
+  const ice = mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), glowMat("#bfe9ff", 0.7), 0.95, 2.7, 0.2); // хайлж буй мөс
+  g.add(halo, ice);
+  return {
+    root: g,
+    run(power, night) { strip.emissiveIntensity = 0.1 + power * 2; halo.material.opacity = power * (0.1 + night * 0.35); },
+    level(k) { ice.visible = !!k; ice.scale.setScalar(0.3 + 0.7 * (k ?? 0)); ice.position.y = 2.3 + 0.4 * (k ?? 0); },
+  };
 }
 
 // Хүлэмж: тунгалаг бөмбөгөр, ягаан ургамлын гэрэл
@@ -95,14 +108,24 @@ export function createGreenhouse(): Building {
   light.position.y = 2;
   const halo = createGlow("#ff7ad9", 9, 0);
   halo.position.y = 1.4;
-  g.add(glass, plants, light, halo);
+  const fruit = new THREE.Group(); // боловсорсон ургац: улаан жимс
+  plants.children.forEach((p, i) => { if (i % 2 === 0) fruit.add(mesh(new THREE.SphereGeometry(0.16, 6, 4), glowMat("#ef7d57", 0.5), p.position.x + 0.2, 1.2, p.position.z)); });
+  g.add(glass, plants, fruit, light, halo);
+  let grown = 0;
   return {
     root: g,
-    run(power, night, _dt, t) {
+    run(power, night) {
       strip.emissiveIntensity = 0.1 + power * 2.2;
       light.intensity = power * (2 + night * 8);
       halo.material.opacity = power * (0.08 + night * 0.4);
-      plants.scale.setScalar(power > 0 ? 1 + Math.sin(t * 2) * 0.04 : 0.88);
+    },
+    level(k, t) { // үр тариагүй бол хоосон, ургах тусам өндөр болно, боловсорвол жимс гарч дэвхцэнэ
+      grown = k ?? 0;
+      plants.visible = k !== null;
+      plants.scale.set(1, 0.15 + grown * 0.85, 1);
+      plants.position.y = -0.6 * (1 - grown);
+      fruit.visible = grown >= 1;
+      fruit.position.y = grown >= 1 ? Math.abs(Math.sin(t * 4)) * 0.12 : 0;
     },
   };
 }

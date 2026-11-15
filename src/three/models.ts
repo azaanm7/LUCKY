@@ -57,18 +57,6 @@ export function createAstronaut(accent = "#e2693b") {
   return { root, legL, legR, armL, armR, lamp };
 }
 
-export function createIce(): THREE.Group {
-  const g = new THREE.Group();
-  const m = mat("#bfe9ff", { emissive: "#3aa6d9", emissiveIntensity: 0.9, roughness: 0.2, transparent: true, opacity: 0.92 });
-  g.add(mesh(new THREE.OctahedronGeometry(0.55, 0), m, 0, 0.9, 0));
-  g.add(mesh(new THREE.OctahedronGeometry(0.32, 0), m, 0.45, 0.55, 0.2));
-  g.add(mesh(new THREE.OctahedronGeometry(0.28, 0), m, -0.35, 0.5, -0.25));
-  const glow = createGlow("#6fd0ff", 3.4, 0.6);
-  glow.position.y = 0.9;
-  g.add(glow);
-  return g;
-}
-
 export function createPad(): THREE.Mesh {
   const m = new THREE.Mesh(new THREE.RingGeometry(1.3, 1.8, 32), new THREE.MeshBasicMaterial({ color: "#78c17c", transparent: true, opacity: 0.85 }));
   m.rotation.x = -Math.PI / 2;
@@ -76,24 +64,8 @@ export function createPad(): THREE.Mesh {
   return m;
 }
 
-// Эмодзи + бичигтэй хаяг (sprite). Камер руу үргэлж харна.
-export function createLabel(text: string, bg = "rgba(21,17,15,.82)", fg = "#f6eee6"): THREE.Sprite {
-  const c = document.createElement("canvas");
-  c.width = 512; c.height = 128;
-  const ctx = c.getContext("2d")!;
-  ctx.fillStyle = bg;
-  ctx.beginPath(); ctx.roundRect(8, 8, 496, 112, 40); ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,.28)"; ctx.lineWidth = 4; ctx.stroke();
-  ctx.fillStyle = fg; ctx.font = "bold 50px Nunito, Segoe UI, sans-serif";
-  ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText(text, 256, 66);
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true, sizeAttenuation: false, toneMapped: false }));
-  s.scale.set(0.168, 0.042, 1); // дэлгэц дээр үргэлж ижил хэмжээтэй
-  s.renderOrder = 10;
-  return s;
-}
+// Хаяг (createLabel) нь pixel-sprite.ts-д: пиксел дүрс + богино бичиг.
+export { createLabel } from "./pixel-sprite";
 
 // Тоглогчийн дээр гарч зорих газрыг заадаг сум
 export function createGuideArrow(): THREE.Mesh {

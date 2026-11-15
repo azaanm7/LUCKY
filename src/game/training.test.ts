@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { SHELTER, SOLAR_FIELD, TRAINING } from "./config";
+import { DEPOT, SOLAR_FIELD, TRAINING } from "./config";
 import { damageChance, flarePower, strongest } from "./donki";
 import { createGame, tick } from "./engine";
 import { at, game, idle, press, run, step } from "./testing";
@@ -8,9 +8,10 @@ import { nextTraining, trainingTarget } from "./training";
 describe("эхний өдрийн сургалт", () => {
   test("үйлдэл бүрийг хиймэгц тэмдэглэнэ", () => {
     const s = createGame(1);
-    expect(tick(at(s, s.ice[0].x, s.ice[0].z), idle, 0.05).trained).toEqual(["ice"]);
+    expect(tick(at(s, s.deposits[0].x, s.deposits[0].z), idle, 0.05).trained).toEqual(["collect"]);
+    expect(tick(at(game({ pack: ["ice"] }), 0, 0), idle, 0.05).trained).toEqual(["store"]);
+    expect(tick(at(game({ store: { ice: 0, ore: 2, seed: 0 } }), DEPOT.x, DEPOT.z), { ...idle, craft: "part" }, 0.05).trained).toEqual(["craft"]);
     expect(tick(at(s, -9, 2), press, 0.05).trained).toEqual(["switch"]);
-    expect(run(at(game({ suitO2: 50 }), SHELTER.x, SHELTER.z), 0.2).trained).toEqual(["refill"]);
     expect(run(at(game({ samples: [2] }), 0, 0), 0.1).trained).toEqual(["sample"]);
     const wiping = tick(at(game({ dust: 0.6 }), SOLAR_FIELD.x, SOLAR_FIELD.z), press, 0.05);
     expect(tick(wiping, step, 0.05).trained).toEqual(["wipe"]);
@@ -19,18 +20,20 @@ describe("эхний өдрийн сургалт", () => {
   test("нэг алхмыг хоёр удаа тоолохгүй, бүгдийг хийвэл баяр хүргэнэ", () => {
     const all = TRAINING.map((t) => t.id);
     const s = game({ trained: all.slice(1) });
-    const done = tick(at(s, s.ice[0].x, s.ice[0].z), idle, 0.05);
+    const done = tick(at(s, s.deposits[0].x, s.deposits[0].z), idle, 0.05);
     expect(done.trained).toHaveLength(TRAINING.length);
     expect(done.toast?.msg).toEqual({ kind: "trained" });
-    const again = tick(at({ ...done, toast: null }, done.ice[0].x, done.ice[0].z), idle, 0.05);
+    const again = tick(at({ ...done, toast: null, pack: [] }, done.deposits[0].x, done.deposits[0].z), idle, 0.05);
     expect(again.trained).toHaveLength(TRAINING.length);
   });
 
   test("сум дараагийн алхмыг хийх газрыг заана", () => {
     const s = createGame(1);
-    expect(nextTraining(s)?.id).toBe("ice");
-    expect(s.ice).toContain(trainingTarget(s));
-    expect(trainingTarget(game({ trained: ["ice", "switch"] }))).toBe(SOLAR_FIELD);
+    expect(nextTraining(s)?.id).toBe("collect");
+    expect(s.deposits).toContain(trainingTarget(s));
+    expect(trainingTarget(game({ trained: ["collect", "store"], store: { ice: 0, ore: 2, seed: 0 } }))).toBe(DEPOT); // хүдэртэй бол урлан руу
+    expect(trainingTarget(game({ trained: ["collect", "store"], store: { ice: 0, ore: 0, seed: 0 } }))).toMatchObject({ kind: "ore" }); // хүдэргүй бол хүдэр рүү
+    expect(trainingTarget(game({ trained: ["collect", "store", "craft", "switch"] }))).toBe(SOLAR_FIELD);
     expect(trainingTarget(game({ trained: TRAINING.map((t) => t.id) }))).toBeNull();
   });
 });

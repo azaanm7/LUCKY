@@ -16,7 +16,9 @@ Space-themed STEM content for kids usually goes one of two ways: it oversimplifi
 Instead of reading about trade-offs, the player **lives them**:
 
 - Every machine draws from **one power budget** (solar panels plus battery). The panels cannot run all three machines all day and still charge the battery for the night, so the player must **choose** which machines stay on. When power runs short, every machine slows down together.
-- The greenhouse makes food but **uses water**, so growing more food means collecting more ice or running the water recycler.
+- **Nothing is made from nothing.** The player explores the surface and collects three materials: **ice** (melted into water), **ore** (printed into spare parts and upgrades) and **seeds** (from supply crates landed before the crew arrived). The backpack holds six things, so every trip is a choice between survival materials and science samples.
+- Each machine needs a material **and** power: the oxygen maker wears out its dust filter (a printed spare part swaps it), the water recycler makes much more water while it melts ice, and the greenhouse grows a crop from a seed using water. A ripe crop is harvested by hand.
+- The **workshop's 3D printer** turns ore into spare parts, extra solar panels or a bigger suit tank. Printing also draws from the shared power budget.
 - A solar flare forces the player to **drop everything** and run to the shelter.
 - A dust storm cuts solar power, and afterwards the panels must be wiped clean by hand before power returns.
 - Every emergency offers **two plans and no free one**: a careful plan that takes time, or a quick plan with a lasting cost.
@@ -56,29 +58,32 @@ A "Science and sources" page inside the game (start screen and pause menu) lists
 
 ### First-sol training
 
-Sol 1 has no emergency. Instead the prompt line walks the player through five actions, one at a time, with a green arrow pointing to each: collect ice, switch a machine, wipe the panels, refill the suit, and bring back a science sample. Each step ticks off as soon as it is done, in any order, and emergencies always take priority over the training prompt.
+Sol 1 has no emergency. Instead the prompt line walks the player through six actions, shown as a strip of pixel icons, with a green arrow pointing to each: collect a material, bring it home, print something at the workshop, switch a machine, wipe the panels, and bring back a science sample. Each step ticks off as soon as it is done, in any order, and emergencies always take priority over the training prompt.
 
-One need runs all game long: **spacesuit oxygen** drops whenever the astronaut is outside and refills in the shelter, so every trip outside must be planned.
+Two needs run all game long: **spacesuit oxygen** drops whenever the astronaut is outside and refills in the shelter, and a **radiation dose meter** fills slowly outside and fast during a flare (the slow rate is modelled on Curiosity's measured 0.67 millisieverts a day, sped up for play). A full meter costs a heart, so every trip outside must be planned.
 
 ## How to play
 
 | Action | Desktop | Phone |
 | --- | --- | --- |
 | Walk | `WASD` or arrow keys | Joystick (bottom left) |
-| Turn a machine on/off | Stand on its ring, press `Space` / `E` | Tap the big button |
+| Turn a machine on/off, harvest | Stand on its ring, press `Space` / `E` | Tap the big button |
+| Collect ice, ore, seeds | Walk over them; they unload at the shelter or workshop | Same |
+| 3D printer | Stand on the yellow workshop ring, `Space` / `E`, then `1`–`3` | Tap *Workshop*, then a picture |
 | Choose a plan on a card | `1` or `2`, `3` to ask Earth | Tap the plan |
 | Hands-on task | Mouse over or click the targets, or `Space` per step, `Esc` to stop | Swipe or tap the targets |
 | Pause | `P` or the ⏸ button (also pauses when you switch tabs) | ⏸ button |
 
-- 👩‍🚀 **Watch your suit oxygen** outside. Go back into the shelter to refill it.
-- 🚨 **Solve the daily emergency.** Spare parts are in the 📦 depot. A yellow arrow shows where to go.
-- 🧊 **Collect blue ice** to make water.
-- 🫧 🚰 🌱 **Machines** (oxygen maker, water recycler, greenhouse) use battery power.
-- 🧹 **Wipe the solar panels** after dust storms: walk to them, press the button and wipe each cell.
-- 🔬 **Collect science samples** at the marked sites and carry them back to the shelter for stars.
-- ☢️ **Solar flare!** When the sky turns red, run into the shelter before the countdown ends.
-- 🌙 **Night:** no sunlight, no solar power. Machines run on the battery only.
-- ⚡ **Power line:** when it turns red, the machines want more than the sun gives. Turn off the machine whose bar is fullest.
+- **Watch your suit oxygen and radiation meter** outside. Go back into the shelter to refill and to stop the dose.
+- **Explore and collect** ice, ore and seeds (each has a pixel marker floating above it). Carry up to six things home.
+- **Print spare parts** from ore at the workshop. Emergencies and worn filters need them. A yellow arrow shows where to go.
+- **Machines** (oxygen maker, water recycler, greenhouse) use power **and** materials: filters, ice, seeds and water.
+- **Harvest** the greenhouse when the crop is ripe.
+- **Wipe the solar panels** after dust storms: walk to them, press the button and wipe each cell.
+- **Collect science samples** at the marked sites and carry them back to the shelter for stars.
+- **Solar flare!** When the sky turns red, run into the shelter before the countdown ends.
+- **Night:** no sunlight, no solar power. Machines run on the battery only.
+- **Power line:** when it turns red, the machines want more than the sun gives. Turn off the machine whose bar is fullest.
 
 You win by surviving 6 sols. You lose if the crew's 3 hearts run out.
 
@@ -99,22 +104,27 @@ You win by surviving 6 sols. You lose if the crew's 3 hearts run out.
 | Sample collecting | Perseverance collects cores of Martian rock and soil in tubes for a possible return to Earth. [10] |
 | River delta site | Jezero Crater held a lake more than 3.5 billion years ago, fed by a river delta. [10] |
 | Crater site | Curiosity found organic molecules, the chemical building blocks of life, in Gale Crater rocks. [11] |
+| Radiation dose meter | Curiosity's RAD measured an average of 0.67 millisieverts a day on the surface of Mars (2012–2013). [12] |
+| Oxygen maker's dust filter | MOXIE filtered dust out of the Martian air it pulled in. [1] |
+| Greenhouse from seeds | The Veggie garden on the space station grew red romaine lettuce from seeds in 33 days, and the crew ate it in 2015. [13] |
+| 3D printer | In 2021 the space station tested 3D printing with a soil-like (regolith simulant) material. [14] |
+| Seeds in supply crates | Nothing grows wild on Mars, so in the game seeds come from cargo crates landed before the crew. |
 
 Game numbers (consumption and production rates) are tuned for play balance and are not real mission values.
 
 ## Game balance
 
-We test balance with bots that play hundreds of games automatically (`bun run balance`, code in `src/game/bots.ts`). The bots follow the prompt line the way a child would: fix each emergency, shelter during flares, refill the suit, clean the panels, collect ice. A "slow player" only moves 40% of the time.
+We test balance with bots that play hundreds of games automatically (`bun run balance`, code in `src/game/bots.ts`). The bots follow the prompt line the way a child would: fix each emergency, shelter during flares, refill the suit, clean the panels, collect materials, print parts and harvest. A "slow player" only moves 40% of the time.
 
 | Strategy | Wins (300 games) | Hearts left | Stars |
 | --- | --- | --- | --- |
 | Stand still, or sit in the shelter all game | 0% | 0 | none |
-| Follow every prompt, but never switch a machine | 78–82% | 1.6–1.7 | 1 |
-| Follow every prompt, water recycler off all game (slow player) | 40% | 0.8 | 1 at best |
-| Manage power; always the careful plan, always the quick plan, or Earth's advice (slow player) | 100% each | 3.0 | 1 |
-| Manage power **and go on expeditions** (fast player) | 100% | 3.0 | 2 stars in 85% of games, 3 stars in 10% |
+| Follow every prompt and collect, but never switch a machine | 61% (fast) / 85% (slow) | 1.2 / 2.2 | 1 |
+| Follow every prompt, water recycler off all game (slow player) | 0% | 0 | none |
+| Manage power; always the careful plan, always the quick plan, or Earth's advice (slow player) | 88–91% | 2.4 | 1 |
+| Manage power **and go on expeditions** (fast player) | 90% | 2.4 | 2 stars in 51% of games |
 
-So a child who reacts usually wins but loses hearts, a child who manages the power budget wins every time, and only a child who takes the risk of expeditions earns more than one star. Neither card plan is the safe one: both win, with different costs. A child who ignores the base reads in the failure report why it failed. `bun test` fails if a change to the numbers breaks this order.
+So a child who reacts usually wins but loses hearts, a child who manages the power budget and keeps the machines supplied wins about nine games in ten, and only a child who takes the risk of expeditions earns more than one star (the third star is left for skilled players). Neither card plan is the safe one: both win, with different costs. A child who ignores the base reads in the failure report why it failed. `bun test` fails if a change to the numbers breaks this order.
 
 ## Sources
 
@@ -131,6 +141,9 @@ The numbers in square brackets in the tables above refer to this list.
 9. [NASA CCMC: DONKI, the Space Weather Database Of Notifications, Knowledge, Information](https://ccmc.gsfc.nasa.gov/tools/DONKI/) (flare records from `https://ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR`)
 10. [NASA: Mars 2020 Perseverance rover](https://science.nasa.gov/mission/mars-2020-perseverance/)
 11. [NASA: Curiosity rover](https://science.nasa.gov/mission/msl-curiosity/)
+12. [NASA: Rover results help human exploration (RAD, 0.67 mSv a day)](https://www.nasa.gov/news-release/nasa-rover-results-include-first-age-measurement-on-mars-and-help-for-human-exploration/)
+13. [NASA: Veggie fact sheet](https://www.nasa.gov/wp-content/uploads/2023/03/veggie-fact-sheet-508.pdf)
+14. [NASA: 3D printing on the space station (Redwire Regolith Print)](https://www.nasa.gov/missions/station/iss-research/3d-printing-saving-weight-and-space-at-launch/)
 
 ## Tech stack
 
@@ -153,7 +166,11 @@ src/
     missions.ts  Emergency cards: two plans, asking Earth, repairs
     problems.ts  Emergency texts, plans and the real stories behind them
     donki.ts     Real solar flare records from NASA DONKI
-    tasks.ts     Hands-on work: wiping panels, fitting parts
+    gather.ts    Collecting ice, ore and seeds; unloading; starting a 3D print
+    machines.ts  The power budget and what each machine makes from its materials
+    radiation.ts Radiation dose outside and during flares
+    messages.ts  Codes for toasts, facts and report steps (text lives in i18n/)
+    tasks.ts     Hands-on work: wiping panels, fitting parts, harvesting
     science.ts   Sample sites, banking samples, stars
     training.ts  First-sol training checklist
     crew.ts      Spacesuit oxygen
@@ -161,7 +178,8 @@ src/
     report.ts    Failure report: why each heart was lost
     bots.ts      Bots that play the game to check balance
     *.test.ts
-  three/     3D rendering only (terrain, buildings, astronaut, sky, science sites, supply ship)
+  three/     3D rendering only (terrain, buildings, deposits, workshop, astronaut, sky, science sites, supply ship)
+  pixel/     Pixel-art icons as 12×12 text grids with one 15-colour palette, drawn to SVG or canvas
   audio/     Sound made in code with the Web Audio API (no audio files)
   hooks/     use-game-loop.ts connects game logic, 3D world and input; use-space-weather.ts fetches live NASA flares
   ui/        React + Tailwind HUD, joystick, menus
@@ -199,7 +217,7 @@ Import the repository on [Vercel](https://vercel.com/new). It detects Vite autom
 ## Use of AI
 
 <!-- Required by NASA Space Apps. Update this from docs/AI_USAGE.md before submitting. -->
-The team designed the game concept, rules, resource system and balance. AI coding assistants helped write parts of the code from our specifications; we reviewed, tested and changed it ourselves. Every AI-assisted change is logged in [docs/AI_USAGE.md](./docs/AI_USAGE.md). No AI-generated images or audio files and no NASA branding are used; the sound effects are simple tones produced by code while the game runs.
+The team designed the game concept, rules, resource system and balance. AI coding assistants helped write parts of the code from our specifications; we reviewed, tested and changed it ourselves. Every AI-assisted change is logged in [docs/AI_USAGE.md](./docs/AI_USAGE.md). No NASA branding is used. The sound effects are simple tones produced by code while the game runs. The pixel-art icons (`src/pixel/`) were drawn as code with AI assistance; the in-game sources page says so, and they are listed in the AI usage log.
 
 ## Team LUCKY
 
