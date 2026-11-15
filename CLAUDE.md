@@ -64,7 +64,8 @@ src/
     sites.ts     Science sites: drill rig, beacon, samples left
     ship.ts      Supply ship that lands when the player wins
   pixel/   pix.ts + sprites-*.ts: every icon as a 12×12 text grid with one shared palette. UI uses <Pix> (ui/pix.tsx), 3D uses pixelTexture().
-  audio/   synth.ts (Web Audio tones, no files) and cues.ts (compares two states and plays sounds).
+  audio/   synth.ts (Web Audio tones, no files), music.ts (background music sequencer: calm by day, sparse at night, tense in storms and flares)
+           and cues.ts (compares two states, plays sounds and sets the music mood).
            speech.ts: read-aloud through the browser's speechSynthesis (only on a 🔊 tap, never auto-play).
   hooks/   use-game-loop.ts: the one place that connects logic, 3D, input and sound.
            use-space-weather.ts: the only network request in the app (live NASA DONKI flares).

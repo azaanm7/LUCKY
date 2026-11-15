@@ -1,6 +1,7 @@
 import { MACHINES } from "../game/config";
 import type { GameState } from "../game/types";
 import { isDay } from "../game/world";
+import { setMood } from "./music";
 import { ambient, tone } from "./synth";
 
 const notes = (list: number[], gap = 0.11, type: OscillatorType = "triangle") => list.forEach((f, i) => tone(f, 0.22, type, 0.18, f, i * gap));
@@ -28,6 +29,7 @@ export function playCues(a: GameState, b: GameState) {
   if (a.status === "playing" && b.status === "won") notes([523, 659, 784, 1047, 1319], 0.14);
   if (a.status === "playing" && b.status === "lost") notes([392, 330, 262, 196], 0.22, "sine");
   ambient(b.storm > 0 ? 1 : 0, isDay(b.time) ? 0 : 1);
+  setMood(b.storm > 0 || b.flareWarn > 0 || b.flare > 0 ? "danger" : isDay(b.time) ? "day" : "night"); // хөгжим тоглоомын байдлыг дагана
 }
 
 // Цонх нээгдэх, хаагдах (tick-ээс гадуур өөрчлөгддөг тул тусад нь)

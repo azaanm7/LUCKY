@@ -198,7 +198,7 @@ src/
     *.test.ts
   three/     3D rendering only (terrain, buildings, deposits, workshop, astronaut, sky, science sites, supply ship)
   pixel/     Pixel-art icons as 12×12 text grids with one 15-colour palette, drawn to SVG or canvas
-  audio/     Sound made in code with the Web Audio API (no audio files)
+  audio/     Sound effects and background music made in code with the Web Audio API (no audio files)
   hooks/     use-game-loop.ts connects game logic, 3D world and input; use-space-weather.ts fetches live NASA flares
   ui/        React + Tailwind HUD, joystick, menus
 scripts/
@@ -237,11 +237,12 @@ The build is a plain static site in `dist/`, so it can also be served from any s
 - [ ] Choose Moon or Mars (14-day lunar night vs. dust storms)
 - [x] Short tutorial for the first sol
 - [x] Sound effects
+- [x] Background music that follows the game (calm by day, quiet at night, tense in storms and flares)
 
 ## Use of AI
 
 <!-- Required by NASA Space Apps. Update this from docs/AI_USAGE.md before submitting. -->
-The team designed the game concept, rules, resource system and balance. AI coding assistants helped write parts of the code from our specifications; we reviewed, tested and changed it ourselves. Every AI-assisted change is logged in [docs/AI_USAGE.md](./docs/AI_USAGE.md). No NASA branding is used. The sound effects are simple tones produced by code while the game runs. The pixel-art icons (`src/pixel/`) were drawn as code with AI assistance; the in-game sources page says so, and they are listed in the AI usage log.
+The team designed the game concept, rules, resource system and balance. AI coding assistants helped write parts of the code from our specifications; we reviewed, tested and changed it ourselves. Every AI-assisted change is logged in [docs/AI_USAGE.md](./docs/AI_USAGE.md). No NASA branding is used. The sound effects and background music are simple tones produced by code while the game runs (the music was written as code with AI assistance; there are no audio files). The pixel-art icons (`src/pixel/`) were drawn as code with AI assistance; the in-game sources page says so, and they are listed in the AI usage log.
 
 ## Team LUCKY
 

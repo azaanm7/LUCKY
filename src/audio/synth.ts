@@ -18,6 +18,8 @@ export function startAudio() {
   master = ctx.createGain();
   master.gain.value = muted ? 0 : VOLUME;
   master.connect(ctx.destination);
+  // Өөр таб руу шилжвэл бүх дуу (хөгжим ч) түр зогсоно
+  document.addEventListener("visibilitychange", () => { if (ctx) void (document.hidden ? ctx.suspend() : ctx.resume()); });
 
   // Салхи: шүүсэн шуугиан. Шуурганы үед чангарна.
   const buffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
@@ -43,6 +45,9 @@ export function startAudio() {
   drone.connect(hum).connect(master);
   drone.start();
 }
+
+// Хөгжим (music.ts) өөрийн нотуудыг master-аар дамжуулна
+export const audioOut = () => (ctx && master ? { ctx, master } : null);
 
 export function setMuted(value: boolean) {
   muted = value;

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playCues, playModalCue } from "../audio/cues";
+import { startMusic } from "../audio/music";
 import { startAudio } from "../audio/synth";
 import { createGame, tick } from "../game/engine";
 import { acknowledge, askEarth, choose } from "../game/missions";
@@ -99,7 +100,7 @@ export function useGameLoop(canvasRef: React.RefObject<HTMLCanvasElement | null>
     cancel: () => { once.current.cancel = true; },
     craft: (id: RecipeId) => { once.current.craft = id; },
     setStick: (x: number, z: number) => { stick.current = { x, z }; },
-    restart: (live: Flare | null = null) => { startAudio(); apply(() => createGame(undefined, live)); },
+    restart: (live: Flare | null = null) => { startAudio(); startMusic(); apply(() => createGame(undefined, live)); },
     ack: () => apply(acknowledge),
     choose: (plan: PlanId) => apply((s) => choose(s, plan)),
     ask: () => apply(askEarth),
