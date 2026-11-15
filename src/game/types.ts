@@ -42,7 +42,7 @@ export interface Vec2 {
 }
 
 export type Need = "oxygen" | "water" | "food";
-export type Cause = Need | "radiation" | "suit";
+export type Cause = Need | "radiation" | "dose" | "suit";
 
 export interface Machine {
   id: MachineId;
@@ -70,12 +70,12 @@ export interface HeartLoss {
   leak: boolean; // хүлэмжээс агаар гоожиж байсан уу
   drilling: boolean; // дээж өрөмдөж байсан уу (скафандрын O2 хурдан буурдаг)
   starved: boolean; // тэр машинд материал дутсан уу (мөсгүй, үргүй, шүүлтүүр бөглөрсөн)
-  flare: boolean; // нарны дэлбэрэлт болж байсан уу
   load: number; // машинууд хүссэн эрчим хүчнийхээ хэдэн хувийг авч байсан 0-1
   dust: number;
   storm: boolean;
   night: boolean;
   stormSol: number; // сүүлийн шуурга хэддүгээр sol-д болсон (0 = болоогүй)
+  flareDose: number; // багийн тунгийн хэдэн оноо нарны дэлбэрэлтээс ирсэн
 }
 
 // Газар дээрх цуглуулах зүйл: мөс, хүдэртэй чулуу, үртэй ачааны хайрцаг
@@ -112,11 +112,9 @@ export interface GameState {
   load: number; // ажиллаж буй машинууд хүссэн эрчим хүчнийхээ хэдэн хувийг авч байна 0-1
   broken: MachineId | null; // эвдэрсэн машин
   weak: MachineId[]; // түр зассан эсвэл цацрагт гэмтсэн: хагас хүчээр ажиллана
-  safeMode: number; // аюулгүй горим дуусах хүртэлх секунд (машинууд унтарна)
   dust: number; // нарны панель дээрх шороо 0-1
   player: Vec2 & { angle: number; moving: boolean };
   suitO2: number; // скафандрын хүчилтөрөгч 0-100
-  dose: number; // хуримтлагдсан цацрагийн тун 0-100 (буурдаггүй, 100 хүрвэл 1 зүрх алдана)
   pack: Material[]; // үүргэвчинд яваа материал (суурьт хүргээгүй)
   store: Record<Material, number>; // суурийн агуулахад байгаа материал
   parts: number; // бэлэн сэлбэг: шүүлтүүр солих, эвдрэл засахад зарна
@@ -145,7 +143,11 @@ export interface GameState {
   stormSol: number; // сүүлийн шуурга эхэлсэн sol (0 = болоогүй)
   flareWarn: number; // дэлбэрэлт эхлэх хүртэлх секунд
   flare: number; // дэлбэрэлт дуусах хүртэлх секунд
-  flareHit: boolean; // энэ дэлбэрэлтийн үеэр "тун өсөж байна" гэж сануулсан уу
+  flareHit: boolean; // энэ дэлбэрэлтэд өртсөн үү
+  shield: boolean; // хоргодох байрны бамбай асаалттай юу (дэлбэрэлтийн картын A төлөвлөгөө)
+  dose: number; // багийн хуримтлагдсан цацрагийн тун 0-100. Хэзээ ч буурахгүй (radiation.ts)
+  flareDose: number; // үүнээс хэд нь нарны дэлбэрэлтээс ирсэн (тайланд хэрэгтэй)
+  doseHit: boolean; // 100-д хүрч зүрх алдсан уу (ганц удаа)
   emptyTimer: number; // нөөц дууссанаас хойш хэдэн секунд
   collected: number;
   trained: TrainingId[]; // сургалтын хийсэн алхмууд

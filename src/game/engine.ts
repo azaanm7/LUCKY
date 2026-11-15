@@ -5,7 +5,7 @@ import { checkEnd, fact, weather } from "./events";
 import { addDeposit, gather } from "./gather";
 import { produce } from "./machines";
 import { progressProblem, startProblem } from "./missions";
-import { irradiate } from "./radiation";
+import { absorb } from "./radiation";
 import { explore } from "./science";
 import { workTask } from "./tasks";
 import { train } from "./training";
@@ -20,15 +20,15 @@ export function createGame(seed = Math.floor(Math.random() * 1e9), live: Flare |
   let s: GameState = {
     status: "playing", time: 0, hearts: HEARTS,
     res: { ...START },
-    on: { o2: true, recycler: true, greenhouse: true }, load: 1, broken: null, weak: [], safeMode: 0,
+    on: { o2: true, recycler: true, greenhouse: true }, load: 1, broken: null, weak: [],
     dust: 0.1, player: { x: 0, z: 6, angle: Math.PI, moving: false },
-    suitO2: 100, dose: 0,
+    suitO2: 100,
     pack: [], store: { ...START_STORE }, parts: START_PARTS, built: [], job: null,
     melt: 0, filter: 1, crop: 0, // эхний ургац аль хэдийн тариастай
     carrying: null, task: null,
     deck, problem: null, plan: null, earthAt: 0, advice: null, solarFlare: live ?? FLARES[Math.floor(flare * FLARES.length)], solved: [], modal: null,
     science: 0, samples: [], drill: 0, siteLeft: { soil: SITE_SAMPLES, delta: SITE_SAMPLES, crater: SITE_SAMPLES },
-    deposits: [], nextDepositId: 0, storm: 0, stormSol: 0, flareWarn: 0, flare: 0, flareHit: false,
+    deposits: [], nextDepositId: 0, storm: 0, stormSol: 0, flareWarn: 0, flare: 0, flareHit: false, shield: false, dose: 0, flareDose: 0, doseHit: false,
     emptyTimer: 0, collected: 0, trained: [], losses: [], seen: ["start"],
     toast: { msg: { kind: "fact", id: "start" }, until: 8 }, seed: afterFlare,
   };
@@ -47,6 +47,7 @@ export function tick(prev: GameState, input: Input, dt: number): GameState {
   const harvest = near === "greenhouse" && s.crop !== null && s.crop >= 1;
   if (input.action && near && !busy && !harvest) s = { ...s, on: { ...s.on, [near]: !s.on[near] } };
   if (near === "o2") s = fact(s, "moxie");
+  if (near === "greenhouse") s = fact(s, "veggie", 10); // NASA OSDR OSD-268: ОУСС дээр ургуулсан салат
 
   // 2) Эрчим хүчний төсөв, гурван машин, 3D принтер, багийн хэрэглээ
   s = produce(s, dt);
@@ -57,11 +58,11 @@ export function tick(prev: GameState, input: Input, dt: number): GameState {
   // 4) Материал цуглуулах, суурьт буулгах, хэвлэх · гараар хийдэг ажил · шинжлэх ухааны экспедиц
   s = explore(workTask(gather(s, input), input), dt);
 
-  // 5) Скафандрын хүчилтөрөгч, цацрагийн тун
-  s = irradiate(updateSuit(s, dt), dt);
+  // 5) Скафандрын хүчилтөрөгч
+  s = updateSuit(s, dt);
 
   // 6) Аюул, асуудал
-  s = weather(s, dt);
+  s = absorb(weather(s, dt), dt); // дэлбэрэлтийн цаг шинэчлэгдсэний дараа тунг тооцно
   s = progressProblem(startProblem(s));
   return train(prev, checkEnd(s, dt));
 }

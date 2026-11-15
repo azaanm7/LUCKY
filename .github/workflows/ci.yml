@@ -1,0 +1,23 @@
+# Шалгалт: push болон pull request бүрд тест, lint, build хийнэ. GitHub дээр коммит, PR бүрийн хажууд ✓ / ✗ гарна.
+# Нийтлэх ажлыг Vercel хийнэ (vercel.json): main-д орсон бүхэн https://lucky-mars.vercel.app руу гарна.
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Test, lint, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun test
+      - run: bun run lint
+      - run: bun run build

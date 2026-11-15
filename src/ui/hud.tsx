@@ -33,7 +33,6 @@ function Power({ s }: { s: GameState }) {
       <Pix name={isDay(s.time) ? "sun" : "moon"} size={14} />+{input}
       <Pix name="gear" size={14} className="ml-1.5" />−{demand}
       {s.load < 1 && <span className="ml-1.5 flex animate-pulse items-center gap-0.5"><Pix name="warn" size={14} />{Math.round(s.load * 100)}%</span>}
-      {s.safeMode > 0 && <span className="ml-1.5 flex items-center gap-0.5 text-amber-200"><Pix name="power" size={14} />{Math.ceil(s.safeMode)}</span>}
     </div>
   );
 }

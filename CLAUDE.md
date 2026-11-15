@@ -37,12 +37,13 @@ src/
     donki.ts     Real NASA DONKI solar flare records. Never edit the numbers.
     gather.ts    Picking up deposits (ice, ore, seed) into state.pack, unloading at shelter/workshop, starting a print job
     machines.ts  produce(): the shared power budget and each machine's material (filter, melting ice, crop) plus the 3D printer job
-    radiation.ts irradiate(): dose outside and during flares; a full meter costs a heart through loseHeart()
     messages.ts  Msg, FactId, Step, TipId codes (re-exported from types.ts)
     tasks.ts     Hands-on work (wipe panels, fit a part, harvest): state.task advances on input.step
     science.ts   Sample sites, drilling, banking samples at the shelter, stars
     training.ts  First-sol training: compares the state before and after a tick and ticks off steps
     crew.ts      Spacesuit oxygen
+    radiation.ts Crew radiation dose 0-100: accumulates and never goes down (like a real dose). Base rate is Curiosity RAD's
+                 0.64 mSv/day, scaled (DOSE in config.ts); flares add by DONKI class; the shelter and the flare card's shield cut it.
     events.ts    Storm and flare timers, facts (once each), lost hearts (loseHeart), win/lose.
     report.ts    Failure report built from GameState.losses.
     bots.ts      Balance bots (idle, explorer, manager).
@@ -64,11 +65,13 @@ src/
     ship.ts      Supply ship that lands when the player wins
   pixel/   pix.ts + sprites-*.ts: every icon as a 12×12 text grid with one shared palette. UI uses <Pix> (ui/pix.tsx), 3D uses pixelTexture().
   audio/   synth.ts (Web Audio tones, no files) and cues.ts (compares two states and plays sounds).
+           speech.ts: read-aloud through the browser's speechSynthesis (only on a 🔊 tap, never auto-play).
   hooks/   use-game-loop.ts: the one place that connects logic, 3D, input and sound.
            use-space-weather.ts: the only network request in the app (live NASA DONKI flares).
+           use-speech.ts: voice available for the current language, speaking state, say/stop (used by ui/read-aloud.tsx).
   ui/      React + Tailwind HUD, joystick, overlays.
   i18n/    Every player-facing string. mn.ts (defines the Dict type) and en.ts (same shape),
-           index.ts (Lang, loadLang/saveLang, say() for Msg, stepText() for report steps), context.ts (useT()).
+           index.ts (Lang, DEFAULT_LANG = "en", loadLang/saveLang, say() for Msg, stepText() for report steps), context.ts (useT()).
 ```
 
 The single most important rule: **logic decides, three.js draws.**
@@ -124,6 +127,12 @@ Space Apps requires teams to describe how AI was used. After any task where you 
 - Small commits with clear messages, e.g. `feat: add meteor event`, `fix: shelter radius`.
 - Do not commit `node_modules`, `dist`, `.env*` or zip files.
 - Do not add AI tools as commit co-authors; commits are made by team members.
+
+## Deploy
+
+- Live at https://lucky-mars.vercel.app (Vercel project `lucky-mars`, linked to this repo). **A push to `main` is a release.**
+- `vercel.json` builds with `bun test && bun run lint && bun run build`: a failing test stops the deploy and the old version stays live. Other branches and PRs get preview links.
+- `.github/workflows/ci.yml` runs the same checks on GitHub for every push and PR. It does not deploy.
 
 ## Gotchas
 

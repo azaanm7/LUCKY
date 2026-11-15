@@ -10,6 +10,7 @@ import { plain } from "../i18n/plain";
 import type { SpriteName } from "../pixel/pix";
 import { ITEM_ICON, LESSON_ICON } from "./icons";
 import { Pix } from "./pix";
+import { ReadAloud } from "./read-aloud";
 
 interface Task {
   icon: SpriteName;
@@ -100,6 +101,7 @@ export function Mission({ s }: { s: GameState }) {
       <Pix name={t.icon} size={24} />
       <span>{plain(t.text)}</span>
       {training && <Lessons s={s} />}
+      <ReadAloud texts={[plain(t.text)]} small className="-my-1 -mr-2" />
     </div>
   );
 }

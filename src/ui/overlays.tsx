@@ -50,6 +50,10 @@ export function EndOverlay({ s, onRestart }: { s: GameState; onRestart: () => vo
         <div className="rounded-2xl bg-panel p-4 text-left text-sm">
           <b>{plain(t.learnedTitle)}</b> {t.learned}
         </div>
+        <div className="rounded-2xl bg-panel p-3 text-left text-sm">
+          <b>{t.dose(Math.round(s.dose))}</b>
+          <p className="text-xs text-orange-100/70">{t.doseSource}</p>
+        </div>
         <p className="text-xs text-orange-100/60">
           {plain(t.donki(flare.date, flare.cls, !!flare.live))}
         </p>

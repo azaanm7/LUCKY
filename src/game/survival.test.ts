@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { CLOGGED_OUTPUT, CROP_SECONDS, DEPOT, DOSE, FILTER_SECONDS, HARVEST_FOOD, MELT_SECONDS, O2_RATE, PACK_MAX, RECIPES, SOL_SECONDS, TASK_STEPS } from "./config";
+import { CLOGGED_OUTPUT, CROP_SECONDS, DEPOT, FILTER_SECONDS, HARVEST_FOOD, MELT_SECONDS, O2_RATE, PACK_MAX, RECIPES, SOL_SECONDS, TASK_STEPS } from "./config";
 import { createGame, tick } from "./engine";
 import { canCraft, packRoom } from "./gather";
 import { at, game, idle, press, run, step } from "./testing";
@@ -113,29 +113,5 @@ describe("урлан: 3D принтер", () => {
     const broken = at(game({ problem: "pump", plan: "a", broken: "recycler", parts: 0 }), DEPOT.x, DEPOT.z);
     expect(tick(broken, idle, 0.05).carrying).toBeNull();
     expect(tick({ ...broken, parts: 1 }, idle, 0.05)).toMatchObject({ carrying: "pump", parts: 0 });
-  });
-});
-
-describe("цацрагийн тун", () => {
-  test("гадаа аажим, дэлбэрэлтийн үед хурдан өснө. Хоргодох байр хамгаална", () => {
-    const calm = run(at(createGame(1), 20, 0), 2), flare = run(at(game({ flare: 3 }), 20, 0), 2);
-    expect(calm.dose).toBeGreaterThan(0);
-    expect(flare.dose).toBeGreaterThan(calm.dose * 10);
-    expect(run(at(game({ flare: 3 }), 0, 0), 2).dose).toBe(0);
-    expect(flare.hearts).toBe(3); // хэсэг зуур өртөхөд зүрх алдахгүй
-  });
-
-  test("тун хязгаарт хүрвэл зүрх алдана, тайланд дэлбэрэлт эсэхийг тэмдэглэнэ", () => {
-    const hit = run(at(game({ flare: 3, dose: DOSE.limit - 1 }), 20, 0), 1);
-    expect(hit.hearts).toBe(2);
-    expect(hit.dose).toBeLessThan(DOSE.limit);
-    expect(hit.losses[0]).toMatchObject({ cause: "radiation", flare: true });
-    expect(run(at(game({ dose: DOSE.limit - 0.01 }), 20, 0), 1).losses[0]).toMatchObject({ cause: "radiation", flare: false });
-  });
-
-  test("хүчтэй дэлбэрэлт (DONKI-ийн зэрэглэл) тунг илүү хурдан өсгөнө", () => {
-    const flare = (cls: string) => ({ date: "", cls, region: 0, link: "" });
-    const dose = (cls: string) => run(at(game({ flare: 3, solarFlare: flare(cls) }), 20, 0), 1).dose;
-    expect(dose("X9.0")).toBeGreaterThan(dose("M3.5") * 1.5);
   });
 });

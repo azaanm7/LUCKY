@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { WIN_SOL } from "../game/config";
 import { useT } from "../i18n/context";
-import { LANGS } from "../i18n/index";
+import { LANGS, weatherLine } from "../i18n/index";
 import type { Lang } from "../i18n/index";
 import { Cockpit } from "./cockpit";
+import { ReadAloud } from "./read-aloud";
 import type { LandingPhase } from "./cockpit";
 import { START_ICONS } from "./icons";
 import { Pix } from "./pix";
@@ -36,7 +37,7 @@ interface LandingProps {
 function LangSwitch({ lang, onLang }: { lang: Lang; onLang: (lang: Lang) => void }) {
   const t = useT().start;
   return (
-    <div role="group" aria-label={t.language} className="flex justify-center gap-1 rounded-full bg-black/40 p-1 text-sm font-extrabold">
+    <div role="group" aria-label={t.language} className="flex flex-1 justify-center gap-1 rounded-full bg-black/40 p-1 text-sm font-extrabold">
       {LANGS.map((l) => (
         <button key={l} onClick={() => onLang(l)} aria-pressed={lang === l}
           className={`rounded-full px-4 py-1.5 active:scale-95 ${lang === l ? "bg-mars text-[#1b0f0a]" : "text-white/75"}`}>
@@ -81,7 +82,10 @@ export function Landing({ lang, onLang, weather, onSources, onLand, onDone }: La
             <p className="text-sm text-orange-100/85 sm:text-base">{t.subtitle(WIN_SOL)}</p>
           </div>
           <div className="grid w-full max-w-sm gap-3 rounded-3xl bg-space/85 p-4 shadow-2xl backdrop-blur">
-            <LangSwitch lang={lang} onLang={onLang} />
+            <div className="flex items-center gap-2">
+              <LangSwitch lang={lang} onLang={onLang} />
+              <ReadAloud texts={[...t.steps.map(([, text]) => text), weatherLine(all, weather)]} />
+            </div>
             <ol className="grid grid-cols-2 gap-1.5 text-center text-xs font-bold">
               {t.steps.map(([n, text], i) => (
                 <li key={n} className="grid justify-items-center gap-1 rounded-xl bg-panel p-2"><Pix name={START_ICONS[i]} size={36} />{text}</li>

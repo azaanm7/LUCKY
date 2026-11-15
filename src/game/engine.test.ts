@@ -41,10 +41,10 @@ describe("tick", () => {
 describe("сансрын нисэгчийн бие", () => {
   test("дэлбэрэлтийн үед гадаа байвал 1 зүрх алдана, байранд бол үгүй", () => {
     const base = game({ flare: 3 });
-    const hit = run(at({ ...base, dose: 99 }, 20, 0), 1); // тун бараг дүүрсэн үед гадаа байвал
+    const hit = run(at(base, 20, 0), 1);
     expect(hit.hearts).toBe(2);
     expect(hit.losses.map((l) => l.cause)).toEqual(["radiation"]);
-    expect(run(at({ ...base, dose: 99 }, SHELTER.x, SHELTER.z), 1).hearts).toBe(3);
+    expect(run(at(base, SHELTER.x, SHELTER.z), 1).hearts).toBe(3);
   });
 
   test("скафандрын O2 гадаа буурч, байранд цэнэглэгдэнэ", () => {
@@ -127,5 +127,9 @@ describe("баримт ба тэмдэглэл", () => {
 
   test("агаар үйлдвэр дээр очиход MOXIE-ийн баримт гарна", () => {
     expect(tick(at(createGame(1), -9, 2), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "moxie" });
+  });
+
+  test("хүлэмж дээр очиход NASA OSDR-ийн Veggie салатын баримт гарна", () => {
+    expect(tick(at(createGame(1), 0, -8), idle, 0.05).toast?.msg).toEqual({ kind: "fact", id: "veggie" });
   });
 });

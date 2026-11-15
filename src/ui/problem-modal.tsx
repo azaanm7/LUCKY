@@ -1,11 +1,13 @@
 import { EARTH_SECONDS_PER_MINUTE, REPAIRS } from "../game/config";
 import { damageChance } from "../game/donki";
 import { PROBLEMS } from "../game/problems";
+import { shelteredFlareDose } from "../game/radiation";
 import type { GameState, PlanId } from "../game/types";
 import { useT } from "../i18n/context";
 import { plain } from "../i18n/plain";
 import { PLAN_ICON, PROBLEM_ICON } from "./icons";
 import { Pix } from "./pix";
+import { ReadAloud } from "./read-aloud";
 
 interface ProblemModalProps {
   s: GameState;
@@ -15,11 +17,13 @@ interface ProblemModalProps {
 }
 
 const BIG = "rounded-2xl bg-mars py-3.5 font-display text-lg text-[#1b0f0a] active:scale-95";
+// B төлөвлөгөөний машин гэмтэх магадлал (зөвхөн дэлбэрэлтийн картад)
+const flareRisk = (s: GameState) => (s.problem === "flare" ? ` (${Math.round(damageChance(s.solarFlare) * 100)}%)` : "");
 
 // Хоёр төлөвлөгөө: аль аль нь үнэтэй. advice = Дэлхийн зөвлөсөн нь.
 function Plans({ s, advice, onChoose }: { s: GameState; advice: PlanId | null; onChoose: (plan: PlanId) => void }) {
   const p = useT().problems[s.problem!];
-  const risk = s.problem === "flare" ? ` (${Math.round(damageChance(s.solarFlare) * 100)}%)` : "";
+  const risk = flareRisk(s);
   return (
     <div className="grid gap-2">
       {(["a", "b"] as const).map((id, i) => (
@@ -48,15 +52,25 @@ export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps)
   const flare = s.solarFlare;
   const title = { brief: [t.emergency, p.title], answer: [t.earthReplied, p.title], debrief: [t.solved, p.badge] }[modal.kind];
   const icon = modal.kind === "brief" ? PROBLEM_ICON[modal.id] : modal.kind === "answer" ? "antenna" : "star";
+  // 🔊 дарахад дэлгэц дээрх дарааллаар уншина
+  const plan = (id: PlanId) => `${plain(p.plans[id].label)}. ${p.plans[id].cost}`; // "(90%)" дангаараа уншихад утгагүй тул орхино
+  const speech = {
+    brief: [p.title, p.what, ...(modal.id === "flare" ? [`${t.donkiLabel(!!flare.live)} ${flare.date} ${flare.cls}`, t.doseInfo(Math.round(s.dose), Math.round(shelteredFlareDose(flare, false)), Math.round(shelteredFlareDose(flare, true)))] : []),
+      plan("a"), plan("b"), `${plain(t.ask)}. ${t.askShort(delay, Math.round(delay * EARTH_SECONDS_PER_MINUTE))}`],
+    answer: [plain(t.earthSays(p.why[s.advice ?? "a"])), s.plan ? t.late : t.adviceHint],
+    debrief: [t.realLife(p.realTitle), p.real],
+  }[modal.kind].map(plain);
   return (
     <div className="absolute inset-0 grid place-items-center overflow-y-auto bg-black/45 p-4">
       <div className="grid w-full max-w-md gap-3 rounded-3xl bg-space/95 p-5 shadow-2xl">
         <div className="flex items-center gap-3">
           <Pix name={icon} size={56} />
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-extrabold tracking-widest text-orange-200/70 uppercase">{title[0]}</p>
             <h2 className="font-display text-xl leading-tight">{title[1]}</h2>
           </div>
+          {/* key: карт солигдох (төлөвлөгөө сонгох, Дэлхийгээс асуух, хаах) бүрд шинээр үүсч, өмнөх уншлага зогсоно */}
+          <ReadAloud key={`${modal.kind}-${modal.id}`} texts={speech} className="self-start" />
         </div>
 
         {modal.kind === "brief" && (
@@ -66,6 +80,12 @@ export function ProblemModal({ s, onChoose, onAsk, onClose }: ProblemModalProps)
               <p className="flex items-center gap-2 rounded-2xl bg-red-900/50 p-2 text-xs">
                 <Pix name="rad" size={24} />
                 <span><b>{t.donkiLabel(!!flare.live)}</b> {flare.date} · <b className="text-base">{flare.cls}</b></span>
+              </p>
+            )}
+            {modal.id === "flare" && ( // бамбайтай, бамбайгүй үед хэр их тун авах вэ
+              <p className="flex items-center gap-2 rounded-2xl bg-lime-900/40 p-2 text-xs">
+                <Pix name="shelter" size={24} />
+                <span>{plain(t.doseInfo(Math.round(s.dose), Math.round(shelteredFlareDose(flare, false)), Math.round(shelteredFlareDose(flare, true))))}</span>
               </p>
             )}
             <Plans s={s} advice={null} onChoose={onChoose} />

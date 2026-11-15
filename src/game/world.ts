@@ -36,7 +36,7 @@ export function sunlight(t: number): number {
 // Нэг эрчим хүчний төсөв: нарнаас орж ирэх ба ажиллаж буй (асаалттай, эвдрээгүй) машинуудын хүсэх хэмжээ (секундэд)
 const panels = (s: GameState) => 1 + PANEL_BOOST * s.built.filter((id) => id === "panel").length; // хэвлэсэн нэмэлт панелиуд
 export const solarInput = (s: GameState) => SOLAR_POWER * panels(s) * sunlight(s.time) * (s.storm > 0 ? STORM_SUN : 1) * (1 - s.dust * DUST_BLOCK);
-export const works = (s: GameState, id: MachineId) => s.on[id] && s.broken !== id && s.safeMode <= 0;
+export const works = (s: GameState, id: MachineId) => s.on[id] && s.broken !== id;
 // Хүлэмжид ургаж буй ургац байхгүй бол (тариагүй эсвэл хураахад бэлэн) эрчим хүч авахгүй
 export const idle = (s: GameState, id: MachineId) => id === "greenhouse" && (s.crop === null || s.crop >= 1);
 export const powerDemand = (s: GameState) => MACHINES.filter((m) => works(s, m.id) && !idle(s, m.id)).length * MACHINE_POWER + (s.job ? CRAFT_POWER : 0);

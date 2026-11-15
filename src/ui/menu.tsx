@@ -11,11 +11,12 @@ const SOURCES: { id: keyof Dict["menu"]["about"]; name: string; url: string }[] 
   { id: "moxie", name: "NASA: Perseverance, MOXIE", url: "https://science.nasa.gov/mission/mars-2020-perseverance/science-instruments/" },
   { id: "perseverance", name: "NASA: Perseverance rover", url: "https://science.nasa.gov/mission/mars-2020-perseverance/" },
   { id: "curiosity", name: "NASA: Curiosity rover", url: "https://science.nasa.gov/mission/msl-curiosity/" },
+  { id: "rad", name: "Hassler et al., Science 2014: Curiosity RAD", url: "https://doi.org/10.1126/science.1244797" },
+  { id: "osdr", name: "NASA OSDR: Veggie lettuce on the ISS (OSD-268)", url: "https://osdr.nasa.gov/bio/repo/data/studies/OSD-268" },
   { id: "opportunity", name: "NASA: Opportunity rover", url: "https://science.nasa.gov/mission/mer-opportunity/" },
   { id: "orion", name: "NASA: Orion radiation plan", url: "https://www.nasa.gov/missions/artemis/orion/scientists-and-engineers-evaluate-orion-radiation-protection-plan/" },
   { id: "delay", name: "NASA NTRS: Communication delay", url: "https://ntrs.nasa.gov/citations/20250000703" },
   { id: "water", name: "Space.com: ISS water recycling", url: "https://www.space.com/astronaut-pee-iss-water-recycling-98-percent-milestone" },
-  { id: "rad", name: "NASA: Curiosity radiation results", url: "https://www.nasa.gov/news-release/nasa-rover-results-include-first-age-measurement-on-mars-and-help-for-human-exploration/" },
   { id: "veggie", name: "NASA: Veggie fact sheet", url: "https://www.nasa.gov/wp-content/uploads/2023/03/veggie-fact-sheet-508.pdf" },
   { id: "print", name: "NASA: 3D printing on the space station", url: "https://www.nasa.gov/missions/station/iss-research/3d-printing-saving-weight-and-space-at-launch/" },
 ];
